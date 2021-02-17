@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"2021_1_Noskool_team/internal/microservices/auth/models"
 	"errors"
 	"github.com/gomodule/redigo/redis"
-	"testWorkWithAuth/internal/microservices/auth/models"
 )
 
 type SessionsRepository struct {

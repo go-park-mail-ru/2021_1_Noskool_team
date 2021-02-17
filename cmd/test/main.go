@@ -1,10 +1,10 @@
 package main
 
 import (
+	"2021_1_Noskool_team/internal/microservices/auth/delivery/http"
+	"2021_1_Noskool_team/internal/microservices/auth/usecase"
+	"2021_1_Noskool_team/internal/pkg/server"
 	"fmt"
-	"testWorkWithAuth/internal/microservices/auth/delivery/http"
-	"testWorkWithAuth/internal/microservices/auth/usecase"
-	"testWorkWithAuth/internal/pkg/server"
 )
 
 func main() {

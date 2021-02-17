@@ -1,6 +1,6 @@
 package auth
 
-import "testWorkWithAuth/internal/microservices/auth/models"
+import "2021_1_Noskool_team/internal/microservices/auth/models"
 
 type Repository interface {
 	CreateSession(*models.Sessions) (*models.Sessions, error)

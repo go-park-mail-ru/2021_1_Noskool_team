@@ -1,12 +1,12 @@
 package http
 
 import (
+	"2021_1_Noskool_team/internal/microservices/auth"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
-	"testWorkWithAuth/internal/microservices/auth"
 	"time"
 )
 

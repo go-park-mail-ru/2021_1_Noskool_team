@@ -1,10 +1,10 @@
 package usecase
 
 import (
+	"2021_1_Noskool_team/internal/microservices/auth"
+	"2021_1_Noskool_team/internal/microservices/auth/models"
+	"2021_1_Noskool_team/internal/microservices/auth/repository"
 	"fmt"
-	"testWorkWithAuth/internal/microservices/auth"
-	"testWorkWithAuth/internal/microservices/auth/models"
-	"testWorkWithAuth/internal/microservices/auth/repository"
 )
 
 type SessionsUsecase struct {
