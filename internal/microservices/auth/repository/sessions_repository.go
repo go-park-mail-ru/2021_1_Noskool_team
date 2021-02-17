@@ -3,6 +3,7 @@ package repository
 import (
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	"errors"
+	"fmt"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -19,6 +20,7 @@ func NewSessionRepository(redisURL string) *SessionsRepository {
 func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*models.Sessions, error) {
 	result, err := redis.String(sessionRep.con.Do("SET", session.UserID, session.UserID,
 		"EX", session.Expiration))
+	fmt.Println(result)
 	if result != "OK" {
 		return session, errors.New("status not OK")
 	}
@@ -26,12 +28,13 @@ func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*
 }
 
 func (sessionRep *SessionsRepository) CheckSession(session *models.Sessions) (*models.Sessions, error) {
-	userID, err := redis.Int(sessionRep.con.Do("GET", session.UserID))
-	session.UserID = userID
-	return  session, err
+	result, err := redis.String(sessionRep.con.Do("GET", session.UserID))
+	fmt.Println(result)
+	return session, err
 }
 
 func (sessionRep *SessionsRepository) DeleteSession(session *models.Sessions) error {
-	_, err := redis.Int(sessionRep.con.Do("DEL", session.UserID))
+	result, err := redis.Int(sessionRep.con.Do("DEL", session.UserID))
+	fmt.Println(result)
 	return err
 }

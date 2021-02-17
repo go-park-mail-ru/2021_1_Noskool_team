@@ -1,6 +1,6 @@
 package models
 
 type Sessions struct {
-	UserID  int
+	UserID     string
 	Expiration int
 }

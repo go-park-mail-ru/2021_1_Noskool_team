@@ -17,7 +17,7 @@ func NewSessionsUsecase() SessionsUsecase {
 	}
 }
 
-func (usecase *SessionsUsecase) CheckSession(userID int) (*models.Sessions, error) {
+func (usecase *SessionsUsecase) CheckSession(userID string) (*models.Sessions, error) {
 	session := &models.Sessions{
 		UserID:     userID,
 		Expiration: 5,
@@ -26,14 +26,14 @@ func (usecase *SessionsUsecase) CheckSession(userID int) (*models.Sessions, erro
 	session, err := usecase.sessionsRepo.CheckSession(session)
 	if err != nil {
 		fmt.Println(err)
-		session.UserID = -1
+		session.UserID = "-1"
 		return session, err
 	}
 
 	return session, nil
 }
 
-func (usecase *SessionsUsecase) DeleteSession(userID int) error {
+func (usecase *SessionsUsecase) DeleteSession(userID string) error {
 	session := &models.Sessions{
 		UserID:     userID,
 		Expiration: 5,
@@ -48,7 +48,7 @@ func (usecase *SessionsUsecase) DeleteSession(userID int) error {
 	return nil
 }
 
-func (usecase *SessionsUsecase) CreateSession(userID int) (*models.Sessions, error) {
+func (usecase *SessionsUsecase) CreateSession(userID string) (*models.Sessions, error) {
 	session := &models.Sessions{
 		UserID:     userID,
 		Expiration: 5,
@@ -57,7 +57,7 @@ func (usecase *SessionsUsecase) CreateSession(userID int) (*models.Sessions, err
 	session, err := usecase.sessionsRepo.CreateSession(session)
 	if err != nil {
 		fmt.Println(err)
-		session.UserID = -1
+		session.UserID = "-1"
 		return session, err
 	}
 

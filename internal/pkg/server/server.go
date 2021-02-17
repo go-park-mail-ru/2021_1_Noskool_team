@@ -4,12 +4,12 @@ import "net/http"
 
 type Server struct {
 	handler Handler
-	config Config
+	config  Config
 }
 
 func NewServer(config Config, handler Handler) (*Server, error) {
 	serv := &Server{
-		config: config,
+		config:  config,
 		handler: handler,
 	}
 
@@ -24,5 +24,3 @@ func Start(config Config, handler Handler) error {
 
 	return http.ListenAndServe(":8080", serv.handler)
 }
-
-

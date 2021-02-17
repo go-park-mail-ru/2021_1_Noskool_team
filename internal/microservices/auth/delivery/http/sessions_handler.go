@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -34,7 +33,7 @@ func NewSessionHandler(usecase auth.Usecase) *SessionsHandler {
 
 func (handler *SessionsHandler) CreateSession(w http.ResponseWriter, r *http.Request) {
 
-	userID, _ := strconv.Atoi(r.FormValue("user_id"))
+	userID := r.FormValue("user_id")
 
 	session, err := handler.sessionsUsecase.CreateSession(userID)
 	if err != nil {
@@ -42,22 +41,54 @@ func (handler *SessionsHandler) CreateSession(w http.ResponseWriter, r *http.Req
 	}
 
 	cookie := &http.Cookie{
-		Name: "session_id",
-		Value: strconv.Itoa(session.UserID),
+		Name:    "session_id",
+		Value:   session.UserID,
 		Expires: time.Now().Add(5 * time.Hour),
 	}
 
 	http.SetCookie(w, cookie)
 
-	w.Write([]byte(strconv.Itoa(session.UserID)))
+	w.Write([]byte(session.UserID))
 }
 
 func (handler *SessionsHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("DeleteSession"))
+	session, err := r.Cookie("session_id")
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//sessionID, _ := strconv.Atoi(session.Value)
+
+	err = handler.sessionsUsecase.DeleteSession(session.Value)
+	if err != nil {
+		fmt.Println(err)
+		w.Write([]byte("some error happened(("))
+	} else {
+		w.Write([]byte("cookie with id = " + session.Value + " was deleted"))
+
+		session.Expires = time.Now().AddDate(0, 0, -5)
+		http.SetCookie(w, session)
+	}
 }
 
 func (handler *SessionsHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("CheckSession"))
+	session, err := r.Cookie("session_id")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//sessionID, _ := strconv.Atoi(session.Value)
+
+	sess, err := handler.sessionsUsecase.CheckSession(session.Value)
+	if err == nil && sess.UserID == session.Value {
+		w.Write([]byte("Куку есть и id у нее = " + sess.UserID))
+	} else {
+		fmt.Println(err)
+		w.Write([]byte("Куки нет"))
+	}
 }
 
 func (handler *SessionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
