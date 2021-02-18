@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+// protoc --go_out=plugins=grpc:. *.proto
+
+package auth;
+
+message UserID {
+  int32 ID = 1;
+}
+
+message Result {
+  UserID ID = 1;
+  string status = 2;
+}
+
+service AuthChecker {
+  rpc Create (UserID) returns (Result) {}
+  rpc Check (UserID) returns (Result) {}
+  rpc Delete (UserID) returns (Result) {}
+}
+
