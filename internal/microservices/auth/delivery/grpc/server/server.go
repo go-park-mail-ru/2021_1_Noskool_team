@@ -24,7 +24,7 @@ func NewSessionsServerGRPC(gServer *grpc.Server, sesUsecase auth.Usecase) {
 	reflection.Register(gServer)
 }
 
-func StartAuthGRPCServer(sesUsecase auth.Usecase, url string) {
+func StartSessionsGRPCServer(sesUsecase auth.Usecase, url string) {
 	list, err := net.Listen("tcp", url)
 	if err != nil {
 		logrus.Error(err)
