@@ -4,10 +4,12 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth"
 	proto "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/protobuff"
 	"context"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"strconv"
 )
 
 type server struct {
@@ -15,7 +17,7 @@ type server struct {
 }
 
 func NewSessionsServerGRPC(gServer *grpc.Server, sesUsecase auth.Usecase) {
-	serv:= &server{
+	serv := &server{
 		sessionsUsecase: sesUsecase,
 	}
 	proto.RegisterAuthCheckerServer(gServer, serv)
@@ -36,13 +38,56 @@ func StartAuthGRPCServer(sesUsecase auth.Usecase, url string) {
 }
 
 func (s *server) Create(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-	panic("implement me")
+
+	_, err := s.sessionsUsecase.CreateSession(strconv.Itoa(int(id.ID)))
+	if err != nil {
+		fmt.Println(err)
+		result := &proto.Result{
+			ID:     id,
+			Status: err.Error(),
+		}
+		return result, err
+	} else {
+		result := &proto.Result{
+			ID:     id,
+			Status: "OK",
+		}
+		return result, nil
+	}
 }
 
 func (s *server) Check(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-	panic("implement me")
+	_, err := s.sessionsUsecase.CheckSession(strconv.Itoa(int(id.ID)))
+	if err != nil {
+		fmt.Println(err)
+		result := &proto.Result{
+			ID:     id,
+			Status: err.Error(),
+		}
+		return result, err
+	} else {
+		result := &proto.Result{
+			ID:     id,
+			Status: "OK",
+		}
+		return result, nil
+	}
 }
 
 func (s *server) Delete(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-	panic("implement me")
+	err := s.sessionsUsecase.DeleteSession(strconv.Itoa(int(id.ID)))
+	if err != nil {
+		fmt.Println(err)
+		result := &proto.Result{
+			ID:     id,
+			Status: err.Error(),
+		}
+		return result, err
+	} else {
+		result := &proto.Result{
+			ID:     id,
+			Status: "OK",
+		}
+		return result, nil
+	}
 }
