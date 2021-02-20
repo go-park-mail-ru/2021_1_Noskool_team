@@ -54,7 +54,7 @@ func transformIntoResultModel(result *proto.Result) models.Result {
 		return models.Result{}
 	}
 	resultModel := models.Result{
-		ID: int(result.ID.ID),
+		ID:     int(result.ID.ID),
 		Status: result.Status,
 	}
 

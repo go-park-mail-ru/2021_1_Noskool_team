@@ -7,32 +7,36 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
-	"net/http"
 	"google.golang.org/grpc"
+	"net/http"
 	"strconv"
 	"time"
 )
 
 type MusicHandler struct {
-	router       *mux.Router
-	musicUsecase *music.Usecase
-	logger       *logrus.Logger
+	router         *mux.Router
+	musicUsecase   *music.Usecase
+	logger         *logrus.Logger
 	sessionsClient client.AuthCheckerClient
 }
 
 func NewMusicHandler(usecase music.Usecase) *MusicHandler {
-	grpcCon, err := grpc.Dial("127.0.0.1:8081", grpc.WithInsecure(),)
-	fmt.Println(err)
+	grpcCon, err := grpc.Dial("127.0.0.1:8081", grpc.WithInsecure())
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	handler := &MusicHandler{
-		router:       mux.NewRouter(),
-		musicUsecase: &usecase,
-		logger:       logrus.New(),
+		router:         mux.NewRouter(),
+		musicUsecase:   &usecase,
+		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
 
 	handler.router.HandleFunc("/getMusic", handler.GetMusic)
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
+	handler.router.HandleFunc("/deleteSession", handler.DeleteSession)
+	handler.router.HandleFunc("/checkSession", handler.CheckSession)
 	handler.router.HandleFunc("/getMusic", handler.GetMusic)
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("test"))
@@ -41,7 +45,6 @@ func NewMusicHandler(usecase music.Usecase) *MusicHandler {
 }
 
 func (handler *MusicHandler) GetMusic(w http.ResponseWriter, r *http.Request) {
-
 	w.Write([]byte("Music"))
 }
 
@@ -50,6 +53,7 @@ func (handler *MusicHandler) CreateSession(w http.ResponseWriter, r *http.Reques
 	userID, _ := strconv.Atoi(r.FormValue("user_id"))
 
 	session, err := handler.sessionsClient.Create(context.Background(), userID)
+	fmt.Println("Result: = " + session.Status)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -63,6 +67,55 @@ func (handler *MusicHandler) CreateSession(w http.ResponseWriter, r *http.Reques
 	http.SetCookie(w, cookie)
 
 	w.Write([]byte(strconv.Itoa(session.ID)))
+}
+
+func (handler *MusicHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
+
+	sessionID, err := r.Cookie("session_id")
+
+	if err != nil {
+		fmt.Println(err)
+		w.Write([]byte("Куки нет, нужно редиректнуть на авторизацию"))
+		return
+	}
+
+	userID, _ := strconv.Atoi(sessionID.Value)
+	session, err := handler.sessionsClient.Check(context.Background(), userID)
+	fmt.Println("Result: = " + session.Status)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if err == nil && session.ID == userID {
+		w.Write([]byte("Куку есть и id у нее = " + strconv.Itoa(session.ID)))
+	} else {
+		fmt.Println(err)
+		w.Write([]byte("Куки нет"))
+	}
+}
+
+func (handler *MusicHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
+
+	session, err := r.Cookie("session_id")
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	sessionID, _ := strconv.Atoi(session.Value)
+
+	result, err := handler.sessionsClient.Delete(context.Background(), sessionID)
+	fmt.Println("Result: = " + result.Status)
+	if err != nil {
+		fmt.Println(err)
+		w.Write([]byte("some error happened(("))
+	} else {
+		w.Write([]byte("cookie with id = " + session.Value + " was deleted"))
+
+		session.Expires = time.Now().AddDate(0, 0, -5)
+		http.SetCookie(w, session)
+	}
 }
 
 func (handler *MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
