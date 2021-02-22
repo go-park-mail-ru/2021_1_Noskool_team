@@ -88,7 +88,7 @@ func (handler *MusicHandler) CheckSession(w http.ResponseWriter, r *http.Request
 	fmt.Println("Result: = " + session.Status)
 
 	if err == nil && session.ID == userID {
-		w.Write([]byte("Куку есть и id у нее = " + strconv.Itoa(session.ID)))
+		w.Write([]byte("Кука есть и id у нее = " + strconv.Itoa(session.ID)))
 	} else {
 		handler.logger.Errorf("Error in checking session: %v", err)
 		w.Write([]byte("Куки нет"))

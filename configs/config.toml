@@ -1,0 +1,6 @@
+music_server_addr = "127.0.0.1:8080"
+
+session_microservice_addr = "127.0.0.1:8081"
+session_redis_url = "redis://user:@localhost:6379/0"
+
+log_level = "debug"

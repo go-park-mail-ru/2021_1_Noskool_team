@@ -1,13 +1,17 @@
 package server
 
-import "net/http"
+import (
+	"2021_1_Noskool_team/configs"
+	"fmt"
+	"net/http"
+)
 
 type Server struct {
 	handler Handler
-	config  Config
+	config  *configs.Config
 }
 
-func NewServer(config Config, handler Handler) (*Server, error) {
+func NewServer(config *configs.Config, handler Handler) (*Server, error) {
 	serv := &Server{
 		config:  config,
 		handler: handler,
@@ -16,11 +20,11 @@ func NewServer(config Config, handler Handler) (*Server, error) {
 	return serv, nil
 }
 
-func Start(config Config, handler Handler) error {
+func Start(config *configs.Config, handler Handler) error {
 	serv, err := NewServer(config, handler)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
-
-	return http.ListenAndServe(":8080", serv.handler)
+	return http.ListenAndServe(serv.config.MusicServerAddr, serv.handler)
 }

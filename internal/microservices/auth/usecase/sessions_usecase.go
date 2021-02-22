@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/microservices/auth"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	"2021_1_Noskool_team/internal/microservices/auth/repository"
@@ -11,9 +12,9 @@ type SessionsUsecase struct {
 	sessionsRepo auth.Repository
 }
 
-func NewSessionsUsecase() SessionsUsecase {
+func NewSessionsUsecase(config *configs.Config) SessionsUsecase {
 	return SessionsUsecase{
-		sessionsRepo: repository.NewSessionRepository("redis://user:@localhost:6379/0"),
+		sessionsRepo: repository.NewSessionRepository(config.SessionRedisStore),
 	}
 }
 
