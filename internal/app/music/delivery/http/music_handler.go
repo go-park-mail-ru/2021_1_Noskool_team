@@ -1,6 +1,8 @@
 package http
 
 import (
+	"2021_1_Noskool_team/configs"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/music"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"context"
@@ -20,8 +22,8 @@ type MusicHandler struct {
 	sessionsClient client.AuthCheckerClient
 }
 
-func NewMusicHandler(usecase music.Usecase) *MusicHandler {
-	grpcCon, err := grpc.Dial("127.0.0.1:8081", grpc.WithInsecure())
+func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandler {
+	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -37,13 +39,20 @@ func NewMusicHandler(usecase music.Usecase) *MusicHandler {
 		fmt.Println(err)
 	}
 
-	handler.router.HandleFunc("/getMusic", handler.GetMusic)
+	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
+
+	checkAuth := handler.router.PathPrefix("/logged").Subrouter()
+	checkAuth.Use(authMiddleware.CheckSessionMiddleware)
+	checkAuth.HandleFunc("/getMusic", handler.GetMusic)
+	checkAuth.HandleFunc("/deleteSession", handler.DeleteSession)
+
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
-	handler.router.HandleFunc("/deleteSession", handler.DeleteSession)
 	handler.router.HandleFunc("/checkSession", handler.CheckSession)
-	handler.router.HandleFunc("/getMusic", handler.GetMusic)
+	handler.router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("login page"))
+	})
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("test"))
+		w.Write([]byte("main page"))
 	})
 	return handler
 }

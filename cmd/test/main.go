@@ -16,6 +16,7 @@ const (
 )
 
 func main() {
+	fmt.Println("hello")
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
@@ -26,7 +27,7 @@ func main() {
 	go grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
 
 	musicUsecase := usecase.MusicUsecase{}
-	handler := http.NewMusicHandler(musicUsecase)
+	handler := http.NewMusicHandler(config, musicUsecase)
 	err = server.Start(config, handler)
 	if err != nil {
 		fmt.Println("fail start server")
