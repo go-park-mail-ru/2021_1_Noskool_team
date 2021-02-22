@@ -19,7 +19,7 @@ func NewSessionRepository(redisURL string) *SessionsRepository {
 
 func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*models.Sessions, error) {
 	result, err := redis.String(sessionRep.con.Do("SET", session.UserID, session.UserID,
-		"EX", 86400))
+		"EX", session.Expiration))
 	fmt.Println(result)
 	if result != "OK" {
 		return session, errors.New("status not OK")

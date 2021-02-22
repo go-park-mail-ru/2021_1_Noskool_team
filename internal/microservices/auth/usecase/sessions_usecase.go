@@ -8,6 +8,10 @@ import (
 	"fmt"
 )
 
+const (
+	oneDayTime = 86400
+)
+
 type SessionsUsecase struct {
 	sessionsRepo auth.Repository
 }
@@ -21,7 +25,7 @@ func NewSessionsUsecase(config *configs.Config) SessionsUsecase {
 func (usecase *SessionsUsecase) CheckSession(userID string) (*models.Sessions, error) {
 	session := &models.Sessions{
 		UserID:     userID,
-		Expiration: 5,
+		Expiration: oneDayTime,
 	}
 
 	session, err := usecase.sessionsRepo.CheckSession(session)
@@ -37,7 +41,7 @@ func (usecase *SessionsUsecase) CheckSession(userID string) (*models.Sessions, e
 func (usecase *SessionsUsecase) DeleteSession(userID string) error {
 	session := &models.Sessions{
 		UserID:     userID,
-		Expiration: 5,
+		Expiration: oneDayTime,
 	}
 
 	err := usecase.sessionsRepo.DeleteSession(session)
@@ -52,7 +56,7 @@ func (usecase *SessionsUsecase) DeleteSession(userID string) error {
 func (usecase *SessionsUsecase) CreateSession(userID string) (*models.Sessions, error) {
 	session := &models.Sessions{
 		UserID:     userID,
-		Expiration: 5,
+		Expiration: oneDayTime,
 	}
 
 	session, err := usecase.sessionsRepo.CreateSession(session)
