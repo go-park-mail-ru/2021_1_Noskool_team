@@ -34,7 +34,7 @@ func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandle
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
-	err = ConfigLogger(handler)
+	err = ConfigLogger(handler, config)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -62,7 +62,6 @@ func (handler *MusicHandler) GetMusic(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *MusicHandler) CreateSession(w http.ResponseWriter, r *http.Request) {
-
 	userID, _ := strconv.Atoi(r.FormValue("user_id"))
 
 	session, err := handler.sessionsClient.Create(context.Background(), userID)
@@ -83,7 +82,6 @@ func (handler *MusicHandler) CreateSession(w http.ResponseWriter, r *http.Reques
 }
 
 func (handler *MusicHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
-
 	sessionID, err := r.Cookie("session_id")
 
 	if err != nil {
@@ -105,7 +103,6 @@ func (handler *MusicHandler) CheckSession(w http.ResponseWriter, r *http.Request
 }
 
 func (handler *MusicHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
-
 	session, err := r.Cookie("session_id")
 
 	if err != nil {
@@ -128,13 +125,13 @@ func (handler *MusicHandler) DeleteSession(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func ConfigLogger(handler *MusicHandler) error {
-	//level, err := logrus.ParseLevel(logrus.DebugLevel)
-	//if err != nil {
-	//	return err
-	//}
+func ConfigLogger(handler *MusicHandler, config *configs.Config) error {
+	level, err := logrus.ParseLevel(config.LogLevel)
+	if err != nil {
+		return err
+	}
 
-	handler.logger.SetLevel(logrus.DebugLevel)
+	handler.logger.SetLevel(level)
 	return nil
 }
 

@@ -16,7 +16,6 @@ const (
 )
 
 func main() {
-	fmt.Println("hello")
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
