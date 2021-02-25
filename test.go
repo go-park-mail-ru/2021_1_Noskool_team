@@ -16,9 +16,9 @@ func main() {
 	}
 	musicRep := repository.NewMusicRepository(db)
 
-	track, err := musicRep.GetTrackById(1)
+	musicians, err := musicRep.GetMusiciansByGenres("pop")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(track)
+	fmt.Println(musicians)
 }

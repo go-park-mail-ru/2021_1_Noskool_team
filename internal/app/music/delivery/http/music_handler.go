@@ -4,8 +4,10 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/music"
+	"2021_1_Noskool_team/internal/app/music/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -17,10 +19,12 @@ import (
 
 type MusicHandler struct {
 	router         *mux.Router
-	musicUsecase   *music.Usecase
+	musicUsecase   music.Usecase
 	logger         *logrus.Logger
 	sessionsClient client.AuthCheckerClient
 }
+
+
 
 func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
@@ -30,7 +34,7 @@ func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandle
 
 	handler := &MusicHandler{
 		router:         mux.NewRouter(),
-		musicUsecase:   &usecase,
+		musicUsecase:   usecase,
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
@@ -48,6 +52,7 @@ func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandle
 
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
 	handler.router.HandleFunc("/checkSession", handler.CheckSession)
+	handler.router.HandleFunc("/getMusiciansByGenres", handler.GetMusiciansByGenres)
 	handler.router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("login page"))
 	})
@@ -137,4 +142,27 @@ func ConfigLogger(handler *MusicHandler, config *configs.Config) error {
 
 func (handler *MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler.router.ServeHTTP(w, r)
+}
+
+func (handler *MusicHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
+	genre := r.FormValue("genre")
+	w.Header().Set("Content-Type", "application/json")
+	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)
+	if err != nil {
+		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
+		w.Write(FailedResponse())
+	}
+	response, err := json.Marshal(musicians)
+	if err != nil {
+		handler.logger.Errorf("Error in marshalling json: %v", err)
+		w.Write(FailedResponse())
+	}
+	w.Write(response)
+}
+
+func FailedResponse() []byte {
+	response := models.FailedResponse{}
+	response.ResultStatus = "failed"
+	resp, _ := json.Marshal(response)
+	return resp
 }

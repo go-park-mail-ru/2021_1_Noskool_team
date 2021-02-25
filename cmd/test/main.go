@@ -25,8 +25,8 @@ func main() {
 	sessionsUsecase := sesUsecase.NewSessionsUsecase(config)
 	go grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
 
-	musicUsecase := usecase.MusicUsecase{}
-	handler := http.NewMusicHandler(config, musicUsecase)
+	musicUsecase := usecase.NewSessionsUsecase(config)
+	handler := http.NewMusicHandler(config, &musicUsecase)
 	err = server.Start(config, handler)
 	if err != nil {
 		fmt.Println("fail start server")
