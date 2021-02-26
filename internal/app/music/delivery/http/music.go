@@ -2,8 +2,8 @@ package http
 
 import (
 	"2021_1_Noskool_team/configs"
-	"2021_1_Noskool_team/internal/app/musicans"
-	musicHttp "2021_1_Noskool_team/internal/app/musicans/delivery/http"
+	"2021_1_Noskool_team/internal/app/musicians"
+	musicHttp "2021_1_Noskool_team/internal/app/musicians/delivery/http"
 	"2021_1_Noskool_team/internal/app/tracks"
 	trackHttp "2021_1_Noskool_team/internal/app/tracks/delivery/http"
 	"github.com/gorilla/mux"
@@ -20,7 +20,7 @@ func (handler MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler.router.ServeHTTP(w, r)
 }
 
-func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase, musicUsecase musicans.Usecase) *MusicHandler {
+func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase, musicUsecase musicians.Usecase) *MusicHandler {
 
 	handler := &MusicHandler{
 		router: mux.NewRouter(),

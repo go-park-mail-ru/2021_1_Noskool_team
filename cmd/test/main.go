@@ -3,7 +3,7 @@ package main
 import (
 	"2021_1_Noskool_team/configs"
 	musicHttp "2021_1_Noskool_team/internal/app/music/delivery/http"
-	musicianUsecase "2021_1_Noskool_team/internal/app/musicans/usecase"
+	musicianUsecase "2021_1_Noskool_team/internal/app/musicians/usecase"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
 	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"

@@ -3,8 +3,8 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
-	"2021_1_Noskool_team/internal/app/musicans"
-	"2021_1_Noskool_team/internal/app/musicans/models"
+	"2021_1_Noskool_team/internal/app/musicians"
+	"2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"context"
 	"encoding/json"
@@ -19,12 +19,12 @@ import (
 
 type MusiciansHandler struct {
 	router         *mux.Router
-	musicUsecase   musicans.Usecase
+	musicUsecase   musicians.Usecase
 	logger         *logrus.Logger
 	sessionsClient client.AuthCheckerClient
 }
 
-func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicans.Usecase) *MusiciansHandler {
+func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Usecase) *MusiciansHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)

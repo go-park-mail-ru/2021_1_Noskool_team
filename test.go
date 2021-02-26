@@ -1,7 +1,7 @@
 package main
 
 import (
-	"2021_1_Noskool_team/internal/app/musicans/repository"
+	"2021_1_Noskool_team/internal/app/tracks/repository"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
@@ -14,11 +14,13 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	musicRep := repository.NewMusicRepository(db)
+	tracksRep := repository.NewTracksRepository(db)
 
-	musicians, err := musicRep.GetMusiciansByGenres("pop")
+	tracks, err := tracksRep.GetTracksByTittle("song23")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(musicians)
+	for _, item := range tracks {
+		fmt.Println(*item)
+	}
 }
