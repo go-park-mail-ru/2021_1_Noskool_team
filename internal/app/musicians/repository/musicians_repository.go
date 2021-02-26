@@ -60,4 +60,3 @@ func (musicRep *MusicRepository) GetMusiciansByGenres(genre string) ([]models.Mu
 	}
 	return musicians, nil
 }
-

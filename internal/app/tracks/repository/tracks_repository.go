@@ -21,7 +21,7 @@ func (trackRep *TracksRepository) GetTrackById(trackId int) (*models.Track, erro
 	track := &models.Track{}
 	err := trackRep.con.QueryRow(
 		"SELECT * FROM tracks where track_id = $1", trackId,
-	).Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio,&track.Picture,
+	).Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
 		&track.ReleaseDate)
 	return track, err
 }
@@ -39,10 +39,9 @@ func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*mode
 
 	for rows.Next() {
 		track := &models.Track{}
-		_ = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio,&track.Picture,
+		_ = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
 			&track.ReleaseDate)
 		tracks = append(tracks, track)
 	}
 	return tracks, err
 }
-

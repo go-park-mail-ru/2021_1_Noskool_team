@@ -50,7 +50,7 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
 	handler.router.HandleFunc("/checkSession", handler.CheckSession)
-	handler.router.HandleFunc("/getMusiciansByGenres", handler.GetMusiciansByGenres)
+	handler.router.HandleFunc("/{genre}", handler.GetMusiciansByGenres)
 	handler.router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("login page"))
 	})
@@ -143,7 +143,7 @@ func (handler *MusiciansHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 }
 
 func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
-	genre := r.FormValue("genre")
+	genre := mux.Vars(r)["genre"]
 	w.Header().Set("Content-Type", "application/json")
 	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)
 	if err != nil {
@@ -159,4 +159,3 @@ func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *
 	}
 	w.Write(response)
 }
-

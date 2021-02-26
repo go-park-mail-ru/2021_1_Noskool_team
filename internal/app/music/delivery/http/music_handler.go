@@ -11,9 +11,9 @@ import (
 )
 
 type MusicHandler struct {
-	router        *mux.Router
-	tracksHandler *trackHttp.TracksHandler
-	musicHandler  *musicHttp.MusiciansHandler
+	router          *mux.Router
+	tracksHandler   *trackHttp.TracksHandler
+	musicianHandler *musicHttp.MusiciansHandler
 }
 
 func (handler MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -25,14 +25,12 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase, music
 	handler := &MusicHandler{
 		router: mux.NewRouter(),
 	}
-	musicRouter := handler.router.PathPrefix("/music/").Subrouter()
-	tracksRouter := handler.router.PathPrefix("/tracks/").Subrouter()
-	handler.musicHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
+	musicRouter := handler.router.PathPrefix("/api/v1/musician/").Subrouter()
+	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
+	handler.musicianHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
 	handler.tracksHandler = trackHttp.NewTracksHandler(tracksRouter, config, tracksUsecase)
-	handler.router.Handle("/music/", handler.musicHandler)
-	handler.router.Handle("/tracks/", handler.tracksHandler)
 
-	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main main page"))
 	})
 
