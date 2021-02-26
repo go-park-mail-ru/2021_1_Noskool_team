@@ -2,15 +2,15 @@ package usecase
 
 import (
 	"2021_1_Noskool_team/configs"
-	"2021_1_Noskool_team/internal/app/music"
-	"2021_1_Noskool_team/internal/app/music/models"
-	"2021_1_Noskool_team/internal/app/music/repository"
+	"2021_1_Noskool_team/internal/app/musicans"
+	"2021_1_Noskool_team/internal/app/musicans/models"
+	"2021_1_Noskool_team/internal/app/musicans/repository"
 	"database/sql"
 	"fmt"
 )
 
 type MusicUsecase struct {
-	musicRepo music.Repository
+	musicRepo musicans.Repository
 }
 
 func NewMusicsUsecase(config *configs.Config) MusicUsecase {

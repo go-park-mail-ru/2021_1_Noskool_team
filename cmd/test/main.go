@@ -2,8 +2,8 @@ package main
 
 import (
 	"2021_1_Noskool_team/configs"
-	finalHttp "2021_1_Noskool_team/internal/app/final/delivery/http"
-	musicUsecase "2021_1_Noskool_team/internal/app/music/usecase"
+	musicHttp "2021_1_Noskool_team/internal/app/music/delivery/http"
+	musicianUsecase "2021_1_Noskool_team/internal/app/musicans/usecase"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
 	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
@@ -26,10 +26,9 @@ func main() {
 	sessionsUsecase := sesUsecase.NewSessionsUsecase(config)
 	go grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
 
-	musUsecase := musicUsecase.NewMusicsUsecase(config)
+	musUsecase := musicianUsecase.NewMusicsUsecase(config)
 	trackUse := trackUsecase.NewTracksUsecase(config)
-	//handler := http.NewMusicHandler(config, &musUsecase)
-	handler := finalHttp.NewFinalHandler(config, &trackUse, &musUsecase)
+	handler := musicHttp.NewFinalHandler(config, &trackUse, &musUsecase)
 	err = server.Start(config, handler)
 	if err != nil {
 		fmt.Println("fail start server")

@@ -1,7 +1,7 @@
-package music
+package musicans
 
 import (
-	"2021_1_Noskool_team/internal/app/music/models"
+	"2021_1_Noskool_team/internal/app/musicans/models"
 )
 
 type Repository interface {

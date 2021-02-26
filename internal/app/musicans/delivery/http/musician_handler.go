@@ -3,8 +3,8 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
-	"2021_1_Noskool_team/internal/app/music"
-	"2021_1_Noskool_team/internal/app/music/models"
+	"2021_1_Noskool_team/internal/app/musicans"
+	"2021_1_Noskool_team/internal/app/musicans/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"context"
 	"encoding/json"
@@ -17,20 +17,20 @@ import (
 	"time"
 )
 
-type MusicHandler struct {
+type MusiciansHandler struct {
 	router         *mux.Router
-	musicUsecase   music.Usecase
+	musicUsecase   musicans.Usecase
 	logger         *logrus.Logger
 	sessionsClient client.AuthCheckerClient
 }
 
-func NewMusicHandler(r *mux.Router, config *configs.Config, usecase music.Usecase) *MusicHandler {
+func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicans.Usecase) *MusiciansHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	handler := &MusicHandler{
+	handler := &MusiciansHandler{
 		router:         r,
 		musicUsecase:   usecase,
 		logger:         logrus.New(),
@@ -60,11 +60,11 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase music.Usecas
 	return handler
 }
 
-func (handler *MusicHandler) GetMusic(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) GetMusic(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Music"))
 }
 
-func (handler *MusicHandler) CreateSession(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) CreateSession(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.FormValue("user_id"))
 
 	session, err := handler.sessionsClient.Create(context.Background(), userID)
@@ -84,7 +84,7 @@ func (handler *MusicHandler) CreateSession(w http.ResponseWriter, r *http.Reques
 	w.Write([]byte(strconv.Itoa(session.ID)))
 }
 
-func (handler *MusicHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) CheckSession(w http.ResponseWriter, r *http.Request) {
 	sessionID, err := r.Cookie("session_id")
 
 	if err != nil {
@@ -105,7 +105,7 @@ func (handler *MusicHandler) CheckSession(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (handler *MusicHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
 	session, err := r.Cookie("session_id")
 
 	if err != nil {
@@ -128,7 +128,7 @@ func (handler *MusicHandler) DeleteSession(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func ConfigLogger(handler *MusicHandler, config *configs.Config) error {
+func ConfigLogger(handler *MusiciansHandler, config *configs.Config) error {
 	level, err := logrus.ParseLevel(config.LogLevel)
 	if err != nil {
 		return err
@@ -138,11 +138,11 @@ func ConfigLogger(handler *MusicHandler, config *configs.Config) error {
 	return nil
 }
 
-func (handler *MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler.router.ServeHTTP(w, r)
 }
 
-func (handler *MusicHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
 	genre := r.FormValue("genre")
 	w.Header().Set("Content-Type", "application/json")
 	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)

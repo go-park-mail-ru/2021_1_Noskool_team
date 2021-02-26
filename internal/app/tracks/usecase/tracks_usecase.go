@@ -8,6 +8,5 @@ type TracksUsecase struct {
 }
 
 func NewTracksUsecase(config *configs.Config) TracksUsecase {
-	return TracksUsecase{
-	}
+	return TracksUsecase{}
 }

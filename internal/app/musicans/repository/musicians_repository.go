@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"2021_1_Noskool_team/internal/app/music"
-	"2021_1_Noskool_team/internal/app/music/models"
+	"2021_1_Noskool_team/internal/app/musicans"
+	"2021_1_Noskool_team/internal/app/musicans/models"
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
@@ -12,7 +12,7 @@ type MusicRepository struct {
 	con *sql.DB
 }
 
-func NewMusicRepository(con *sql.DB) music.Repository {
+func NewMusicRepository(con *sql.DB) musicans.Repository {
 	return &MusicRepository{
 		con: con,
 	}
