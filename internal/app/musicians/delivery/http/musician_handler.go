@@ -4,8 +4,8 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
-	"2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	"2021_1_Noskool_team/internal/pkg/server"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -148,21 +148,15 @@ func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *
 	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
-		w.Write(FailedResponse())
+		w.Write(server.FailedResponse())
 		return
 	}
 	response, err := json.Marshal(musicians)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling json: %v", err)
-		w.Write(FailedResponse())
+		w.Write(server.FailedResponse())
 		return
 	}
 	w.Write(response)
 }
 
-func FailedResponse() []byte {
-	response := models.FailedResponse{}
-	response.ResultStatus = "failed"
-	resp, _ := json.Marshal(response)
-	return resp
-}
