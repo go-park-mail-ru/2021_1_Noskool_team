@@ -24,16 +24,14 @@ type MusicHandler struct {
 	sessionsClient client.AuthCheckerClient
 }
 
-
-
-func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandler {
+func NewMusicHandler(r *mux.Router, config *configs.Config, usecase music.Usecase) *MusicHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	handler := &MusicHandler{
-		router:         mux.NewRouter(),
+		router:         r,
 		musicUsecase:   usecase,
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
@@ -57,7 +55,7 @@ func NewMusicHandler(config *configs.Config, usecase music.Usecase) *MusicHandle
 		w.Write([]byte("login page"))
 	})
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main page"))
+		w.Write([]byte("main page of music"))
 	})
 	return handler
 }
@@ -151,11 +149,13 @@ func (handler *MusicHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
 		w.Write(FailedResponse())
+		return
 	}
 	response, err := json.Marshal(musicians)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling json: %v", err)
 		w.Write(FailedResponse())
+		return
 	}
 	w.Write(response)
 }
