@@ -37,10 +37,9 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	if err != nil {
 		fmt.Println(err)
 	}
-	handler.router.HandleFunc("/{track_id:[0-9]+}",
-		handler.GetTrackByIdHandler).Methods("GET")
-	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
 
+	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler).Methods("GET")
+	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
 	handler.router.HandleFunc("/tracks", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("All tracks"))
 	}).Methods("GET")
@@ -65,13 +64,13 @@ func ConfigLogger(handler *TracksHandler, config *configs.Config) error {
 	return nil
 }
 
-func (handler *TracksHandler) GetTrackByIdHandler(w http.ResponseWriter, r *http.Request) {
+func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	trackID, _ := strconv.Atoi(mux.Vars(r)["track_id"])
 
-	track, err := handler.tracksUsecase.GetTrackById(trackID)
-	w.Header().Set("Content-Type", "application/json")
+	track, err := handler.tracksUsecase.GetTrackByID(trackID)
 	if err != nil {
-		handler.logger.Errorf("Error in GetTrackById: %v", err)
+		handler.logger.Errorf("Error in GetTrackByID: %v", err)
 		w.Write(server.FailedResponse())
 		return
 	}
@@ -87,8 +86,9 @@ func (handler *TracksHandler) GetTrackByIdHandler(w http.ResponseWriter, r *http
 func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.Request) {
 	trackTittle := mux.Vars(r)["track_tittle"]
 
-	track, err := handler.tracksUsecase.GetTracksByTittle(trackTittle)
 	w.Header().Set("Content-Type", "application/json")
+
+	track, err := handler.tracksUsecase.GetTracksByTittle(trackTittle)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTracksByTittle: %v", err)
 		w.Write(server.FailedResponse())

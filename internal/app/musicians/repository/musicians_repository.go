@@ -27,7 +27,10 @@ func (musicRep *MusicRepository) GetMusiciansByGenres(genre string) ([]models.Mu
 		fmt.Println(err)
 		return nil, err
 	}
-	rows, err := musicRep.con.Query("SELECT musician_id FROM musicians_to_genres where genre_id = $1", genreID)
+	rows, err := musicRep.con.Query(
+		"SELECT musician_id FROM musicians_to_genres where genre_id = $1",
+		genreID)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -52,10 +55,13 @@ func (musicRep *MusicRepository) GetMusiciansByGenres(genre string) ([]models.Mu
 	}
 	defer musiciansRows.Close()
 	musicians := make([]models.Musician, 0)
+
 	for musiciansRows.Next() {
 		musician := models.Musician{}
 		err = musiciansRows.Scan(&musician.MusicianID, &musician.Name,
 			&musician.Description, &musician.Picture)
+
+		fmt.Println(err)
 		musicians = append(musicians, musician)
 	}
 	return musicians, nil

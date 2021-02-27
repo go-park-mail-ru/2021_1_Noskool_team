@@ -47,6 +47,7 @@ func (usecase *SessionsUsecase) DeleteSession(userID string) error {
 	err := usecase.sessionsRepo.DeleteSession(session)
 	if err != nil {
 		fmt.Println(err)
+
 		return err
 	}
 

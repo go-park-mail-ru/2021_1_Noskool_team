@@ -51,7 +51,7 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
 	handler.router.HandleFunc("/checkSession", handler.CheckSession)
 	handler.router.HandleFunc("/{genre}", handler.GetMusiciansByGenres)
-	handler.router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+	handler.router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("login page"))
 	})
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +69,7 @@ func (handler *MusiciansHandler) CreateSession(w http.ResponseWriter, r *http.Re
 
 	session, err := handler.sessionsClient.Create(context.Background(), userID)
 	fmt.Println("Result: = " + session.Status)
+
 	if err != nil {
 		handler.logger.Errorf("Error in creating session: %v", err)
 	}
@@ -117,6 +118,7 @@ func (handler *MusiciansHandler) DeleteSession(w http.ResponseWriter, r *http.Re
 
 	result, err := handler.sessionsClient.Delete(context.Background(), sessionID)
 	fmt.Println("Result: = " + result.Status)
+
 	if err != nil {
 		handler.logger.Errorf("Error in deleting session: %v", err)
 		w.Write([]byte("some error happened(("))
@@ -143,8 +145,8 @@ func (handler *MusiciansHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 }
 
 func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
-	genre := mux.Vars(r)["genre"]
 	w.Header().Set("Content-Type", "application/json")
+	genre := mux.Vars(r)["genre"]
 	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)

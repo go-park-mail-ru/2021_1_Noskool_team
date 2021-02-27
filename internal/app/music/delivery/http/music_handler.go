@@ -20,8 +20,8 @@ func (handler MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler.router.ServeHTTP(w, r)
 }
 
-func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase, musicUsecase musicians.Usecase) *MusicHandler {
-
+func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
+	musicUsecase musicians.Usecase) *MusicHandler {
 	handler := &MusicHandler{
 		router: mux.NewRouter(),
 	}

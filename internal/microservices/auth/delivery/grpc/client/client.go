@@ -20,7 +20,6 @@ func NewSessionsClient(con *grpc.ClientConn) *SessionsClient {
 }
 
 func (sesClient *SessionsClient) Create(ctx context.Context, id int) (models.Result, error) {
-
 	UserID := &proto.UserID{ID: int32(id)}
 	result, err := sesClient.client.Create(ctx, UserID, grpc.EmptyCallOption{})
 	if err != nil {

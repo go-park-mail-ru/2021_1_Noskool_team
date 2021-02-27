@@ -25,8 +25,8 @@ func NewTracksUsecase(config *configs.Config) TracksUsecase {
 	}
 }
 
-func (usecase *TracksUsecase) GetTrackById(trackId int) (*models.Track, error) {
-	track, err := usecase.trackRep.GetTrackById(trackId)
+func (usecase *TracksUsecase) GetTrackByID(trackID int) (*models.Track, error) {
+	track, err := usecase.trackRep.GetTrackByID(trackID)
 	return track, err
 }
 

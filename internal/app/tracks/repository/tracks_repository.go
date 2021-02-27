@@ -17,12 +17,13 @@ func NewTracksRepository(con *sql.DB) tracks.Repository {
 	}
 }
 
-func (trackRep *TracksRepository) GetTrackById(trackId int) (*models.Track, error) {
+func (trackRep *TracksRepository) GetTrackByID(trackID int) (*models.Track, error) {
 	track := &models.Track{}
 	err := trackRep.con.QueryRow(
-		"SELECT * FROM tracks where track_id = $1", trackId,
+		"SELECT * FROM tracks where track_id = $1", trackID,
 	).Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
 		&track.ReleaseDate)
+
 	return track, err
 }
 
@@ -31,6 +32,7 @@ func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*mode
 		"SELECT * FROM tracks where tittle = $1", trackTittle)
 	if err != nil {
 		fmt.Println(err)
+
 		return nil, err
 	}
 
@@ -41,7 +43,9 @@ func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*mode
 		track := &models.Track{}
 		_ = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
 			&track.ReleaseDate)
+
 		tracks = append(tracks, track)
 	}
+
 	return tracks, err
 }

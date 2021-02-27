@@ -38,7 +38,6 @@ func StartSessionsGRPCServer(sesUsecase auth.Usecase, url string) {
 }
 
 func (s *server) Create(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-
 	_, err := s.sessionsUsecase.CreateSession(strconv.Itoa(int(id.ID)))
 	if err != nil {
 		fmt.Println(err)
@@ -47,13 +46,12 @@ func (s *server) Create(ctx context.Context, id *proto.UserID) (*proto.Result, e
 			Status: err.Error(),
 		}
 		return result, err
-	} else {
-		result := &proto.Result{
-			ID:     id,
-			Status: "OK",
-		}
-		return result, nil
 	}
+	result := &proto.Result{
+		ID:     id,
+		Status: "OK",
+	}
+	return result, nil
 }
 
 func (s *server) Check(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
@@ -65,13 +63,12 @@ func (s *server) Check(ctx context.Context, id *proto.UserID) (*proto.Result, er
 			Status: err.Error(),
 		}
 		return result, err
-	} else {
-		result := &proto.Result{
-			ID:     id,
-			Status: "OK",
-		}
-		return result, nil
 	}
+	result := &proto.Result{
+		ID:     id,
+		Status: "OK",
+	}
+	return result, nil
 }
 
 func (s *server) Delete(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
@@ -83,11 +80,10 @@ func (s *server) Delete(ctx context.Context, id *proto.UserID) (*proto.Result, e
 			Status: err.Error(),
 		}
 		return result, err
-	} else {
-		result := &proto.Result{
-			ID:     id,
-			Status: "OK",
-		}
-		return result, nil
 	}
+	result := &proto.Result{
+		ID:     id,
+		Status: "OK",
+	}
+	return result, nil
 }

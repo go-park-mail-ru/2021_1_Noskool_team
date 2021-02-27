@@ -26,11 +26,11 @@ func NewMusicsUsecase(config *configs.Config) MusicUsecase {
 }
 
 func (usecase *MusicUsecase) GetMusiciansByGenres(genre string) (*[]models.Musician, error) {
-	musicians, err := usecase.musicRepo.GetMusiciansByGenres(genre)
+	mus, err := usecase.musicRepo.GetMusiciansByGenres(genre)
 	if err != nil {
 		return nil, err
 	}
-	return &musicians, nil
+	return &mus, nil
 }
 
 func (usecase *MusicUsecase) GetMusic() {
