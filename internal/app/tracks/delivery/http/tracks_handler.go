@@ -6,7 +6,6 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/server"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -24,7 +23,7 @@ type TracksHandler struct {
 func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usecase) *TracksHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 
 	handler := &TracksHandler{
@@ -35,11 +34,12 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	}
 	err = ConfigLogger(handler, config)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 
 	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler).Methods("GET")
 	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
+	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}", handler.GetTrackByMusicianID).Methods("GET")
 	handler.router.HandleFunc("/tracks", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("All tracks"))
 	}).Methods("GET")
@@ -97,6 +97,28 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 	response, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
+		w.Write(server.FailedResponse())
+		return
+	}
+	w.Write(response)
+}
+
+func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *http.Request) {
+	musicianID, _ := strconv.Atoi(mux.Vars(r)["musician_id"])
+
+	w.Header().Set("Content-Type", "application/json")
+
+	track, err := handler.tracksUsecase.GetTrackByMusicianID(musicianID)
+	if err != nil {
+		handler.logger.Errorf("Error in GetTrackByMusicianID: %v", err)
+		w.WriteHeader(500)
+		w.Write(server.FailedResponse())
+		return
+	}
+	response, err := json.Marshal(track)
+	if err != nil {
+		handler.logger.Errorf("Error in marshalling: %v", err)
+		w.WriteHeader(500)
 		w.Write(server.FailedResponse())
 		return
 	}

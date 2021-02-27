@@ -16,7 +16,7 @@ func main() {
 	}
 	tracksRep := repository.NewTracksRepository(db)
 
-	tracks, err := tracksRep.GetTracksByTittle("song23")
+	tracks, err := tracksRep.GetTrackByMusicianID(2)
 	if err != nil {
 		fmt.Println(err)
 	}

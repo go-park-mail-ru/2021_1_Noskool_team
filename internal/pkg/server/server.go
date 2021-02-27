@@ -4,7 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"encoding/json"
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -25,7 +25,7 @@ func NewServer(config *configs.Config, handler Handler) (*Server, error) {
 func Start(config *configs.Config, handler Handler) error {
 	serv, err := NewServer(config, handler)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		return err
 	}
 	return http.ListenAndServe(serv.config.MusicServerAddr, serv.handler)

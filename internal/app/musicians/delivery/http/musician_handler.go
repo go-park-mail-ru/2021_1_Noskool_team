@@ -27,7 +27,7 @@ type MusiciansHandler struct {
 func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Usecase) *MusiciansHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 
 	handler := &MusiciansHandler{
@@ -38,7 +38,7 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	}
 	err = ConfigLogger(handler, config)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
@@ -47,9 +47,9 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	checkAuth.Use(authMiddleware.CheckSessionMiddleware)
 	checkAuth.HandleFunc("/getMusic", handler.GetMusic)
 	checkAuth.HandleFunc("/deleteSession", handler.DeleteSession)
-
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
 	handler.router.HandleFunc("/checkSession", handler.CheckSession)
+
 	handler.router.HandleFunc("/{genre}", handler.GetMusiciansByGenres)
 	handler.router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("login page"))

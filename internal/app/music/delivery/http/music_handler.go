@@ -2,6 +2,7 @@ package http
 
 import (
 	"2021_1_Noskool_team/configs"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
 	musicHttp "2021_1_Noskool_team/internal/app/musicians/delivery/http"
 	"2021_1_Noskool_team/internal/app/tracks"
@@ -33,6 +34,6 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main main page"))
 	})
-
+	handler.router.Use(middleware.LoggingMiddleware)
 	return handler
 }

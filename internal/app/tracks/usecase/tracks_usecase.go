@@ -34,3 +34,8 @@ func (usecase *TracksUsecase) GetTracksByTittle(trackTittle string) ([]*models.T
 	track, err := usecase.trackRep.GetTracksByTittle(trackTittle)
 	return track, err
 }
+
+func (usecase *TracksUsecase) GetTrackByMusicianID(musicianID int) ([]*models.Track, error) {
+	track, err := usecase.trackRep.GetTrackByMusicianID(musicianID)
+	return track, err
+}
