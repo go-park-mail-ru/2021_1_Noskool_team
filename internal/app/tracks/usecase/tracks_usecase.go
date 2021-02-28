@@ -13,14 +13,14 @@ type TracksUsecase struct {
 	trackRep tracks.Repository
 }
 
-func NewTracksUsecase(config *configs.Config) TracksUsecase {
+func NewTracksUsecase(config *configs.Config) *TracksUsecase {
 	dbCon, err := sql.Open("postgres",
 		config.MusicPostgresBD,
 	)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return TracksUsecase{
+	return &TracksUsecase{
 		trackRep: repository.NewTracksRepository(dbCon),
 	}
 }

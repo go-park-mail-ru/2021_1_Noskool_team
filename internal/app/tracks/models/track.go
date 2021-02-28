@@ -1,7 +1,7 @@
 package models
 
 type Track struct {
-	TrackID     int      `json:"-"`
+	TrackID     int      `json:"track_id"`
 	Tittle      string   `json:"tittle"`
 	Text        string   `json:"text"`
 	Audio       string   `json:"audio"`

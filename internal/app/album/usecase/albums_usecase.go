@@ -3,6 +3,7 @@ package usecase
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	"2021_1_Noskool_team/internal/app/album/models"
 	"2021_1_Noskool_team/internal/app/album/repository"
 	"database/sql"
 	"github.com/sirupsen/logrus"
@@ -23,4 +24,9 @@ func NewAlbumcUsecase(config *configs.Config) *AlbumsUsecase {
 	return &AlbumsUsecase{
 		albumsRep: repository.NewAlbumsRepository(dbCon),
 	}
+}
+
+func (usecase *AlbumsUsecase) GetAlbumByID(albumID int) (*models.Album, error) {
+	track, err := usecase.albumsRep.GetAlbumByID(albumID)
+	return track, err
 }

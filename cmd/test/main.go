@@ -30,7 +30,7 @@ func main() {
 	musUsecase := musicianUsecase.NewMusicsUsecase(config)
 	trackUse := trackUsecase.NewTracksUsecase(config)
 	albumsUse := albumUsecase.NewAlbumcUsecase(config)
-	handler := musicHttp.NewFinalHandler(config, &trackUse, &musUsecase, &albumsUse)
+	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase, albumsUse)
 	err = server.Start(config, handler)
 	if err != nil {
 		fmt.Println("fail start server")

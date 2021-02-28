@@ -4,10 +4,13 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	"2021_1_Noskool_team/internal/pkg/response"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net/http"
+	"strconv"
 )
 
 type AlbumsHandler struct {
@@ -35,6 +38,8 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logrus.Error(err)
 	}
 
+	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByIDHandler)
+
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main of albums"))
 	})
@@ -54,4 +59,23 @@ func ConfigLogger(handler *AlbumsHandler, config *configs.Config) error {
 
 	handler.logger.SetLevel(level)
 	return nil
+}
+
+func (handler *AlbumsHandler) GetAlbumByIDHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	albumID, _ := strconv.Atoi(mux.Vars(r)["album_id"])
+
+	track, err := handler.albumsUsecase.GetAlbumByID(albumID)
+	if err != nil {
+		handler.logger.Errorf("Error in GetAlbumByID: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	resp, err := json.Marshal(track)
+	if err != nil {
+		handler.logger.Errorf("Error in marshalling: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	w.Write(resp)
 }
