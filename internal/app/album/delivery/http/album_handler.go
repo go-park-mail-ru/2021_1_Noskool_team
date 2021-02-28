@@ -38,7 +38,7 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logrus.Error(err)
 	}
 
-	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByIDHandler)
+	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByIDHandler).Methods("GET")
 
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main of albums"))

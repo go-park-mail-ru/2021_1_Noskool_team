@@ -36,3 +36,11 @@ func (usecase *MusicUsecase) GetMusiciansByGenres(genre string) (*[]models.Music
 func (usecase *MusicUsecase) GetMusic() {
 
 }
+
+func (usecase *MusicUsecase) GetMusicianByID(musicianID int) (*models.Musician, error) {
+	mus, err := usecase.musicRepo.GetMusicianByID(musicianID)
+	if err != nil {
+		return nil, err
+	}
+	return mus, nil
+}

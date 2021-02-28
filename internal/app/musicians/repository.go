@@ -6,4 +6,5 @@ import (
 
 type Repository interface {
 	GetMusiciansByGenres(genre string) ([]models.Musician, error)
+	GetMusicianByID(musicianID int) (*models.Musician, error)
 }

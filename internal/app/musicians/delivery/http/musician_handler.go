@@ -53,7 +53,8 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
 	handler.router.HandleFunc("/checkSession", handler.CheckSession)
 
-	handler.router.HandleFunc("/{genre}", handler.GetMusiciansByGenres)
+	handler.router.HandleFunc("/{genre}/", handler.GetMusiciansByGenres)
+	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicByIDHandler)
 	handler.router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("login page"))
 	})
@@ -166,6 +167,25 @@ func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *
 	resp, err := json.Marshal(musicians)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling json: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	w.Write(resp)
+}
+
+func (handler *MusiciansHandler) GetMusicByIDHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	musicianID, _ := strconv.Atoi(mux.Vars(r)["musician_id"])
+
+	track, err := handler.musicUsecase.GetMusicianByID(musicianID)
+	if err != nil {
+		handler.logger.Errorf("Error in GetMusicianByID: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	resp, err := json.Marshal(track)
+	if err != nil {
+		handler.logger.Errorf("Error in marshalling: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}

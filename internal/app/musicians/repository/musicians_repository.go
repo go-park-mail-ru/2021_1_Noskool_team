@@ -8,17 +8,17 @@ import (
 	"github.com/lib/pq"
 )
 
-type MusicRepository struct {
+type MusicianRepository struct {
 	con *sql.DB
 }
 
 func NewMusicRepository(con *sql.DB) musicians.Repository {
-	return &MusicRepository{
+	return &MusicianRepository{
 		con: con,
 	}
 }
 
-func (musicRep *MusicRepository) GetMusiciansByGenres(genre string) ([]models.Musician, error) {
+func (musicRep *MusicianRepository) GetMusiciansByGenres(genre string) ([]models.Musician, error) {
 	var genreID int
 	err := musicRep.con.QueryRow(
 		"SELECT genre_id FROM genres where title = $1", genre,
@@ -65,4 +65,13 @@ func (musicRep *MusicRepository) GetMusiciansByGenres(genre string) ([]models.Mu
 		musicians = append(musicians, musician)
 	}
 	return musicians, nil
+}
+
+func (musicRep *MusicianRepository) GetMusicianByID(musicianID int) (*models.Musician, error) {
+	musician := &models.Musician{}
+	err := musicRep.con.QueryRow(
+		"SELECT * FROM musicians where musician_id = $1", musicianID,
+	).Scan(&musician.MusicianID, &musician.Name, &musician.Description, &musician.Picture)
+
+	return musician, err
 }
