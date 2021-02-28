@@ -19,7 +19,7 @@ func NewSessionMiddleware(grpcClient client.AuthCheckerClient) *SessionsMiddlewa
 	return sessMiddleware
 }
 
-func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handler) http.Handler {
+func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := r.Cookie("session_id")
 

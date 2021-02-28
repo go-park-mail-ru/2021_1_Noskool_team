@@ -15,7 +15,7 @@ type MusicUsecase struct {
 
 func NewMusicsUsecase(config *configs.Config) MusicUsecase {
 	db, err := sql.Open("postgres",
-		"host=localhost port=5432 dbname=music_service sslmode=disable",
+		config.MusicPostgresBD,
 	)
 	if err != nil {
 		fmt.Println(err)

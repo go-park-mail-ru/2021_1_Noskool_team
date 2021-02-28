@@ -4,7 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
-	"2021_1_Noskool_team/internal/pkg/server"
+	"2021_1_Noskool_team/internal/pkg/response"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -37,7 +37,9 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		logrus.Error(err)
 	}
 
-	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler).Methods("GET")
+	//sesHmiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
+
+	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}", handler.GetTrackByMusicianID).Methods("GET")
 	handler.router.HandleFunc("/tracks", func(w http.ResponseWriter, r *http.Request) {
@@ -71,16 +73,16 @@ func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http
 	track, err := handler.tracksUsecase.GetTrackByID(trackID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTrackByID: %v", err)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response, err := json.Marshal(track)
+	resp, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	w.Write(response)
+	w.Write(resp)
 }
 
 func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.Request) {
@@ -91,16 +93,16 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 	track, err := handler.tracksUsecase.GetTracksByTittle(trackTittle)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTracksByTittle: %v", err)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response, err := json.Marshal(track)
+	resp, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	w.Write(response)
+	w.Write(resp)
 }
 
 func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *http.Request) {
@@ -111,16 +113,14 @@ func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *htt
 	track, err := handler.tracksUsecase.GetTrackByMusicianID(musicianID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTrackByMusicianID: %v", err)
-		w.WriteHeader(500)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response, err := json.Marshal(track)
+	res, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.WriteHeader(500)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	w.Write(response)
+	w.Write(res)
 }

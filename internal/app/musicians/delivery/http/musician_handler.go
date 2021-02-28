@@ -5,7 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
-	"2021_1_Noskool_team/internal/pkg/server"
+	"2021_1_Noskool_team/internal/pkg/response"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,6 +15,10 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+)
+
+const (
+	oneDayTime = 86400
 )
 
 type MusiciansHandler struct {
@@ -44,11 +48,10 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
 	checkAuth := handler.router.PathPrefix("/logged").Subrouter()
-	checkAuth.Use(authMiddleware.CheckSessionMiddleware)
-	checkAuth.HandleFunc("/getMusic", handler.GetMusic)
+	checkAuth.HandleFunc("/getMusic", authMiddleware.CheckSessionMiddleware(handler.GetMusic))
 	checkAuth.HandleFunc("/deleteSession", handler.DeleteSession)
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
-	handler.router.HandleFunc("/checkSession", handler.CheckSession)
+	handler.router.HandleFunc("/checkSession", authMiddleware.CheckSessionMiddleware(handler.CheckSession))
 
 	handler.router.HandleFunc("/{genre}", handler.GetMusiciansByGenres)
 	handler.router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
@@ -75,9 +78,10 @@ func (handler *MusiciansHandler) CreateSession(w http.ResponseWriter, r *http.Re
 	}
 
 	cookie := &http.Cookie{
+		Path:    "/",
 		Name:    "session_id",
 		Value:   strconv.Itoa(session.ID),
-		Expires: time.Now().Add(5 * time.Hour),
+		Expires: time.Now().Add(oneDayTime * time.Second),
 	}
 
 	http.SetCookie(w, cookie)
@@ -123,10 +127,10 @@ func (handler *MusiciansHandler) DeleteSession(w http.ResponseWriter, r *http.Re
 		handler.logger.Errorf("Error in deleting session: %v", err)
 		w.Write([]byte("some error happened(("))
 	} else {
-		w.Write([]byte("cookie with id = " + session.Value + " was deleted"))
-
-		session.Expires = time.Now().AddDate(0, 0, -5)
+		session.Expires = time.Now().AddDate(0, 0, -1)
 		http.SetCookie(w, session)
+
+		w.Write([]byte("cookie with id = " + session.Value + " was deleted"))
 	}
 }
 
@@ -150,14 +154,14 @@ func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *
 	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response, err := json.Marshal(musicians)
+	resp, err := json.Marshal(musicians)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling json: %v", err)
-		w.Write(server.FailedResponse())
+		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	w.Write(response)
+	w.Write(resp)
 }

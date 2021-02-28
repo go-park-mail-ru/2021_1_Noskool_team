@@ -5,6 +5,7 @@ type Config struct {
 	SessionMicroserviceAddr string `toml:"session_microservice_addr"`
 	SessionRedisStore       string `toml:"session_redis_url"`
 	LogLevel                string `toml:"log_level"`
+	MusicPostgresBD         string `toml:"music_bd"`
 }
 
 func NewConfig() *Config {
