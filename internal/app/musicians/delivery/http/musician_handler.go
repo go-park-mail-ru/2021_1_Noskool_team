@@ -51,7 +51,7 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	checkAuth.HandleFunc("/getMusic", authMiddleware.CheckSessionMiddleware(handler.GetMusic))
 	checkAuth.HandleFunc("/deleteSession", handler.DeleteSession)
 	handler.router.HandleFunc("/createSession", handler.CreateSession)
-	handler.router.HandleFunc("/checkSession", authMiddleware.CheckSessionMiddleware(handler.CheckSession))
+	handler.router.HandleFunc("/checkSession", handler.CheckSession)
 
 	handler.router.HandleFunc("/{genre}", handler.GetMusiciansByGenres)
 	handler.router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
@@ -112,6 +112,7 @@ func (handler *MusiciansHandler) CheckSession(w http.ResponseWriter, r *http.Req
 
 func (handler *MusiciansHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
 	session, err := r.Cookie("session_id")
+	fmt.Println(session)
 
 	if err != nil {
 		handler.logger.Errorf("Error in parsing cookie: %v", err)
@@ -127,8 +128,13 @@ func (handler *MusiciansHandler) DeleteSession(w http.ResponseWriter, r *http.Re
 		handler.logger.Errorf("Error in deleting session: %v", err)
 		w.Write([]byte("some error happened(("))
 	} else {
-		session.Expires = time.Now().AddDate(0, 0, -1)
-		http.SetCookie(w, session)
+		cookie := &http.Cookie{
+			Path:    "/",
+			Name:    "session_id",
+			Value:   "",
+			Expires: time.Unix(0, 0),
+		}
+		http.SetCookie(w, cookie)
 
 		w.Write([]byte("cookie with id = " + session.Value + " was deleted"))
 	}
