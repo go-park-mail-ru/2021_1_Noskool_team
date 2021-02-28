@@ -28,4 +28,3 @@ func Start(config *configs.Config, handler Handler) error {
 	}
 	return http.ListenAndServe(serv.config.MusicServerAddr, serv.handler)
 }
-

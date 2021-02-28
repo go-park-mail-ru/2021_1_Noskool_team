@@ -2,6 +2,7 @@ package main
 
 import (
 	"2021_1_Noskool_team/configs"
+	albumUsecase "2021_1_Noskool_team/internal/app/album/usecase"
 	musicHttp "2021_1_Noskool_team/internal/app/music/delivery/http"
 	musicianUsecase "2021_1_Noskool_team/internal/app/musicians/usecase"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
@@ -28,7 +29,8 @@ func main() {
 
 	musUsecase := musicianUsecase.NewMusicsUsecase(config)
 	trackUse := trackUsecase.NewTracksUsecase(config)
-	handler := musicHttp.NewFinalHandler(config, &trackUse, &musUsecase)
+	albumsUse := albumUsecase.NewAlbumcUsecase(config)
+	handler := musicHttp.NewFinalHandler(config, &trackUse, &musUsecase, &albumsUse)
 	err = server.Start(config, handler)
 	if err != nil {
 		fmt.Println("fail start server")
