@@ -11,7 +11,7 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		MusicServerAddr:         ":8080",
-		SessionMicroserviceAddr: "127.0.0.1:8081",
+		SessionMicroserviceAddr: ":8081",
 		SessionRedisStore:       "redis://user:@localhost:6379/0",
 		LogLevel:                "debug",
 	}

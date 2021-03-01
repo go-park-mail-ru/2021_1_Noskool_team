@@ -31,8 +31,10 @@ func main() {
 	trackUse := trackUsecase.NewTracksUsecase(config)
 	albumsUse := albumUsecase.NewAlbumcUsecase(config)
 	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase, albumsUse)
+	fmt.Println("Нормально запустились")
 	err = server.Start(config, handler)
 	if err != nil {
 		fmt.Println("fail start server")
 	}
+	fmt.Println("Закончили работу")
 }

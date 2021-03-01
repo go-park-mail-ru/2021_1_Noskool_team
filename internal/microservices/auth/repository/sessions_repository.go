@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
+	"github.com/sirupsen/logrus"
 )
 
 type SessionsRepository struct {
@@ -13,7 +14,10 @@ type SessionsRepository struct {
 
 func NewSessionRepository(redisURL string) *SessionsRepository {
 	rep := &SessionsRepository{}
-	rep.con, _ = redis.DialURL(redisURL)
+	var err error
+	logrus.Info(redisURL)
+	rep.con, err = redis.DialURL(redisURL)
+	logrus.Error(err)
 	return rep
 }
 

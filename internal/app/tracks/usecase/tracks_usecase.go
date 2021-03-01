@@ -6,7 +6,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	"2021_1_Noskool_team/internal/app/tracks/repository"
 	"database/sql"
-	"fmt"
+	"github.com/sirupsen/logrus"
 )
 
 type TracksUsecase struct {
@@ -14,11 +14,13 @@ type TracksUsecase struct {
 }
 
 func NewTracksUsecase(config *configs.Config) *TracksUsecase {
+	logrus.Info(config.MusicPostgresBD)
 	dbCon, err := sql.Open("postgres",
 		config.MusicPostgresBD,
 	)
+	err = dbCon.Ping()
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 	return &TracksUsecase{
 		trackRep: repository.NewTracksRepository(dbCon),
