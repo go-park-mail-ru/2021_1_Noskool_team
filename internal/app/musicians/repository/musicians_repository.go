@@ -4,7 +4,7 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"database/sql"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //goland:noinspection GoLinterLocal
 	"github.com/sirupsen/logrus"
 )
 
