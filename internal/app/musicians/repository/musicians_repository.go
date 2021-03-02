@@ -4,8 +4,8 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"database/sql"
-	"fmt"
-	"github.com/lib/pq"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 type MusicianRepository struct {
@@ -19,39 +19,13 @@ func NewMusicRepository(con *sql.DB) musicians.Repository {
 }
 
 func (musicRep *MusicianRepository) GetMusiciansByGenres(genre string) ([]models.Musician, error) {
-	var genreID int
-	err := musicRep.con.QueryRow(
-		"SELECT genre_id FROM genres where title = $1", genre,
-	).Scan(&genreID)
+	query := `select musicians.* from musicians
+		left join musicians_to_genres as m_g on m_g.musician_id = musicians.musician_id
+		left join genres on genres.genre_id = m_g.genre_id
+		where genres.title = $1`
+	musiciansRows, err := musicRep.con.Query(query, genre)
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	rows, err := musicRep.con.Query(
-		"SELECT musician_id FROM musicians_to_genres where genre_id = $1",
-		genreID)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	defer rows.Close()
-	musiciansIDs := make([]int, 0)
-
-	for rows.Next() {
-		var musID int
-		_ = rows.Scan(&musID)
-		musiciansIDs = append(musiciansIDs, musID)
-	}
-	preperedQuery, err := musicRep.con.Prepare("SELECT * FROM musicians WHERE musician_id = ANY ($1)")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	musiciansRows, err := preperedQuery.Query(pq.Array(musiciansIDs))
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		logrus.Error(err)
 	}
 	defer musiciansRows.Close()
 	musicians := make([]models.Musician, 0)
@@ -61,7 +35,9 @@ func (musicRep *MusicianRepository) GetMusiciansByGenres(genre string) ([]models
 		err = musiciansRows.Scan(&musician.MusicianID, &musician.Name,
 			&musician.Description, &musician.Picture)
 
-		fmt.Println(err)
+		if err != nil {
+			logrus.Error(err)
+		}
 		musicians = append(musicians, musician)
 	}
 	return musicians, nil

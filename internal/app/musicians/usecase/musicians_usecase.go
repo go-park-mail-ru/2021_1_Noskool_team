@@ -6,7 +6,8 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/app/musicians/repository"
 	"database/sql"
-	"fmt"
+	_ "github.com/lib/pq" //goland:noinspection
+	"github.com/sirupsen/logrus"
 )
 
 type MusicUsecase struct {
@@ -18,7 +19,11 @@ func NewMusicsUsecase(config *configs.Config) *MusicUsecase {
 		config.MusicPostgresBD,
 	)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
+	}
+	err = db.Ping()
+	if err != nil {
+		logrus.Error(err)
 	}
 	return &MusicUsecase{
 		musicRepo: repository.NewMusicRepository(db),

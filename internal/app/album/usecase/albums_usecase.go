@@ -20,6 +20,10 @@ func NewAlbumcUsecase(config *configs.Config) *AlbumsUsecase {
 	if err != nil {
 		logrus.Error(err)
 	}
+	err = dbCon.Ping()
+	if err != nil {
+		logrus.Error(err)
+	}
 
 	return &AlbumsUsecase{
 		albumsRep: repository.NewAlbumsRepository(dbCon),

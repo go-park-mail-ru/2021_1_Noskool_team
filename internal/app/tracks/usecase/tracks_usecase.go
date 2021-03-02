@@ -6,6 +6,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	"2021_1_Noskool_team/internal/app/tracks/repository"
 	"database/sql"
+	_ "github.com/lib/pq" //goland:noinspection
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,6 +19,9 @@ func NewTracksUsecase(config *configs.Config) *TracksUsecase {
 	dbCon, err := sql.Open("postgres",
 		config.MusicPostgresBD,
 	)
+	if err != nil {
+		logrus.Error(err)
+	}
 	err = dbCon.Ping()
 	if err != nil {
 		logrus.Error(err)
