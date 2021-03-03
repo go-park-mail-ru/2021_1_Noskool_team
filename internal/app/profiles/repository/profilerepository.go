@@ -1,6 +1,9 @@
 package repository
 
-import "2021_1_Noskool_team/internal/app/profiles/models"
+import (
+	"2021_1_Noskool_team/internal/app/profiles/models"
+	"fmt"
+)
 
 // ProfileRepository ...
 type ProfileRepository struct {
@@ -15,23 +18,39 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 	if err := u.BeforeCreate(); err != nil {
 		return err
 	}
-	return r.db.con.QueryRow("INSERT INTO profiles"+
+	return r.db.con.QueryRow("INSERT INTO Profiles"+
 		"(email, nickname, encrypted_password)"+
 		"VALUES ($1, $2, $3)"+
-		"RETURNING profiles_id",
+		"RETURNING profiles_id;",
 		u.Email,
 		u.Login,
-		u.Encrypted_password).Scan(&u.ProfileID)
+		u.EncryptedPassword).Scan(&u.ProfileID)
 }
 
-// FindByEmail ...
-func (r *ProfileRepository) FindByEmail(email string) (*models.UserProfile, error) {
+// FindByID ...
+func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	if err := r.db.con.QueryRow("SELECT email, nickname, encrypted_password FROM profiles"+
-		"WHERE email = $1", email).Scan(
+	sqlReq := fmt.Sprintf("SELECT email, nickname, encrypted_password FROM Profiles"+
+		" WHERE profiles_id = %s;", id)
+	if err := r.db.con.QueryRow(sqlReq).Scan(
 		&u.Email,
 		&u.Login,
-		&u.Encrypted_password); err != nil {
+		&u.EncryptedPassword); err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+// FindByLogin ...
+func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, error) {
+	u := &models.UserProfile{}
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, encrypted_password FROM Profiles"+
+		" WHERE nickname = '%s';", nickname)
+	if err := r.db.con.QueryRow(sqlReq).Scan(
+		&u.ProfileID,
+		&u.Email,
+		&u.Login,
+		&u.EncryptedPassword); err != nil {
 		return nil, err
 	}
 	return u, nil

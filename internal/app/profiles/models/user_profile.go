@@ -8,11 +8,11 @@ import (
 
 // UserProfile ...
 type UserProfile struct {
-	ProfileID          int    `json:"id"`
-	Email              string `json:"email"`
-	Login              string `json:"login"`
-	Password           string `json:"password,omitempty"`
-	Encrypted_password string `json:"-"`
+	ProfileID         int    `json:"-"`
+	Email             string `json:"email"`
+	Login             string `json:"login"`
+	Password          string `json:"password,omitempty"`
+	EncryptedPassword string `json:"-"`
 }
 
 // Validate ....
@@ -21,7 +21,7 @@ func (u *UserProfile) Validate() error {
 		u,
 		validation.Field(&u.Email, validation.Required, is.Email),
 		validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
-		validation.Field(&u.Password, validation.By(requiredIF(u.Encrypted_password == "")), validation.Length(6, 32)),
+		validation.Field(&u.Password, validation.By(requiredIF(u.EncryptedPassword == "")), validation.Length(6, 32)),
 	)
 }
 
@@ -32,7 +32,7 @@ func (u *UserProfile) BeforeCreate() error {
 		if err != nil {
 			return err
 		}
-		u.Encrypted_password = enc
+		u.EncryptedPassword = enc
 	}
 	return nil
 }
@@ -40,6 +40,10 @@ func (u *UserProfile) BeforeCreate() error {
 // Sanitize ...
 func (u *UserProfile) Sanitize() {
 	u.Password = ""
+}
+
+func (u *UserProfile) ComparePassword(password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(u.EncryptedPassword), []byte(password)) == nil
 }
 
 func encryptString(s string) (string, error) {
