@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/golang/mock v1.5.0
 	github.com/golang/protobuf v1.4.3
 	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/mux v1.8.0

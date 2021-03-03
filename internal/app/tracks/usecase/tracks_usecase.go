@@ -1,33 +1,18 @@
 package usecase
 
 import (
-	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
-	"2021_1_Noskool_team/internal/app/tracks/repository"
-	"database/sql"
 	_ "github.com/lib/pq" //goland:noinspection
-	"github.com/sirupsen/logrus"
 )
 
 type TracksUsecase struct {
 	trackRep tracks.Repository
 }
 
-func NewTracksUsecase(config *configs.Config) *TracksUsecase {
-	logrus.Info(config.MusicPostgresBD)
-	dbCon, err := sql.Open("postgres",
-		config.MusicPostgresBD,
-	)
-	if err != nil {
-		logrus.Error(err)
-	}
-	err = dbCon.Ping()
-	if err != nil {
-		logrus.Error(err)
-	}
+func NewTracksUsecase(trackRep tracks.Repository) *TracksUsecase {
 	return &TracksUsecase{
-		trackRep: repository.NewTracksRepository(dbCon),
+		trackRep: trackRep,
 	}
 }
 
