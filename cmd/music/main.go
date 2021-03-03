@@ -7,8 +7,6 @@ import (
 	musicianUsecase "2021_1_Noskool_team/internal/app/musicians/usecase"
 	trackRepository "2021_1_Noskool_team/internal/app/tracks/repository"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
-	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
-	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"2021_1_Noskool_team/internal/pkg/server"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
@@ -27,9 +25,6 @@ func main() {
 		logrus.Error(err)
 	}
 
-	sessionsUsecase := sesUsecase.NewSessionsUsecase(config)
-	go grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
-
 	musUsecase := musicianUsecase.NewMusicsUsecase(config)
 
 	tracDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
@@ -37,7 +32,6 @@ func main() {
 		logrus.Error(err)
 	}
 	trackRep := trackRepository.NewTracksRepository(tracDBCon)
-
 
 	trackUse := trackUsecase.NewTracksUsecase(trackRep)
 	albumsUse := albumUsecase.NewAlbumcUsecase(config)

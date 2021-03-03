@@ -1,6 +1,9 @@
 
 DOCKER_DIR := ${CURDIR}/build/package
 
+build-all:
+	go run cmd/sessions/main.go
+
 build-docker:
 	docker build -t music-service -f ${DOCKER_DIR}/music-service.Dockerfile .
 

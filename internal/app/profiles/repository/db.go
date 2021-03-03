@@ -23,6 +23,7 @@ func New(config *Config) *Store {
 
 // Open ...
 func (s *Store) Open() error {
+	// "host=localhost dbname=music_service password=password sslmode=disable"
 	db, err := sql.Open("postgres", "host=localhost dbname=profiles_db user=server password=password sslmode=disable")
 	// fmt.Println(s.config.DatabaseURL)
 	if err != nil {

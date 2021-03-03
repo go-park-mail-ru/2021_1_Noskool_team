@@ -3,8 +3,6 @@ package main
 import (
 	"2021_1_Noskool_team/configs"
 	profiles "2021_1_Noskool_team/internal/app/profiles/delivery/http"
-	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
-	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"flag"
 	"log"
 
@@ -23,10 +21,6 @@ func main() {
 	flag.Parse()
 
 	config := configs.NewConfig()
-
-	sessionsUsecase := sesUsecase.NewSessionsUsecase(config)
-	go grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
-
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
 		log.Fatal(err)
@@ -37,5 +31,4 @@ func main() {
 	if err := s.Start(); err != nil {
 		log.Fatal(err)
 	}
-
 }

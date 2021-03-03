@@ -2,6 +2,7 @@ package profiles
 
 import (
 	"2021_1_Noskool_team/configs"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/profiles/models"
 	"2021_1_Noskool_team/internal/app/profiles/repository"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
@@ -70,10 +71,14 @@ func (s *ProfilesServer) configureLogger() error {
 }
 
 func (s *ProfilesServer) configureRouter() {
+
+	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
+
+	//TODO апишку надо бы сделать в формате /api/vi/prifile/login ну кароч в REST-стиле
 	s.router.HandleFunc("/login", s.handleLogin())
 	s.router.HandleFunc("/registrate", s.handleRegistrate()).Methods("POST")
-	s.router.HandleFunc("/logout", s.handleLogout())
-	s.router.HandleFunc("/profile", s.handleProfile())
+	s.router.HandleFunc("/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
+	s.router.HandleFunc("/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
 }
 
 func (s *ProfilesServer) configureDB() error {
@@ -113,7 +118,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 
 		cookie := &http.Cookie{
 			Path:    "/",
-			Name:    "user_id",
+			Name:    "session_id",
 			Value:   strconv.Itoa(session.ID),
 			Expires: time.Now().Add(oneDayTime * time.Second),
 		}
@@ -160,7 +165,7 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleLogout")
 
-		session, err := r.Cookie("user_id")
+		session, err := r.Cookie("session_id")
 
 		if err != nil {
 			s.logger.Errorf("Error in parsing cookie: %v", err)
@@ -178,7 +183,7 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 		}
 		cookie := &http.Cookie{
 			Path:    "/",
-			Name:    "user_id",
+			Name:    "session_id",
 			Value:   "",
 			Expires: time.Unix(0, 0),
 		}
@@ -189,7 +194,7 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 
 func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, _ := r.Cookie("user_id")
+		userID, _ := r.Cookie("session_id")
 		s.logger.Info("starting handleProfile")
 
 		a, err := s.db.User().FindByID(userID.Value)
