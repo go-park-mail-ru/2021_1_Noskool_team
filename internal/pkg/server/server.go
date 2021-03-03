@@ -3,6 +3,8 @@ package server
 import (
 	"2021_1_Noskool_team/configs"
 	"fmt"
+	"2021_1_Noskool_team/internal/app/musicians/models"
+	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -29,4 +31,11 @@ func Start(config *configs.Config, handler Handler) error {
 	}
 	fmt.Println(serv.config.MusicServerAddr)
 	return http.ListenAndServe(serv.config.MusicServerAddr, serv.handler)
+}
+
+func FailedResponse() []byte {
+	response := models.FailedResponse{}
+	response.ResultStatus = "failed"
+	resp, _ := json.Marshal(response)
+	return resp
 }
