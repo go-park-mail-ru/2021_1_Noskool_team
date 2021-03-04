@@ -27,6 +27,23 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 		u.EncryptedPassword).Scan(&u.ProfileID)
 }
 
+// Update ...
+func (r *ProfileRepository) Update(u *models.UserProfile) error {
+	if err := u.Validate(); err != nil {
+		return err
+	}
+	if err := u.BeforeCreate(); err != nil {
+		return err
+	}
+	return r.db.con.QueryRow("UPDATE Profiles "+
+		"SET email = '$1', nickname = '$2', encrypted_password = '$3' "+
+		"WHERE profiles_id = '$4';",
+		u.Email,
+		u.Login,
+		u.EncryptedPassword,
+		u.ProfileID).Scan(&u.ProfileID)
+}
+
 // FindByID ...
 func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}

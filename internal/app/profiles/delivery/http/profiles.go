@@ -75,10 +75,11 @@ func (s *ProfilesServer) configureRouter() {
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 
 	//TODO апишку надо бы сделать в формате /api/vi/prifile/login ну кароч в REST-стиле
-	s.router.HandleFunc("/login", s.handleLogin())
-	s.router.HandleFunc("/registrate", s.handleRegistrate()).Methods("POST")
-	s.router.HandleFunc("/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
-	s.router.HandleFunc("/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
+	s.router.HandleFunc("/api/v1/login", s.handleLogin())
+	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate()).Methods("POST")
+	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
+	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
+	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}", authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
 
 	CORSMiddleware := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(CORSMiddleware.CORS)
@@ -211,6 +212,49 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 			return
 		}
 		io.WriteString(w, string(credentialsFromDB))
+	}
+}
+
+func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
+
+	type request struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Nickname string `json:"nickname"`
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.logger.Info("starting handleUpdateProfile")
+
+		userID, _ := r.Cookie("session_id")
+		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
+		fmt.Println(userIDfromURL)
+
+		if _, err := s.db.User().FindByID(userID.Value); err != nil {
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("user with id="+userID.Value+" not found"))
+			return
+		}
+
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+		}
+
+		u := &models.UserProfile{
+			ProfileID: userIDfromURL,
+			Email:     req.Email,
+			Password:  req.Password,
+			Login:     req.Nickname,
+		}
+
+		if err := s.db.User().Update(u); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		u.Sanitize()
+
+		s.respond(w, r, http.StatusCreated, u)
+		io.WriteString(w, "update")
 	}
 }
 
