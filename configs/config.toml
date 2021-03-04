@@ -8,3 +8,7 @@ log_level = "debug"
 
 music_bd = "host=localhost port=5432 dbname=music_service sslmode=disable"
 #music_bd = "host=music-bd port=5432 user=andrewkireev dbname=music_service password=password sslmode=disable"
+profiles_server_addr = "127.0.0.1:8082"
+profiles_db_url = "host=localhost dbname=profiles_dev port=5432 sslmode=disable"
+#profiles_db_url = "host=localhost dbname=music_service port=5432 sslmode=disable"
+frontend_url = "some url"

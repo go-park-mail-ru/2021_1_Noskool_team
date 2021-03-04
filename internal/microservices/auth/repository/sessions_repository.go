@@ -17,7 +17,9 @@ func NewSessionRepository(redisURL string) *SessionsRepository {
 	var err error
 	logrus.Info(redisURL)
 	rep.con, err = redis.DialURL(redisURL)
-	logrus.Error(err)
+	if err != nil {
+		logrus.Error(err)
+	}
 	return rep
 }
 
