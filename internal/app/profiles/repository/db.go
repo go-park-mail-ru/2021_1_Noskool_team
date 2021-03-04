@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"2021_1_Noskool_team/configs"
 	"database/sql"
 	"fmt"
 
@@ -9,13 +10,13 @@ import (
 
 // Store ...
 type Store struct {
-	config            *Config
+	config            *configs.Config
 	con               *sql.DB
 	profileRepository *ProfileRepository
 }
 
 // New ...
-func New(config *Config) *Store {
+func New(config *configs.Config) *Store {
 	return &Store{
 		config: config,
 	}
@@ -23,9 +24,8 @@ func New(config *Config) *Store {
 
 // Open ...
 func (s *Store) Open() error {
-	// "host=localhost dbname=music_service password=password sslmode=disable"
-	db, err := sql.Open("postgres", "host=localhost dbname=profiles_db user=server password=password sslmode=disable")
-	// fmt.Println(s.config.DatabaseURL)
+	fmt.Println(s.config.ProfileDB)
+	db, err := sql.Open("postgres", s.config.ProfileDB)
 	if err != nil {
 		fmt.Println("open db")
 		return err

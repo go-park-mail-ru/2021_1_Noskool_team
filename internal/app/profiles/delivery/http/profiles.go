@@ -79,10 +79,13 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.HandleFunc("/registrate", s.handleRegistrate()).Methods("POST")
 	s.router.HandleFunc("/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
 	s.router.HandleFunc("/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
+
+	CORSMiddleware := middleware.NewCORSMiddleware(s.config)
+	s.router.Use(CORSMiddleware.CORS)
 }
 
 func (s *ProfilesServer) configureDB() error {
-	st := repository.New(s.config.ProfileDB)
+	st := repository.New(s.config)
 	if err := st.Open(); err != nil {
 		return err
 	}

@@ -40,5 +40,8 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 		w.Write([]byte("main main page"))
 	})
 	handler.router.Use(middleware.LoggingMiddleware)
+
+	CORSMiddleware := middleware.NewCORSMiddleware(config)
+	handler.router.Use(CORSMiddleware.CORS)
 	return handler
 }
