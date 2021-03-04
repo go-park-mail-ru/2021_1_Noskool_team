@@ -10,6 +10,10 @@ build-docker:
 build-and-run: build-docker
 	docker-compose up
 
+test-pr:
+	go test -v -coverprofile cover.out ./...
+	go tool cover -html=cover.out -o cover.html
+
 
 .PHONY: build_profile
 build_profile:

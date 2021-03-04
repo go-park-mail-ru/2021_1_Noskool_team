@@ -18,7 +18,7 @@ func TestGetMusiciansByGenres(t *testing.T) {
 
 	defer db.Close()
 
-	expectedMusician := []models.Musician{
+	expectedMusician := &[]models.Musician{
 		{
 			MusicianID:  1,
 			Name:        "Joji",
@@ -36,7 +36,7 @@ func TestGetMusiciansByGenres(t *testing.T) {
 	rows := sqlmock.NewRows([]string{
 		"musician_id", "name", "description", "picture",
 	})
-	for _, musician := range expectedMusician {
+	for _, musician := range *expectedMusician {
 		rows.AddRow(musician.MusicianID, musician.Name,
 			musician.Description, musician.Picture)
 	}
