@@ -16,13 +16,21 @@ type UserProfile struct {
 }
 
 // Validate ....
-func (u *UserProfile) Validate() error {
+func (u *UserProfile) Validate(withPassword bool) error {
+	if withPassword {
+		return validation.ValidateStruct(
+			u,
+			validation.Field(&u.Email, validation.Required, is.Email),
+			validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
+			validation.Field(&u.Password, validation.By(requiredIF(u.EncryptedPassword == "")), validation.Length(6, 32)),
+		)
+	}
 	return validation.ValidateStruct(
 		u,
 		validation.Field(&u.Email, validation.Required, is.Email),
 		validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
-		validation.Field(&u.Password, validation.By(requiredIF(u.EncryptedPassword == "")), validation.Length(6, 32)),
 	)
+
 }
 
 // BeforeCreate ...
