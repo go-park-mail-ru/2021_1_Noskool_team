@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"database/sql"
 	"fmt"
+	"github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq" // ...
 )
@@ -24,8 +25,8 @@ func New(config *configs.Config) *Store {
 
 // Open ...
 func (s *Store) Open() error {
-	fmt.Println(s.config.ProfileDB)
-	db, err := sql.Open("postgres", s.config.ProfileDB) // s.config.ProfileDB "host=localhost dbname=profiles_db user=server password=password sslmode=disable"
+	logrus.Info(s.config.ProfileDB)
+	db, err := sql.Open("postgres", s.config.ProfileDB)
 	if err != nil {
 		fmt.Println("open db")
 		return err

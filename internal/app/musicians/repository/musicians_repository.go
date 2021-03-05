@@ -18,7 +18,7 @@ func NewMusicRepository(con *sql.DB) musicians.Repository {
 	}
 }
 
-func (musicRep *MusicianRepository) GetMusiciansByGenres(genre string) ([]models.Musician, error) {
+func (musicRep *MusicianRepository) GetMusiciansByGenres(genre string) (*[]models.Musician, error) {
 	query := `select musicians.* from musicians
 		left join musicians_to_genres as m_g on m_g.musician_id = musicians.musician_id
 		left join genres on genres.genre_id = m_g.genre_id
@@ -40,7 +40,7 @@ func (musicRep *MusicianRepository) GetMusiciansByGenres(genre string) ([]models
 		}
 		musicians = append(musicians, musician)
 	}
-	return musicians, nil
+	return &musicians, nil
 }
 
 func (musicRep *MusicianRepository) GetMusicianByID(musicianID int) (*models.Musician, error) {

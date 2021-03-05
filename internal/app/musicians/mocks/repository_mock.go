@@ -50,10 +50,10 @@ func (mr *MockRepositoryMockRecorder) GetMusicianByID(musicianID interface{}) *g
 }
 
 // GetMusiciansByGenres mocks base method.
-func (m *MockRepository) GetMusiciansByGenres(genre string) ([]models.Musician, error) {
+func (m *MockRepository) GetMusiciansByGenres(genre string) (*[]models.Musician, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMusiciansByGenres", genre)
-	ret0, _ := ret[0].([]models.Musician)
+	ret0, _ := ret[0].(*[]models.Musician)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
