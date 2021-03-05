@@ -43,5 +43,6 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 
 	CORSMiddleware := middleware.NewCORSMiddleware(config)
 	handler.router.Use(CORSMiddleware.CORS)
+	handler.router.Use(middleware.PanicMiddleware)
 	return handler
 }

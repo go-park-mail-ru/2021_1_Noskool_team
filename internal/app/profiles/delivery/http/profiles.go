@@ -83,6 +83,7 @@ func (s *ProfilesServer) configureRouter() {
 
 	CORSMiddleware := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(CORSMiddleware.CORS)
+	s.router.Use(middleware.PanicMiddleware)
 }
 
 func (s *ProfilesServer) configureDB() error {
