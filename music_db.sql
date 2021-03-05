@@ -90,3 +90,7 @@ CREATE TABLE IF NOT EXISTS Profiles
     encrypted_password varchar not null
 );
 
+insert into tracks (tittle, text, audio, picture, release_date) VALUES
+('track1', 'some text', 'audio1', 'picture', 'date'), ('track2', 'some text', 'audio2', 'picture', 'date'),
+('track3', 'some text', 'audio3', 'picture', 'date'), ('track4', 'some text', 'audio4', 'picture', 'date');
+
