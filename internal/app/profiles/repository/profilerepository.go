@@ -42,8 +42,8 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 	}
 
 	return r.db.con.QueryRow("UPDATE Profiles "+
-		"SET email = '$1', nickname = '$2', encrypted_password = '$3' "+
-		"WHERE profiles_id = '$4';",
+		"SET email = $1, nickname = $2, encrypted_password = $3 "+
+		"WHERE profiles_id = $4 RETURNING profiles_id;",
 		u.Email,
 		u.Login,
 		u.EncryptedPassword,
@@ -53,9 +53,9 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 // FindByID ...
 func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	sqlReq := fmt.Sprintf("SELECT email, nickname, encrypted_password FROM Profiles"+
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, encrypted_password FROM Profiles"+
 		" WHERE profiles_id = %s;", id)
-	if err := r.db.con.QueryRow(sqlReq).Scan(
+	if err := r.db.con.QueryRow(sqlReq).Scan(&u.ProfileID,
 		&u.Email,
 		&u.Login,
 		&u.EncryptedPassword); err != nil {
