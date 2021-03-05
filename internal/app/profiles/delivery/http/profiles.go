@@ -225,12 +225,13 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleUpdateProfile")
 
-		userID, _ := r.Cookie("session_id")
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
-		fmt.Println(userIDfromURL)
+		userIDfromURLstr := fmt.Sprint(userIDfromURL)
+		fmt.Println(userIDfromURLstr)
 
-		if _, err := s.db.User().FindByID(userID.Value); err != nil {
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("user with id="+userID.Value+" not found"))
+		userForUpdates, err := s.db.User().FindByID(userIDfromURLstr)
+		if err != nil {
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("user with id="+userIDfromURLstr+" not found"))
 			return
 		}
 
@@ -239,21 +240,35 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, err)
 		}
 
-		u := &models.UserProfile{
-			ProfileID: userIDfromURL,
-			Email:     req.Email,
-			Password:  req.Password,
-			Login:     req.Nickname,
+		flagPassword := false
+		if req.Email != "" {
+			userForUpdates.Email = req.Email
+		}
+		if req.Nickname != "" {
+			userForUpdates.Login = req.Nickname
+		}
+		if req.Password != "" {
+			userForUpdates.Password = req.Password
+			flagPassword = true
 		}
 
-		if err := s.db.User().Update(u); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
-			return
+		fmt.Println(userForUpdates)
+
+		if flagPassword {
+			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
+				s.error(w, r, http.StatusUnprocessableEntity, err)
+				return
+			}
+		} else {
+			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
+				s.error(w, r, http.StatusUnprocessableEntity, err)
+				return
+			}
 		}
 
-		u.Sanitize()
+		userForUpdates.Sanitize()
 
-		s.respond(w, r, http.StatusCreated, u)
+		s.respond(w, r, http.StatusCreated, userForUpdates)
 		io.WriteString(w, "update")
 	}
 }

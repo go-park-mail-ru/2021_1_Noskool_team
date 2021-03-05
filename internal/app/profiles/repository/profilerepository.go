@@ -12,7 +12,7 @@ type ProfileRepository struct {
 
 // Create ...
 func (r *ProfileRepository) Create(u *models.UserProfile) error {
-	if err := u.Validate(); err != nil {
+	if err := u.Validate(true); err != nil {
 		return err
 	}
 	if err := u.BeforeCreate(); err != nil {
@@ -28,13 +28,19 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 }
 
 // Update ...
-func (r *ProfileRepository) Update(u *models.UserProfile) error {
-	if err := u.Validate(); err != nil {
+func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) error {
+	if withPassword {
+		if err := u.Validate(true); err != nil {
+			return err
+		}
+		if err := u.BeforeCreate(); err != nil {
+			return err
+		}
+	}
+	if err := u.Validate(false); err != nil {
 		return err
 	}
-	if err := u.BeforeCreate(); err != nil {
-		return err
-	}
+
 	return r.db.con.QueryRow("UPDATE Profiles "+
 		"SET email = '$1', nickname = '$2', encrypted_password = '$3' "+
 		"WHERE profiles_id = '$4';",
