@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 const (
@@ -21,6 +22,7 @@ const (
 )
 
 func main() {
+	time.Sleep(10 * time.Second)
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
