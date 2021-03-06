@@ -3,6 +3,7 @@ package main
 import (
 	"2021_1_Noskool_team/configs"
 	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
+	"2021_1_Noskool_team/internal/microservices/auth/repository"
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
@@ -21,6 +22,8 @@ func main() {
 		logrus.Error(err)
 	}
 
-	sessionsUsecase := sesUsecase.NewSessionsUsecase(config)
+	sessionRep := repository.NewSessionRepository(config.SessionRedisStore)
+
+	sessionsUsecase := sesUsecase.NewSessionsUsecase(sessionRep)
 	grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
 }
