@@ -42,9 +42,6 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}", handler.GetTrackByMusicianID).Methods("GET")
-	handler.router.HandleFunc("/tracks", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("All tracks"))
-	}).Methods("GET")
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main of tracks"))
 	})

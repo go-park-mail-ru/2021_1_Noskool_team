@@ -21,7 +21,7 @@ func (corsMiddlware *CORSMiddleware) CORS(next http.Handler) http.Handler {
 			"POST, GET, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length,"+
 			" Accept-Encoding, X-CSRF-Token, csrf-token, Authorization")
-		w.Header().Set("Access-Control-Allow-Origin", corsMiddlware.config.FrontendUrl) //TODO поставить url с фронта
+		w.Header().Set("Access-Control-Allow-Origin", corsMiddlware.config.FrontendURL) //TODO поставить url с фронта
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		next.ServeHTTP(w, r)
 	})

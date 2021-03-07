@@ -28,7 +28,7 @@ func TestCORSMiddleware(t *testing.T) {
 	})
 
 	corsMid := NewCORSMiddleware(&configs.Config{
-		FrontendUrl: "some url",
+		FrontendURL: "some url",
 	})
 	handlerToTest := corsMid.CORS(nextHandler)
 
@@ -39,7 +39,7 @@ func TestCORSMiddleware(t *testing.T) {
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Methods"),
 		"POST, GET, OPTIONS, PUT, DELETE")
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Origin"),
-		corsMid.config.FrontendUrl)
+		corsMid.config.FrontendURL)
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Credentials"),
 		"true")
 }

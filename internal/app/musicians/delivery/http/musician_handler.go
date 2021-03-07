@@ -43,9 +43,6 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	handler.router.HandleFunc("/{genre}/", handler.GetMusiciansByGenres)
 	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicByIDHandler)
-	handler.router.HandleFunc("/login/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("login page"))
-	})
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main page of music"))
 	})

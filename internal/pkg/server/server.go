@@ -2,7 +2,6 @@ package server
 
 import (
 	"2021_1_Noskool_team/configs"
-	"fmt"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"encoding/json"
 	"github.com/sirupsen/logrus"
@@ -29,7 +28,7 @@ func Start(config *configs.Config, handler Handler) error {
 		logrus.Error(err)
 		return err
 	}
-	fmt.Println(serv.config.MusicServerAddr)
+	logrus.Info(serv.config.MusicServerAddr)
 	return http.ListenAndServe(serv.config.MusicServerAddr, serv.handler)
 }
 
