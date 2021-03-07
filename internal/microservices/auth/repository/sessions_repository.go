@@ -5,26 +5,22 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
-	"github.com/sirupsen/logrus"
 )
 
 type SessionsRepository struct {
-	con redis.Conn
+	redisPool *redis.Pool
 }
 
-func NewSessionRepository(redisURL string) *SessionsRepository {
-	rep := &SessionsRepository{}
-	var err error
-	logrus.Info(redisURL)
-	rep.con, err = redis.DialURL(redisURL)
-	if err != nil {
-		logrus.Error(err)
+func NewSessionRepository(conn *redis.Pool) *SessionsRepository {
+	return &SessionsRepository{
+		redisPool: conn,
 	}
-	return rep
 }
 
 func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*models.Sessions, error) {
-	result, err := redis.String(sessionRep.con.Do("SET", session.UserID, session.UserID,
+	con := sessionRep.redisPool.Get()
+	defer con.Close()
+	result, err := redis.String(con.Do("SET", session.UserID, session.UserID,
 		"EX", session.Expiration))
 	fmt.Println(result)
 	if result != "OK" {
@@ -34,13 +30,17 @@ func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*
 }
 
 func (sessionRep *SessionsRepository) CheckSession(session *models.Sessions) (*models.Sessions, error) {
-	result, err := redis.String(sessionRep.con.Do("GET", session.UserID))
+	con := sessionRep.redisPool.Get()
+	defer con.Close()
+	result, err := redis.String(con.Do("GET", session.UserID))
 	fmt.Println(result)
 	return session, err
 }
 
 func (sessionRep *SessionsRepository) DeleteSession(session *models.Sessions) error {
-	result, err := redis.Int(sessionRep.con.Do("DEL", session.UserID))
+	con := sessionRep.redisPool.Get()
+	defer con.Close()
+	result, err := redis.Int(con.Do("DEL", session.UserID))
 	fmt.Println(result)
 	return err
 }

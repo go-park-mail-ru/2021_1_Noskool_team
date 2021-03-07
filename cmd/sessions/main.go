@@ -6,6 +6,7 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/repository"
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"github.com/BurntSushi/toml"
+	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -22,7 +23,17 @@ func main() {
 		logrus.Error(err)
 	}
 
-	sessionRep := repository.NewSessionRepository(config.SessionRedisStore)
+	redisPool := &redis.Pool{
+		Dial: func() (redis.Conn, error) {
+			pool, err := redis.DialURL(config.SessionRedisStore)
+			if err != nil {
+				logrus.Error(err)
+			}
+			return pool, nil
+		},
+	}
+
+	sessionRep := repository.NewSessionRepository(redisPool)
 
 	sessionsUsecase := sesUsecase.NewSessionsUsecase(sessionRep)
 	grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
