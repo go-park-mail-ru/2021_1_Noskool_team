@@ -42,9 +42,6 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}", handler.GetTrackByMusicianID).Methods("GET")
-	handler.router.HandleFunc("/tracks", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("All tracks"))
-	}).Methods("GET")
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main of tracks"))
 	})
@@ -73,13 +70,13 @@ func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http
 	track, err := handler.tracksUsecase.GetTrackByID(trackID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTrackByID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
 		return
 	}
 	resp, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
 		return
 	}
 	w.Write(resp)
@@ -93,13 +90,13 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 	track, err := handler.tracksUsecase.GetTracksByTittle(trackTittle)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTracksByTittle: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
 		return
 	}
 	resp, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
 		return
 	}
 	w.Write(resp)
@@ -113,13 +110,13 @@ func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *htt
 	track, err := handler.tracksUsecase.GetTrackByMusicianID(musicianID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetTrackByMusicianID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
 		return
 	}
 	res, err := json.Marshal(track)
 	if err != nil {
 		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
 		return
 	}
 	w.Write(res)

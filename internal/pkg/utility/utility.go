@@ -2,6 +2,7 @@ package utility
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq" //goland:noinspection
 	"github.com/sirupsen/logrus"
 )
 

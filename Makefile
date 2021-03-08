@@ -17,6 +17,11 @@ test-pr:
 	go tool cover -html=cover.out -o cover.html
 
 
+coverage:
+	go test -covermode=atomic -coverpkg=./... -coverprofile=cover ./...
+	cat cover | fgrep -v "mock" | fgrep -v "pb.go" | fgrep -v "easyjson" | fgrep -v "start.go" > cover2
+	go tool cover -func=cover2
+
 .PHONY: build_profile
 build_profile:
 	go build -v ./cmd/profiles
