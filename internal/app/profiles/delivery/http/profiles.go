@@ -203,8 +203,8 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		}
 
 		http.SetCookie(w, cookie)
-
-		io.WriteString(w, "successfully login for user with id "+fmt.Sprint(session.ID))
+		s.respond(w, r, http.StatusOK, u)
+		//io.WriteString(w, "successfully login for user with id "+fmt.Sprint(session.ID))
 	}
 }
 
@@ -236,7 +236,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 
 		u.Sanitize()
 		s.respond(w, r, http.StatusCreated, u)
-		io.WriteString(w, "registrate")
+		//io.WriteString(w, "registrate")
 	}
 }
 
@@ -267,7 +267,10 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 			Expires: time.Unix(0, 0),
 		}
 		http.SetCookie(w, cookie)
-		io.WriteString(w, "cookie with id = "+session.Value+" was deleted")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("{\"status\": \"OK\"}"))
+		//s.respond(w, r, http.StatusOK, )
+		//io.WriteString(w, "cookie with id = "+session.Value+" was deleted")
 	}
 }
 

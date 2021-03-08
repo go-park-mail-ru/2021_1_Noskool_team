@@ -6,7 +6,7 @@ ENV GOPATH=/
 
 COPY ./ ./
 
-RUN go build -o music ./cmd/music/main.go
+RUN go build -o music ./cmd/music/music.go
 
 EXPOSE 8080 8081
 

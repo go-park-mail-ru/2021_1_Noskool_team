@@ -6,7 +6,7 @@ ENV GOPATH=/
 
 COPY ./ ./
 
-RUN go build -o profiles ./cmd/profiles/main.go
+RUN go build -o profiles ./cmd/profiles/profiles.go
 
 EXPOSE 8082 6379 8081
 

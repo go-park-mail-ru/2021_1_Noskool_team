@@ -87,6 +87,11 @@ CREATE TABLE IF NOT EXISTS Profiles
     profiles_id     bigserial not null primary key,
     email       varchar not null unique,
     nickname      varchar not null unique,
-    encrypted_password varchar not null
+    encrypted_password varchar not null,
+    avatar varchar not null
 );
+
+insert into tracks (tittle, text, audio, picture, release_date) VALUES
+('track1', 'some text', 'audio1', 'picture', '2020-03-04'), ('track2', 'some text', 'audio2', 'picture', '2020-03-04'),
+('track3', 'some text', 'audio3', 'picture', '2020-03-04'), ('track4', 'some text', 'audio4', 'picture', '2020-03-04');
 
