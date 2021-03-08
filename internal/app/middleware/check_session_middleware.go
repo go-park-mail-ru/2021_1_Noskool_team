@@ -34,7 +34,7 @@ func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handl
 		fmt.Println("Result: = " + session.Status)
 
 		if err == nil && session.ID == userID {
-			w.Write([]byte("Кука есть и id у нее = " + strconv.Itoa(session.ID) + "\n"))
+			//w.Write([]byte("Кука есть и id у нее = " + strconv.Itoa(session.ID) + "\n"))
 		} else {
 			fmt.Printf("Error in checking session: %v\n", err)
 			w.WriteHeader(http.StatusUnauthorized)
