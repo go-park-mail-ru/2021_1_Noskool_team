@@ -76,12 +76,15 @@ func (s *ProfilesServer) configureRouter() {
 
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 
+	s.router.HandleFunc("/api/v1/picture", mainPage)
+	s.router.HandleFunc("/api/v1/test", s.handleUpdateAvatar())
+
 	s.router.HandleFunc("/api/v1/login", s.handleLogin())
 	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate()).Methods("POST")
 	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
 	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
 	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}", authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
-	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar()))
+	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", s.handleUpdateAvatar())
 	s.router.Handle("/api/v1/data/",
 		http.StripPrefix("/api/v1/data/", http.FileServer(http.Dir("./static"))))
 
@@ -100,26 +103,32 @@ func (s *ProfilesServer) configureDB() error {
 }
 
 // на фронте нужна такая форма
-// var uploadFormTmpl = []byte(`
-// <html>
-// 	<body>
-// 	<form action="/upload" method="post" enctype="multipart/form-data">
-// 		Image: <input type="file" name="my_file">
-// 		<input type="submit" value="Upload">
-// 	</form>
-// 	</body>
-// </html>
-// `)
+var uploadFormTmpl = []byte(`
+<html>
+	<body>
+	<form action="/api/v1/test" method="post" enctype="multipart/form-data">
+		Image: <input type="file" name="my_file">
+		<input type="submit" value="Upload">
+	</form>
+	</body>
+</html>
+`)
+
+func mainPage(w http.ResponseWriter, r *http.Request) {
+	w.Write(uploadFormTmpl)
+}
 
 func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("handleUpdateAvatar")
 
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
+		//userIDfromURL := 1
 		userIDfromURLstr := fmt.Sprint(userIDfromURL)
 
 		userIDfromCookie, _ := r.Cookie("session_id")
-		userIDfromCookieStr := fmt.Sprint(userIDfromCookie.Value)
+		//userIDfromCookie := 1
+		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 
 		if userIDfromURLstr != userIDfromCookieStr {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("permission denied"))
@@ -136,13 +145,12 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 
 		// fmt.Fprintf(w, "handler.Filename %v\n", handler.Filename)
 		// fmt.Fprintf(w, "handler.Header %#v\n", handler.Header)
-		var ext string
-		ext = filepath.Ext(handler.Filename)
+
+		ext := filepath.Ext(handler.Filename)
 		if ext == "" {
 			fmt.Println("the file must have the extension")
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("the file must have the extension"))
 			return
-
 		}
 		newAvatarPath := userIDfromCookieStr + ext
 		f, err := os.OpenFile(newAvatarPath, os.O_WRONLY|os.O_CREATE, 0666)

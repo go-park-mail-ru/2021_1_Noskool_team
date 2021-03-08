@@ -3,8 +3,6 @@ package main
 import (
 	"2021_1_Noskool_team/configs"
 	profiles "2021_1_Noskool_team/internal/app/profiles/delivery/http"
-	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
-	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"flag"
 	"log"
 	"time"
@@ -31,11 +29,8 @@ func main() {
 	}
 
 	s := profiles.New(config)
-	go s.Start()
 
-	// if err := s.Start(); err != nil {
-	// 	log.Fatal(err)
-	// }
-	sessionsUsecase := sesUsecase.NewSessionsUsecase(config)
-	grpcSerc.StartSessionsGRPCServer(&sessionsUsecase, config.SessionMicroserviceAddr)
+	if err := s.Start(); err != nil {
+		log.Fatal(err)
+	}
 }

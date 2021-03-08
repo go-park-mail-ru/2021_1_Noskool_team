@@ -71,7 +71,7 @@ func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 // UpdateAvatar ...
 func (r *ProfileRepository) UpdateAvatar(userID string, newAvatar string) {
 	r.db.con.QueryRow("UPDATE Profiles "+
-		"SET avatar = '$1' WHERE profiles_id = '$2';",
+		"SET avatar = $1 WHERE profiles_id = $2;",
 		newAvatar, userID)
 }
 
