@@ -8,11 +8,12 @@ import (
 
 // UserProfile ...
 type UserProfile struct {
-	ProfileID         int    `json:"-"`
+	ProfileID         int    `json:"user_id"`
 	Email             string `json:"email"`
 	Login             string `json:"login"`
 	Password          string `json:"password,omitempty"`
 	EncryptedPassword string `json:"-"`
+	Avatar            string `json:"avatar"`
 }
 
 // Validate ....

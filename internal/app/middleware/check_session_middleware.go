@@ -25,7 +25,7 @@ func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handl
 
 		if err != nil {
 			fmt.Printf("Error in parsing cookie: %v\n", err)
-			http.Redirect(w, r, "/api/v1/musician/login/", http.StatusFound) //TODO::убрать редирект на стороне сервера
+			// http.Redirect(w, r, "/api/v1/musician/login/", http.StatusFound) //TODO::убрать редирект на стороне сервера
 			return
 		}
 
@@ -37,7 +37,7 @@ func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handl
 			w.Write([]byte("Кука есть и id у нее = " + strconv.Itoa(session.ID) + "\n"))
 		} else {
 			fmt.Printf("Error in checking session: %v\n", err)
-			http.Redirect(w, r, "/api/v1/musician/login/", http.StatusFound) //TODO::убрать редирект на стороне сервера
+			// http.Redirect(w, r, "/api/v1/musician/login/", http.StatusFound) //TODO::убрать редирект на стороне сервера
 			return
 		}
 		next.ServeHTTP(w, r)
