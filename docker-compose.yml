@@ -6,10 +6,13 @@ volumes:
   redis:
 
 services:
-  music-service:
-    image: music-service
+  sessions-service:
+    image: sessions-service
+    expose:
+      - "8081"
+      - "8082"
+      - "8080"
     ports:
-      - "8080:8080"
       - "8081:8081"
     networks:
       - default
@@ -17,7 +20,38 @@ services:
       - $PWD/media:/app/media
     depends_on:
       - redis
+  profiles-service:
+    image: profiles-service
+    expose:
+      - "8081"
+      - "8082"
+      - "8080"
+    ports:
+      - "8082:8082"
+    networks:
+      - default
+    volumes:
+      - $PWD/media:/app/media
+    depends_on:
+      - redis
       - music-bd
+      - sessions-service
+  music-service:
+    image: music-service
+    expose:
+      - "8081"
+      - "8082"
+      - "8080"
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+    volumes:
+      - $PWD/media:/app/media
+    depends_on:
+      - redis
+      - music-bd
+      - sessions-service
 
   redis:
     image: "redis:alpine"

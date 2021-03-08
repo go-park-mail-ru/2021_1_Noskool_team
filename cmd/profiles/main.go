@@ -7,6 +7,7 @@ import (
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"flag"
 	"log"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -20,6 +21,7 @@ func init() {
 }
 
 func main() {
+	time.Sleep(10 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()

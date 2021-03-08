@@ -87,6 +87,7 @@ func (s *ProfilesServer) configureRouter() {
 
 	CORSMiddleware := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(CORSMiddleware.CORS)
+	s.router.Use(middleware.PanicMiddleware)
 }
 
 func (s *ProfilesServer) configureDB() error {
@@ -345,7 +346,6 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		userForUpdates.Sanitize()
 
 		s.respond(w, r, http.StatusCreated, userForUpdates)
-		io.WriteString(w, "update")
 	}
 }
 
@@ -356,6 +356,7 @@ func (s *ProfilesServer) error(w http.ResponseWriter, r *http.Request, code int,
 func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
 	w.WriteHeader(code)
 	if data != nil {
-		json.NewEncoder(w).Encode(data)
+		err := json.NewEncoder(w).Encode(data)
+		fmt.Println(err)
 	}
 }

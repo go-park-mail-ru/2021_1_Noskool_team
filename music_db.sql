@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS musicians
     picture     varchar(100)
 );
 
-CREATE TABLE Musicians_to_Genres
+CREATE TABLE if not exists Musicians_to_Genres
 (
     genre_id INTEGER NOT NULL,
     musician_id INTEGER NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS tracks
     release_date date
 );
 
-CREATE TABLE Musicians_to_Tracks
+CREATE TABLE if not exists Musicians_to_Tracks
 (
     track_id    INTEGER NOT NULL,
     musician_id INTEGER NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE Musicians_to_Tracks
     FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE
 );
 
-CREATE TABLE Tracks_to_Genres
+CREATE TABLE if not exists Tracks_to_Genres
 (
     track_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE Tracks_to_Genres
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
 );
 
-CREATE TABLE Tracks_to_Albums
+CREATE TABLE if not exists Tracks_to_Albums
 (
     track_id INTEGER NOT NULL,
     album_id INTEGER NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE Tracks_to_Albums
     FOREIGN KEY (album_id) REFERENCES Albums (album_id) on delete CASCADE
 );
 
-CREATE TABLE Musicians_to_Albums
+CREATE TABLE if not exists Musicians_to_Albums
 (
     musician_id INTEGER NOT NULL,
     album_id    INTEGER NOT NULL,
@@ -74,11 +74,19 @@ CREATE TABLE Musicians_to_Albums
     FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE
 );
 
-CREATE TABLE Albums_to_Genres
+CREATE TABLE if not exists Albums_to_Genres
 (
     genre_id INTEGER NOT NULL,
     album_id INTEGER NOT NULL,
     FOREIGN KEY (album_id) REFERENCES Albums (album_id) on delete CASCADE,
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Profiles
+(
+    profiles_id     bigserial not null primary key,
+    email       varchar not null unique,
+    nickname      varchar not null unique,
+    encrypted_password varchar not null
 );
 

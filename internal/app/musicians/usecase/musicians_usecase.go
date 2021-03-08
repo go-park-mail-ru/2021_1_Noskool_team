@@ -1,32 +1,18 @@
 package usecase
 
 import (
-	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/app/musicians/models"
-	"2021_1_Noskool_team/internal/app/musicians/repository"
-	"database/sql"
 	_ "github.com/lib/pq" //goland:noinspection
-	"github.com/sirupsen/logrus"
 )
 
 type MusicUsecase struct {
 	musicRepo musicians.Repository
 }
 
-func NewMusicsUsecase(config *configs.Config) *MusicUsecase {
-	db, err := sql.Open("postgres",
-		config.MusicPostgresBD,
-	)
-	if err != nil {
-		logrus.Error(err)
-	}
-	err = db.Ping()
-	if err != nil {
-		logrus.Error(err)
-	}
+func NewMusicsUsecase(musicRep musicians.Repository) *MusicUsecase {
 	return &MusicUsecase{
-		musicRepo: repository.NewMusicRepository(db),
+		musicRepo: musicRep,
 	}
 }
 
@@ -35,7 +21,7 @@ func (usecase *MusicUsecase) GetMusiciansByGenres(genre string) (*[]models.Music
 	if err != nil {
 		return nil, err
 	}
-	return &mus, nil
+	return mus, nil
 }
 
 func (usecase *MusicUsecase) GetMusic() {
