@@ -12,6 +12,7 @@ type ProfileRepository struct {
 
 // Create ...
 func (r *ProfileRepository) Create(u *models.UserProfile) error {
+	const defaultAvatar = "default.png"
 	if err := u.Validate(true); err != nil {
 		return err
 	}
@@ -19,12 +20,13 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 		return err
 	}
 	return r.db.con.QueryRow("INSERT INTO Profiles"+
-		"(email, nickname, encrypted_password)"+
-		"VALUES ($1, $2, $3)"+
+		"(email, nickname, encrypted_password, avatar)"+
+		"VALUES ($1, $2, $3, $4)"+
 		"RETURNING profiles_id;",
 		u.Email,
 		u.Login,
-		u.EncryptedPassword).Scan(&u.ProfileID)
+		u.EncryptedPassword,
+		defaultAvatar).Scan(&u.ProfileID)
 }
 
 // Update ...
@@ -42,8 +44,8 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 	}
 
 	return r.db.con.QueryRow("UPDATE Profiles "+
-		"SET email = '$1', nickname = '$2', encrypted_password = '$3' "+
-		"WHERE profiles_id = '$4';",
+		"SET email = $1, nickname = $2, encrypted_password = $3 "+
+		"WHERE profiles_id = $4 RETURNING profiles_id;",
 		u.Email,
 		u.Login,
 		u.EncryptedPassword,
@@ -53,15 +55,24 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 // FindByID ...
 func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	sqlReq := fmt.Sprintf("SELECT email, nickname, encrypted_password FROM Profiles"+
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, encrypted_password, avatar FROM Profiles"+
 		" WHERE profiles_id = %s;", id)
 	if err := r.db.con.QueryRow(sqlReq).Scan(
+		&u.ProfileID,
 		&u.Email,
 		&u.Login,
-		&u.EncryptedPassword); err != nil {
+		&u.EncryptedPassword,
+		&u.Avatar); err != nil {
 		return nil, err
 	}
 	return u, nil
+}
+
+// UpdateAvatar ...
+func (r *ProfileRepository) UpdateAvatar(userID string, newAvatar string) {
+	r.db.con.QueryRow("UPDATE Profiles "+
+		"SET avatar = '$1' WHERE profiles_id = '$2';",
+		newAvatar, userID)
 }
 
 // FindByLogin ...

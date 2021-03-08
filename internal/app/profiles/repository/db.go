@@ -25,7 +25,7 @@ func New(config *configs.Config) *Store {
 // Open ...
 func (s *Store) Open() error {
 	fmt.Println(s.config.ProfileDB)
-	db, err := sql.Open("postgres", s.config.ProfileDB) // s.config.ProfileDB "host=localhost dbname=profiles_db user=server password=password sslmode=disable"
+	db, err := sql.Open("postgres", "host=localhost dbname=profiles_db user=server password=password sslmode=disable") // s.config.ProfileDB "host=localhost dbname=profiles_db user=server password=password sslmode=disable"
 	if err != nil {
 		fmt.Println("open db")
 		return err
