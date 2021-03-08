@@ -120,6 +120,7 @@ func mainPage(w http.ResponseWriter, r *http.Request) {
 
 func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("handleUpdateAvatar")
 
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
@@ -173,6 +174,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		Password string `json:"password"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleLogin")
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
@@ -215,6 +217,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		Nickname string `json:"nickname"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleRegistrate")
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
@@ -242,6 +245,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 
 func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleLogout")
 
 		session, err := r.Cookie("session_id")
@@ -301,6 +305,7 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		Nickname string `json:"nickname"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleUpdateProfile")
 
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
