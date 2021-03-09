@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/handlers"
 	"io"
 	"net/http"
 	"os"
@@ -50,6 +51,10 @@ func New(config *configs.Config) *ProfilesServer {
 
 // Start ...
 func (s *ProfilesServer) Start() error {
+	headersOk := handlers.AllowedHeaders([]string{"Content-Type", "Content-Disposition"})
+	originsOk := handlers.AllowedOrigins([]string{"http://178.154.245.200"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"})
+
 	if err := s.configureLogger(); err != nil {
 		return err
 	}
@@ -60,7 +65,17 @@ func (s *ProfilesServer) Start() error {
 	}
 
 	s.logger.Info("starting profile server")
-	return http.ListenAndServe(s.config.ProfilesServerAddr, s.router)
+	//return http.ListenAndServeTLS(s.config.ProfilesServerAddr, "server.crt", "server.key", s.router)
+	//return http.ListenAndServe(s.config.ProfilesServerAddr, Hs.router)
+
+	middleware.MyCORSMethodMiddleware(s.router)
+	serv := &http.Server{
+		Addr:         s.config.ProfilesServerAddr,
+		Handler:      handlers.CORS(originsOk, headersOk, methodsOk, handlers.AllowCredentials())(s.router),
+		WriteTimeout: 60 * time.Second,
+		ReadTimeout:  60 * time.Second,
+	}
+	return serv.ListenAndServe()
 }
 
 func (s *ProfilesServer) configureLogger() error {
@@ -101,8 +116,8 @@ func (s *ProfilesServer) configureRouter() {
 	//})
 	//s.router.Use(c.Handler)
 
-	CORSMiddleware := middleware.NewCORSMiddleware(s.config)
-	s.router.Use(CORSMiddleware.CORS)
+	//CORSMiddleware := middleware.NewCORSMiddleware(s.config)
+	//s.router.Use(CORSMiddleware.CORS)
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
 }
@@ -198,7 +213,8 @@ func (handler *ProfilesServer) CreateSession(w http.ResponseWriter, r *http.Requ
 		Name:     "session_id",
 		Value:    strconv.Itoa(session.ID),
 		Expires:  time.Now().Add(oneDayTime * time.Second),
-		SameSite: http.SameSiteLaxMode,
+		HttpOnly: false,
+		Secure:   false,
 	}
 
 	http.SetCookie(w, cookie)

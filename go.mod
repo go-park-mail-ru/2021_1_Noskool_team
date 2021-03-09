@@ -11,6 +11,7 @@ require (
 	github.com/golang/mock v1.5.0
 	github.com/golang/protobuf v1.4.3
 	github.com/gomodule/redigo v1.8.3
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jcmturner/gokrb5 v8.4.2+incompatible

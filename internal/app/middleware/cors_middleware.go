@@ -3,6 +3,7 @@ package middleware
 import (
 	"2021_1_Noskool_team/configs"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -19,8 +20,9 @@ func NewCORSMiddleware(config *configs.Config) *CORSMiddleware {
 func (corsMiddlware *CORSMiddleware) CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("URL: %s, METHOD: %s", r.RequestURI, r.Method)
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "http://178.154.245.200/")
+		w.Header().Set("Set-Cookie", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Set-Cookie, *")
+		w.Header().Set("Access-Control-Allow-Origin", "http://178.154.245.200")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		if r.Method == "OPTIONS" {
@@ -28,4 +30,20 @@ func (corsMiddlware *CORSMiddleware) CORS(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func MyCORSMethodMiddleware(_ *mux.Router) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			fmt.Printf("URL: %s, METHOD: %s", req.RequestURI, req.Method)
+			w.Header().Set("Access-Control-Allow-Headers", "*")
+			w.Header().Set("Access-Control-Allow-Origin", "http://178.154.245.200")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			if req.Method == "OPTIONS" {
+				return
+			}
+			next.ServeHTTP(w, req)
+		})
+	}
 }
