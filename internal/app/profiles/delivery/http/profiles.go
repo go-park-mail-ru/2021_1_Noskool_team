@@ -185,7 +185,6 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 			Value:    strconv.Itoa(session.ID),
 			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
-			SameSite: http.SameSiteNoneMode,
 			HttpOnly: false,
 		}
 		http.SetCookie(w, &cookie)
