@@ -9,16 +9,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
-
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -50,21 +49,17 @@ func New(config *configs.Config) *ProfilesServer {
 
 // Start ...
 func (s *ProfilesServer) Start() error {
-
 	if err := s.configureLogger(); err != nil {
 		return err
 	}
 	s.configureRouter()
-
 	if err := s.configureDB(); err != nil {
 		return err
 	}
-
 	s.logger.Info("starting profile server")
 	//return http.ListenAndServeTLS(s.config.ProfilesServerAddr, "server.crt", "server.key", s.router)
 	return http.ListenAndServe(s.config.ProfilesServerAddr, s.router)
 }
-
 func (s *ProfilesServer) configureLogger() error {
 	level, err := logrus.ParseLevel(s.config.LogLevel)
 	if err != nil {
@@ -75,28 +70,22 @@ func (s *ProfilesServer) configureLogger() error {
 }
 
 func (s *ProfilesServer) configureRouter() {
-
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
-
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
-
 	s.router.HandleFunc("/api/v1/picture", mainPage)
 	s.router.HandleFunc("/api/v1/test", s.handleUpdateAvatar())
-
-	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost)
-	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate()).Methods("POST")
+	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate())
 	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
 	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
 	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}", authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
 	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", s.handleUpdateAvatar())
 	s.router.Handle("/api/v1/data/",
 		http.StripPrefix("/api/v1/data/", http.FileServer(http.Dir("./static"))))
-
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
 }
-
 func (s *ProfilesServer) configureDB() error {
 	st := repository.New(s.config)
 	if err := st.Open(); err != nil {
@@ -109,12 +98,12 @@ func (s *ProfilesServer) configureDB() error {
 // на фронте нужна такая форма
 var uploadFormTmpl = []byte(`
 <html>
-	<body>
-	<form action="/api/v1/test" method="post" enctype="multipart/form-data">
-		Image: <input type="file" name="my_file">
-		<input type="submit" value="Upload">
-	</form>
-	</body>
+        <body>
+        <form action="/api/v1/test" method="post" enctype="multipart/form-data">
+                Image: <input type="file" name="my_file">
+                <input type="submit" value="Upload">
+        </form>
+        </body>
 </html>
 `)
 
@@ -126,20 +115,16 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("handleUpdateAvatar")
-
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
 		//userIDfromURL := 1
 		userIDfromURLstr := fmt.Sprint(userIDfromURL)
-
 		userIDfromCookie, _ := r.Cookie("session_id")
 		//userIDfromCookie := 1
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
-
 		if userIDfromURLstr != userIDfromCookieStr {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("permission denied"))
 			return
 		}
-
 		r.ParseMultipartForm(5 * 1024 * 1025)
 		file, handler, err := r.FormFile("my_file")
 		if err != nil {
@@ -147,10 +132,8 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 			return
 		}
 		defer file.Close()
-
 		// fmt.Fprintf(w, "handler.Filename %v\n", handler.Filename)
 		// fmt.Fprintf(w, "handler.Header %#v\n", handler.Header)
-
 		ext := filepath.Ext(handler.Filename)
 		if ext == "" {
 			fmt.Println("the file must have the extension")
@@ -165,13 +148,10 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		}
 		defer f.Close()
 		io.Copy(f, file)
-
 		s.db.User().UpdateAvatar(userIDfromCookieStr, newAvatarPath)
-
 		io.WriteString(w, "avatar uploaded")
 	}
 }
-
 
 func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 	type request struct {
@@ -195,23 +175,23 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		}
 		session, err := s.sessionsClient.Create(context.Background(), u.ProfileID)
 		fmt.Println("Result: = " + session.Status)
-
 		if err != nil {
 			s.logger.Errorf("Error in creating session: %v", err)
 			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("authorization error"))
 			return
 		}
-
 		cookie := http.Cookie{
 			Name:     "session_id",
 			Value:    strconv.Itoa(session.ID),
 			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
+			SameSite: http.SameSiteNoneMode,
 			HttpOnly: false,
 		}
-
 		http.SetCookie(w, &cookie)
 		w.WriteHeader(http.StatusOK)
+		//body, _ := json.Marshal(map[string]string{"message": "Successful login."})
+		//w.Write(body)
 	}
 }
 
@@ -229,22 +209,28 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, err)
 		}
 		fmt.Println("req", req)
-
 		u := &models.UserProfile{
 			Email:    req.Email,
 			Password: req.Password,
 			Login:    req.Nickname,
 		}
-
-		fmt.Println("u", u)
 		if err := s.db.User().Create(u); err != nil {
 			s.error(w, r, http.StatusUnprocessableEntity, err)
 			return
 		}
-
+		fmt.Println("result of registration: ", u)
 		u.Sanitize()
-		s.respond(w, r, http.StatusCreated, u)
+		resp, err := json.Marshal(u)
+		if err != nil {
+			s.logger.Errorf("Error in marshalling: %v", err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(resp)
+		//body, _ := json.Marshal(map[string]string{"message": "Successful login."})
 		//io.WriteString(w, "registrate")
+		//w.WriteHeader(http.StatusOK)
+		//w.Write(body)
 	}
 }
 
@@ -252,37 +238,31 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleLogout")
-
 		session, err := r.Cookie("session_id")
-
 		if err != nil {
 			s.logger.Errorf("Error in parsing cookie: %v", err)
 			return
 		}
-
 		sessionID, _ := strconv.Atoi(session.Value)
-
 		result, err := s.sessionsClient.Delete(context.Background(), sessionID)
 		fmt.Println("Result: = " + result.Status)
-
 		if err != nil {
 			s.logger.Errorf("Error in deleting session: %v", err)
 			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("some bad"))
 		}
 		//cookie := &http.Cookie{
-		//	Path:     "/",
-		//	Name:     "session_id",
-		//	Value:    "",
-		//	Expires:  time.Unix(0, 0),
-		//	HttpOnly: true,
-		//	Secure:   false,
+		//      Path:     "/",
+		//      Name:     "session_id",
+		//      Value:    "",
+		//      Expires:  time.Unix(0, 0),
+		//      HttpOnly: true,
+		//      Secure:   false,
 		//}
 		//http.SetCookie(w, cookie)
 		//w.WriteHeader(http.StatusOK)
 		//w.Write([]byte("{\"status\": \"OK\"}"))
 		session.Expires = time.Now().AddDate(0, 0, -1)
 		http.SetCookie(w, session)
-
 		w.WriteHeader(http.StatusOK)
 	}
 }
@@ -291,7 +271,6 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, _ := r.Cookie("session_id")
 		s.logger.Info("starting handleProfile")
-
 		a, err := s.db.User().FindByID(userID.Value)
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("user with id="+userID.Value+" not found"))
@@ -307,7 +286,6 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 }
 
 func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
-
 	type request struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -316,32 +294,25 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleUpdateProfile")
-
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
 		userIDfromURLstr := fmt.Sprint(userIDfromURL)
-
 		userIDfromCookie, _ := r.Cookie("session_id")
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie.Value)
-
 		// fmt.Println(">>>>>>>>>>", userIDfromURLstr, userIDfromCookieStr)
-
 		if userIDfromURLstr != userIDfromCookieStr {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("permission denied"))
 			return
 		}
 		// fmt.Println(userIDfromURLstr)
-
 		userForUpdates, err := s.db.User().FindByID(userIDfromURLstr)
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("user with id="+userIDfromURLstr+" not found"))
 			return
 		}
-
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
 		}
-
 		flagPassword := false
 		if req.Email != "" {
 			userForUpdates.Email = req.Email
@@ -353,9 +324,7 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 			userForUpdates.Password = req.Password
 			flagPassword = true
 		}
-
 		fmt.Println(userForUpdates)
-
 		if flagPassword {
 			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
 				s.error(w, r, http.StatusUnprocessableEntity, err)
@@ -367,17 +336,13 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 				return
 			}
 		}
-
 		userForUpdates.Sanitize()
-
 		s.respond(w, r, http.StatusCreated, userForUpdates)
 	}
 }
-
 func (s *ProfilesServer) error(w http.ResponseWriter, r *http.Request, code int, err error) {
 	s.respond(w, r, code, map[string]string{"error": err.Error()})
 }
-
 func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
 	w.WriteHeader(code)
 	if data != nil {
