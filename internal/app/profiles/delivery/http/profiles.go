@@ -88,8 +88,22 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.Handle("/api/v1/data/",
 		http.StripPrefix("/api/v1/data/", http.FileServer(http.Dir("./static"))))
 
+	s.router.HandleFunc("/api/v1/create", s.CreateSession)
+
+	//c := cors.New(cors.Options{
+	//	AllowCredentials: true,
+	//	AllowedOrigins:   []string{"https://*", "http://*"},
+	//	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	//	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	//	MaxAge:           300,
+	//	// Enable Debugging for testing, consider disabling in production
+	//	Debug: true,
+	//})
+	//s.router.Use(c.Handler)
+
 	CORSMiddleware := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(CORSMiddleware.CORS)
+	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
 }
 
@@ -168,6 +182,29 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	}
 }
 
+func (handler *ProfilesServer) CreateSession(w http.ResponseWriter, r *http.Request) {
+	logrus.Info(r.Header.Get("Origin"))
+	userID, _ := strconv.Atoi(r.FormValue("user_id"))
+
+	session, err := handler.sessionsClient.Create(context.Background(), userID)
+	fmt.Println("Result: = " + session.Status)
+
+	if err != nil {
+		handler.logger.Errorf("Error in creating session: %v", err)
+	}
+
+	cookie := &http.Cookie{
+		Path:     "/",
+		Name:     "session_id",
+		Value:    strconv.Itoa(session.ID),
+		Expires:  time.Now().Add(oneDayTime * time.Second),
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	http.SetCookie(w, cookie)
+
+}
+
 func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 	type request struct {
 		Login    string `json:"nickname"`
@@ -198,15 +235,16 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		}
 
 		cookie := &http.Cookie{
-			Path:    "/",
-			Name:    "session_id",
-			Value:   strconv.Itoa(session.ID),
-			Expires: time.Now().Add(oneDayTime * time.Second),
+			Path:     "/",
+			Name:     "session_id",
+			Value:    strconv.Itoa(session.ID),
+			Expires:  time.Now().Add(oneDayTime * time.Second),
+			HttpOnly: false,
+			Secure:   false,
 		}
 
 		http.SetCookie(w, cookie)
 		s.respond(w, r, http.StatusOK, u)
-		//io.WriteString(w, "successfully login for user with id "+fmt.Sprint(session.ID))
 	}
 }
 
@@ -265,16 +303,16 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("some bad"))
 		}
 		cookie := &http.Cookie{
-			Path:    "/",
-			Name:    "session_id",
-			Value:   "",
-			Expires: time.Unix(0, 0),
+			Path:     "/",
+			Name:     "session_id",
+			Value:    "",
+			Expires:  time.Unix(0, 0),
+			HttpOnly: true,
+			Secure:   false,
 		}
 		http.SetCookie(w, cookie)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("{\"status\": \"OK\"}"))
-		//s.respond(w, r, http.StatusOK, )
-		//io.WriteString(w, "cookie with id = "+session.Value+" was deleted")
 	}
 }
 

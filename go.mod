@@ -15,6 +15,7 @@ require (
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jcmturner/gokrb5 v8.4.2+incompatible
 	github.com/lib/pq v1.9.0
+	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.8.0
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
@@ -22,5 +23,4 @@ require (
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/jcmturner/dnsutils.v1 v1.0.1 // indirect
 	gopkg.in/jcmturner/gokrb5.v7 v7.5.0 // indirect
-
 )
