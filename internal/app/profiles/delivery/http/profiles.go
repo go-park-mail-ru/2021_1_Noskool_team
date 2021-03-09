@@ -9,7 +9,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/handlers"
 	"io"
 	"net/http"
 	"os"
@@ -51,9 +50,6 @@ func New(config *configs.Config) *ProfilesServer {
 
 // Start ...
 func (s *ProfilesServer) Start() error {
-	headersOk := handlers.AllowedHeaders([]string{"Content-Type", "Content-Disposition"})
-	originsOk := handlers.AllowedOrigins([]string{"http://178.154.245.200"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"})
 
 	if err := s.configureLogger(); err != nil {
 		return err
@@ -66,16 +62,7 @@ func (s *ProfilesServer) Start() error {
 
 	s.logger.Info("starting profile server")
 	//return http.ListenAndServeTLS(s.config.ProfilesServerAddr, "server.crt", "server.key", s.router)
-	//return http.ListenAndServe(s.config.ProfilesServerAddr, Hs.router)
-
-	middleware.MyCORSMethodMiddleware(s.router)
-	serv := &http.Server{
-		Addr:         s.config.ProfilesServerAddr,
-		Handler:      handlers.CORS(originsOk, headersOk, methodsOk, handlers.AllowCredentials())(s.router),
-		WriteTimeout: 60 * time.Second,
-		ReadTimeout:  60 * time.Second,
-	}
-	return serv.ListenAndServe()
+	return http.ListenAndServe(s.config.ProfilesServerAddr, s.router)
 }
 
 func (s *ProfilesServer) configureLogger() error {
@@ -91,10 +78,13 @@ func (s *ProfilesServer) configureRouter() {
 
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 
+	cors := middleware.NewCORSMiddleware(s.config)
+	s.router.Use(cors.CORS)
+
 	s.router.HandleFunc("/api/v1/picture", mainPage)
 	s.router.HandleFunc("/api/v1/test", s.handleUpdateAvatar())
 
-	s.router.HandleFunc("/api/v1/login", s.handleLogin())
+	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost)
 	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate()).Methods("POST")
 	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
 	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
@@ -103,21 +93,6 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.Handle("/api/v1/data/",
 		http.StripPrefix("/api/v1/data/", http.FileServer(http.Dir("./static"))))
 
-	s.router.HandleFunc("/api/v1/create", s.CreateSession)
-
-	//c := cors.New(cors.Options{
-	//	AllowCredentials: true,
-	//	AllowedOrigins:   []string{"https://*", "http://*"},
-	//	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	//	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-	//	MaxAge:           300,
-	//	// Enable Debugging for testing, consider disabling in production
-	//	Debug: true,
-	//})
-	//s.router.Use(c.Handler)
-
-	//CORSMiddleware := middleware.NewCORSMiddleware(s.config)
-	//s.router.Use(CORSMiddleware.CORS)
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
 }
@@ -197,29 +172,6 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	}
 }
 
-func (handler *ProfilesServer) CreateSession(w http.ResponseWriter, r *http.Request) {
-	logrus.Info(r.Header.Get("Origin"))
-	userID, _ := strconv.Atoi(r.FormValue("user_id"))
-
-	session, err := handler.sessionsClient.Create(context.Background(), userID)
-	fmt.Println("Result: = " + session.Status)
-
-	if err != nil {
-		handler.logger.Errorf("Error in creating session: %v", err)
-	}
-
-	cookie := &http.Cookie{
-		Path:     "/",
-		Name:     "session_id",
-		Value:    strconv.Itoa(session.ID),
-		Expires:  time.Now().Add(oneDayTime * time.Second),
-		HttpOnly: false,
-		Secure:   false,
-	}
-
-	http.SetCookie(w, cookie)
-
-}
 
 func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 	type request struct {
@@ -227,7 +179,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		Password string `json:"password"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleLogin")
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
@@ -250,17 +202,16 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 			return
 		}
 
-		cookie := &http.Cookie{
-			Path:     "/",
+		cookie := http.Cookie{
 			Name:     "session_id",
 			Value:    strconv.Itoa(session.ID),
-			Expires:  time.Now().Add(oneDayTime * time.Second),
-			HttpOnly: false,
+			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
+			HttpOnly: false,
 		}
 
-		http.SetCookie(w, cookie)
-		s.respond(w, r, http.StatusOK, u)
+		http.SetCookie(w, &cookie)
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -299,7 +250,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 
 func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleLogout")
 
 		session, err := r.Cookie("session_id")
@@ -318,17 +269,21 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 			s.logger.Errorf("Error in deleting session: %v", err)
 			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("some bad"))
 		}
-		cookie := &http.Cookie{
-			Path:     "/",
-			Name:     "session_id",
-			Value:    "",
-			Expires:  time.Unix(0, 0),
-			HttpOnly: true,
-			Secure:   false,
-		}
-		http.SetCookie(w, cookie)
+		//cookie := &http.Cookie{
+		//	Path:     "/",
+		//	Name:     "session_id",
+		//	Value:    "",
+		//	Expires:  time.Unix(0, 0),
+		//	HttpOnly: true,
+		//	Secure:   false,
+		//}
+		//http.SetCookie(w, cookie)
+		//w.WriteHeader(http.StatusOK)
+		//w.Write([]byte("{\"status\": \"OK\"}"))
+		session.Expires = time.Now().AddDate(0, 0, -1)
+		http.SetCookie(w, session)
+
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("{\"status\": \"OK\"}"))
 	}
 }
 
