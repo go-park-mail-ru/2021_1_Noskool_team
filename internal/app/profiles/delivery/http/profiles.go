@@ -75,18 +75,18 @@ func (s *ProfilesServer) configureRouter() {
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
 	s.router.HandleFunc("/api/v1/picture", mainPage)
-	s.router.HandleFunc("/api/v1/test", s.handleUpdateAvatar())
 	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate())
+	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate()).Methods(http.MethodPost)
 	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
 	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
 	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}", authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
 	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", s.handleUpdateAvatar())
 
+	mediaFolder := fmt.Sprintf("./%s", s.config.MediaFolder)
 	s.router.PathPrefix("/api/v1/data/").
 		Handler(
 			http.StripPrefix(
-				"/api/v1/data/", http.FileServer(http.Dir("./static"))))
+				"/api/v1/data/", http.FileServer(http.Dir(mediaFolder))))
 
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
@@ -120,16 +120,18 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("handleUpdateAvatar")
+
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
-		//userIDfromURL := 1
 		userIDfromURLstr := fmt.Sprint(userIDfromURL)
 		userIDfromCookie, _ := r.Cookie("session_id")
-		//userIDfromCookie := 1
-		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
+		userIDfromCookieStr := fmt.Sprint(userIDfromCookie.Value)
+
 		if userIDfromURLstr != userIDfromCookieStr {
+			fmt.Println("user_id from the cookie and from the url do not match")
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка доступа"))
 			return
 		}
+
 		r.ParseMultipartForm(5 * 1024 * 1025)
 		file, handler, err := r.FormFile("my_file")
 		if err != nil {
@@ -146,8 +148,8 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Загружаемый файл должен иметь расширение например img.phg"))
 			return
 		}
-		newAvatarPath := "/api/v1/data/img/" + userIDfromCookieStr + ext
-		f, err := os.OpenFile(newAvatarPath, os.O_WRONLY|os.O_CREATE, 0666)
+		newAvatarPath := userIDfromCookieStr + ext
+		f, err := os.OpenFile("./static/data/img/"+newAvatarPath, os.O_RDWR|os.O_CREATE, 0755)
 		if err != nil {
 			fmt.Println(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка на сервере :("))
