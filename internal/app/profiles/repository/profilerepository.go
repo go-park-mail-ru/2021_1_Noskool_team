@@ -12,7 +12,7 @@ type ProfileRepository struct {
 
 // Create ...
 func (r *ProfileRepository) Create(u *models.UserProfile) error {
-	const defaultAvatar = "default.png"
+	const defaultAvatar = "/api/v1/data/img/default.png"
 	if err := u.Validate(true); err != nil {
 		return err
 	}
