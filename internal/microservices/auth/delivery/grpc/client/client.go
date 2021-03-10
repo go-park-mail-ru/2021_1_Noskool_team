@@ -19,8 +19,8 @@ func NewSessionsClient(con *grpc.ClientConn) *SessionsClient {
 	}
 }
 
-func (sesClient *SessionsClient) Create(ctx context.Context, id int) (models.Result, error) {
-	UserID := &proto.UserID{ID: int32(id)}
+func (sesClient *SessionsClient) Create(ctx context.Context, id string) (models.Result, error) {
+	UserID := &proto.UserID{ID: id}
 	result, err := sesClient.client.Create(ctx, UserID, grpc.EmptyCallOption{})
 	if err != nil {
 		fmt.Println(err)
@@ -28,9 +28,9 @@ func (sesClient *SessionsClient) Create(ctx context.Context, id int) (models.Res
 	}
 	return transformIntoResultModel(result), nil
 }
-func (sesClient *SessionsClient) Check(ctx context.Context, id int) (models.Result, error) {
-	UserID := &proto.UserID{ID: int32(id)}
-	result, err := sesClient.client.Check(ctx, UserID, grpc.EmptyCallOption{})
+func (sesClient *SessionsClient) Check(ctx context.Context, hash string) (models.Result, error) {
+	Hash := &proto.Hash{Hash: hash}
+	result, err := sesClient.client.Check(ctx, Hash, grpc.EmptyCallOption{})
 	if err != nil {
 		fmt.Println(err)
 		return models.Result{}, err
@@ -38,9 +38,9 @@ func (sesClient *SessionsClient) Check(ctx context.Context, id int) (models.Resu
 	return transformIntoResultModel(result), nil
 }
 
-func (sesClient *SessionsClient) Delete(ctx context.Context, id int) (models.Result, error) {
-	UserID := &proto.UserID{ID: int32(id)}
-	result, err := sesClient.client.Delete(ctx, UserID, grpc.EmptyCallOption{})
+func (sesClient *SessionsClient) Delete(ctx context.Context, hash string) (models.Result, error) {
+	Hash := &proto.Hash{Hash: hash}
+	result, err := sesClient.client.Delete(ctx, Hash, grpc.EmptyCallOption{})
 	if err != nil {
 		fmt.Println(err)
 		return models.Result{}, err
@@ -53,7 +53,8 @@ func transformIntoResultModel(result *proto.Result) models.Result {
 		return models.Result{}
 	}
 	resultModel := models.Result{
-		ID:     int(result.ID.ID),
+		ID:     result.ID.ID,
+		Hash:   result.Hash,
 		Status: result.Status,
 	}
 

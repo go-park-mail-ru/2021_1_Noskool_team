@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
-	"strconv"
 )
 
 type server struct {
@@ -39,7 +38,7 @@ func StartSessionsGRPCServer(sesUsecase auth.Usecase, url string) {
 }
 
 func (s *server) Create(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-	_, err := s.sessionsUsecase.CreateSession(strconv.Itoa(int(id.ID)))
+	session, err := s.sessionsUsecase.CreateSession(id.ID)
 	if err != nil {
 		fmt.Println(err)
 		result := &proto.Result{
@@ -48,42 +47,59 @@ func (s *server) Create(ctx context.Context, id *proto.UserID) (*proto.Result, e
 		}
 		return result, err
 	}
+
+	userID := &proto.UserID{
+		ID: session.UserID,
+	}
 	result := &proto.Result{
-		ID:     id,
+		ID:     userID,
+		Hash:   session.Hash,
 		Status: "OK",
 	}
 	return result, nil
 }
 
-func (s *server) Check(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-	_, err := s.sessionsUsecase.CheckSession(strconv.Itoa(int(id.ID)))
+func (s *server) Check(ctx context.Context, hash *proto.Hash) (*proto.Result, error) {
+	session, err := s.sessionsUsecase.CheckSession(hash.Hash)
 	if err != nil {
 		fmt.Println(err)
+		userID := &proto.UserID{
+			ID: "-1",
+		}
 		result := &proto.Result{
-			ID:     id,
+			ID:     userID,
 			Status: err.Error(),
 		}
 		return result, err
 	}
+	userID := &proto.UserID{
+		ID: session.UserID,
+	}
 	result := &proto.Result{
-		ID:     id,
+		ID:     userID,
+		Hash:   session.Hash,
 		Status: "OK",
 	}
 	return result, nil
 }
 
-func (s *server) Delete(ctx context.Context, id *proto.UserID) (*proto.Result, error) {
-	err := s.sessionsUsecase.DeleteSession(strconv.Itoa(int(id.ID)))
+func (s *server) Delete(ctx context.Context, hash *proto.Hash) (*proto.Result, error) {
+	err := s.sessionsUsecase.DeleteSession(hash.Hash)
+
+	userID := &proto.UserID{
+		ID: "-1",
+	}
 	if err != nil {
 		fmt.Println(err)
+
 		result := &proto.Result{
-			ID:     id,
+			ID:     userID,
 			Status: err.Error(),
 		}
 		return result, err
 	}
 	result := &proto.Result{
-		ID:     id,
+		ID:     userID,
 		Status: "OK",
 	}
 	return result, nil

@@ -3,6 +3,8 @@ package usecase
 import (
 	"2021_1_Noskool_team/internal/microservices/auth"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 )
 
@@ -20,9 +22,9 @@ func NewSessionsUsecase(sessionRep auth.Repository) SessionsUsecase {
 	}
 }
 
-func (usecase *SessionsUsecase) CheckSession(userID string) (*models.Sessions, error) {
+func (usecase *SessionsUsecase) CheckSession(hash string) (*models.Sessions, error) {
 	session := &models.Sessions{
-		UserID:     userID,
+		Hash:     hash,
 		Expiration: oneDayTime,
 	}
 
@@ -52,11 +54,20 @@ func (usecase *SessionsUsecase) DeleteSession(userID string) error {
 	return nil
 }
 
+func GetMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
+}
+
 func (usecase *SessionsUsecase) CreateSession(userID string) (*models.Sessions, error) {
 	session := &models.Sessions{
 		UserID:     userID,
+		Hash: "",
 		Expiration: oneDayTime,
 	}
+
+	session.Hash = GetMD5Hash(session.UserID)
+	fmt.Println(session.UserID)
 
 	session, err := usecase.sessionsRepo.CreateSession(session)
 	if err != nil {

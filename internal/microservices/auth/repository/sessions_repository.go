@@ -20,7 +20,7 @@ func NewSessionRepository(conn *redis.Pool) *SessionsRepository {
 func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*models.Sessions, error) {
 	con := sessionRep.redisPool.Get()
 	defer con.Close()
-	result, err := redis.String(con.Do("SET", session.UserID, session.UserID,
+	result, err := redis.String(con.Do("SET", session.Hash, session.UserID,
 		"EX", session.Expiration))
 	fmt.Println(result)
 	if result != "OK" {
@@ -32,8 +32,9 @@ func (sessionRep *SessionsRepository) CreateSession(session *models.Sessions) (*
 func (sessionRep *SessionsRepository) CheckSession(session *models.Sessions) (*models.Sessions, error) {
 	con := sessionRep.redisPool.Get()
 	defer con.Close()
-	result, err := redis.String(con.Do("GET", session.UserID))
+	result, err := redis.String(con.Do("GET", session.Hash))
 	fmt.Println(result)
+	session.UserID = result
 	return session, err
 }
 

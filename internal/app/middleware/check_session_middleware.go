@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 type SessionsMiddleware struct {
@@ -29,11 +28,11 @@ func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handl
 			return
 		}
 
-		userID, _ := strconv.Atoi(sessionID.Value)
+		userID := sessionID.Value
 		session, err := sessMiddleware.sessionsClient.Check(context.Background(), userID)
 		fmt.Println("Result: = " + session.Status)
 
-		if err == nil && session.ID == userID {
+		if err == nil {
 			//w.Write([]byte("Кука есть и id у нее = " + strconv.Itoa(session.ID) + "\n"))
 		} else {
 			fmt.Printf("Error in checking session: %v\n", err)

@@ -58,7 +58,6 @@ func (s *ProfilesServer) Start() error {
 		return err
 	}
 	s.logger.Info("starting profile server")
-	//return http.ListenAndServeTLS(s.config.ProfilesServerAddr, "server.crt", "server.key", s.router)
 	return http.ListenAndServe(s.config.ProfilesServerAddr, s.router)
 }
 func (s *ProfilesServer) configureLogger() error {
@@ -71,26 +70,29 @@ func (s *ProfilesServer) configureLogger() error {
 }
 
 func (s *ProfilesServer) configureRouter() {
+	mediaFolder := fmt.Sprintf("%s", "./static")
+	s.router.PathPrefix("/api/v1/data/").
+		Handler(
+			http.StripPrefix(
+				"/api/v1/data/", http.FileServer(http.Dir(mediaFolder))))
+
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
-	s.router.HandleFunc("/api/v1/picture", mainPage)
+	s.router.HandleFunc("/api/v1/auth", s.HandleAuth())
 	s.router.HandleFunc("/api/v1/test", s.handleUpdateAvatar())
 	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate())
 	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
 	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
-	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}", authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
-	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", s.handleUpdateAvatar())
-
-	s.router.PathPrefix("/api/v1/data/").
-		Handler(
-			http.StripPrefix(
-				"/api/v1/data/", http.FileServer(http.Dir("./static"))))
+	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}",
+		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
+	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", s.handleUpdateAvatar()).Methods(http.MethodPost)
 
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
 }
+
 func (s *ProfilesServer) configureDB() error {
 	st := repository.New(s.config)
 	if err := st.Open(); err != nil {
@@ -100,20 +102,17 @@ func (s *ProfilesServer) configureDB() error {
 	return nil
 }
 
-// на фронте нужна такая форма
-var uploadFormTmpl = []byte(`
-<html>
-        <body>
-        <form action="/api/v1/test" method="post" enctype="multipart/form-data">
-                Image: <input type="file" name="my_file">
-                <input type="submit" value="Upload">
-        </form>
-        </body>
-</html>
-`)
-
-func mainPage(w http.ResponseWriter, r *http.Request) {
-	w.Write(uploadFormTmpl)
+func (s *ProfilesServer) HandleAuth() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		SessionHash, _ := r.Cookie("session_id")
+		_, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
+		if err != nil {
+			s.logger.Error("Пользователь не авторизован ", err)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(200)
+	}
 }
 
 func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
@@ -121,10 +120,13 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("handleUpdateAvatar")
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
-		//userIDfromURL := 1
 		userIDfromURLstr := fmt.Sprint(userIDfromURL)
-		userIDfromCookie, _ := r.Cookie("session_id")
-		//userIDfromCookie := 1
+		SessionHash, _ := r.Cookie("session_id")
+		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
+		if err != nil {
+			s.logger.Error(err)
+		}
+		userIDfromCookie := session.ID
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 		if userIDfromURLstr != userIDfromCookieStr {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка доступа"))
@@ -138,26 +140,27 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 			return
 		}
 		defer file.Close()
-		// fmt.Fprintf(w, "handler.Filename %v\n", handler.Filename)
-		// fmt.Fprintf(w, "handler.Header %#v\n", handler.Header)
+
 		ext := filepath.Ext(handler.Filename)
 		if ext == "" {
 			fmt.Println("the file must have the extension")
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Загружаемый файл должен иметь расширение например img.phg"))
 			return
 		}
-		newAvatarPath := "/api/v1/data/img/" + userIDfromCookieStr + ext
+		path, _ := os.Getwd()
+		photoPath := path + "/static/img/"
+		newAvatarPath := photoPath + session.ID + ext
+		fmt.Println(newAvatarPath)
 		f, err := os.OpenFile(newAvatarPath, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			fmt.Println(err)
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка на сервере :("))
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка на сервере, не смогли создать файл картинки"))
 			return
 		}
 		defer f.Close()
 		io.Copy(f, file)
 		s.db.User().UpdateAvatar(userIDfromCookieStr, newAvatarPath)
 		s.respond(w, r, http.StatusOK, nil)
-		// io.WriteString(w, "Успех")
 	}
 }
 
@@ -182,25 +185,23 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Некорректный email или пароль"))
 			return
 		}
-		session, err := s.sessionsClient.Create(context.Background(), u.ProfileID)
+		session, err := s.sessionsClient.Create(context.Background(), strconv.Itoa(u.ProfileID))
 		fmt.Println("Result: = " + session.Status)
 		if err != nil {
 			s.logger.Errorf("Error in creating session: %v", err)
 			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Ошибка авторизации"))
 			return
 		}
+		fmt.Println(session.ID)
 		cookie := http.Cookie{
 			Name:     "session_id",
-			Value:    strconv.Itoa(session.ID),
+			Value:    session.Hash,
 			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
 			HttpOnly: false,
 		}
 		http.SetCookie(w, &cookie)
-		// w.WriteHeader(http.StatusOK)
 		s.respond(w, r, http.StatusOK, nil)
-		//body, _ := json.Marshal(map[string]string{"message": "Successful login."})
-		//w.Write(body)
 	}
 }
 
@@ -232,17 +233,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		}
 		fmt.Println("result of registration: ", u)
 		u.Sanitize()
-		// resp, err := json.Marshal(u)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf("Ошибка на сервере :("))
-		// 	return
-		// }
 		s.respond(w, r, http.StatusOK, u)
-		//body, _ := json.Marshal(map[string]string{"message": "Successful login."})
-		//io.WriteString(w, "registrate")
-		//w.WriteHeader(http.StatusOK)
-		//w.Write(body)
 	}
 }
 
@@ -255,9 +246,8 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 			fmt.Println(err)
 			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
 			return
-
 		}
-		sessionID, _ := strconv.Atoi(session.Value)
+		sessionID := session.Value
 		result, err := s.sessionsClient.Delete(context.Background(), sessionID)
 		fmt.Println("Result: = " + result.Status)
 		if err != nil {
@@ -265,17 +255,6 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
 			return
 		}
-		//cookie := &http.Cookie{
-		//      Path:     "/",
-		//      Name:     "session_id",
-		//      Value:    "",
-		//      Expires:  time.Unix(0, 0),
-		//      HttpOnly: true,
-		//      Secure:   false,
-		//}
-		//http.SetCookie(w, cookie)
-		//w.WriteHeader(http.StatusOK)
-		//w.Write([]byte("{\"status\": \"OK\"}"))
 		session.Expires = time.Now().AddDate(0, 0, -1)
 		http.SetCookie(w, session)
 		w.WriteHeader(http.StatusOK)
@@ -285,9 +264,10 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		userID, _ := r.Cookie("session_id")
+		SessionHash, _ := r.Cookie("session_id")
+		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
 		s.logger.Info("starting handleProfile")
-		a, err := s.db.User().FindByID(userID.Value)
+		a, err := s.db.User().FindByID(session.ID)
 		if err != nil {
 			fmt.Println(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Не удалось найти пользователя"))
@@ -308,8 +288,10 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		s.logger.Info("starting handleUpdateProfile")
 		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
 		userIDfromURLstr := fmt.Sprint(userIDfromURL)
-		userIDfromCookie, _ := r.Cookie("session_id")
-		userIDfromCookieStr := fmt.Sprint(userIDfromCookie.Value)
+		SessionHash, _ := r.Cookie("session_id")
+		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
+		userIDfromCookie := session.ID
+		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 		// fmt.Println(">>>>>>>>>>", userIDfromURLstr, userIDfromCookieStr)
 		if userIDfromURLstr != userIDfromCookieStr {
 			fmt.Println("user_id from the cookie and from the url do not match")

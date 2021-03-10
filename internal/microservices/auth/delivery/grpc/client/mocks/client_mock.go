@@ -36,7 +36,7 @@ func (m *MockAuthCheckerClient) EXPECT() *MockAuthCheckerClientMockRecorder {
 }
 
 // Check mocks base method.
-func (m *MockAuthCheckerClient) Check(ctx context.Context, id int) (models.Result, error) {
+func (m *MockAuthCheckerClient) Check(ctx context.Context, id string) (models.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Check", ctx, id)
 	ret0, _ := ret[0].(models.Result)
@@ -51,7 +51,7 @@ func (mr *MockAuthCheckerClientMockRecorder) Check(ctx, id interface{}) *gomock.
 }
 
 // Create mocks base method.
-func (m *MockAuthCheckerClient) Create(ctx context.Context, id int) (models.Result, error) {
+func (m *MockAuthCheckerClient) Create(ctx context.Context, id string) (models.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, id)
 	ret0, _ := ret[0].(models.Result)
@@ -66,7 +66,7 @@ func (mr *MockAuthCheckerClientMockRecorder) Create(ctx, id interface{}) *gomock
 }
 
 // Delete mocks base method.
-func (m *MockAuthCheckerClient) Delete(ctx context.Context, id int) (models.Result, error) {
+func (m *MockAuthCheckerClient) Delete(ctx context.Context, id string) (models.Result, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(models.Result)

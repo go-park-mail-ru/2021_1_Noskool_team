@@ -39,7 +39,7 @@ func TestCORSMiddleware(t *testing.T) {
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Methods"),
 		"POST, GET, OPTIONS, PUT, DELETE")
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Origin"),
-		corsMid.config.FrontendURL)
+		"http://178.154.245.200")
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Credentials"),
 		"true")
 }

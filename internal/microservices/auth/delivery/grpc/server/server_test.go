@@ -27,13 +27,13 @@ func TestSessionServer(t *testing.T) {
 		Expiration: 86400,
 	}
 	expectedResult := models.Result{
-		1,
+		"1",
 		"OK",
 	}
 
 	sessionsClient := client.NewSessionsClient(grpcConn)
 	mockSesUsecase.EXPECT().CheckSession("1").Return(session, nil)
-	res, err := sessionsClient.Check(context.Background(), 1)
+	res, err := sessionsClient.Check(context.Background(), "1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -42,7 +42,7 @@ func TestSessionServer(t *testing.T) {
 	}
 
 	mockSesUsecase.EXPECT().CreateSession("1").Return(session, nil)
-	res, err = sessionsClient.Create(context.Background(), 1)
+	res, err = sessionsClient.Create(context.Background(), "1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,7 +51,7 @@ func TestSessionServer(t *testing.T) {
 	}
 
 	mockSesUsecase.EXPECT().DeleteSession("1").Return(nil)
-	res, err = sessionsClient.Delete(context.Background(), 1)
+	res, err = sessionsClient.Delete(context.Background(), "1")
 	if err != nil {
 		t.Error(err)
 	}

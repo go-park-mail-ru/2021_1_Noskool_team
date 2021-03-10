@@ -6,7 +6,7 @@ import (
 )
 
 type AuthCheckerClient interface {
-	Create(ctx context.Context, id int) (models.Result, error)
-	Check(ctx context.Context, id int) (models.Result, error)
-	Delete(ctx context.Context, id int) (models.Result, error)
+	Create(ctx context.Context, id string) (models.Result, error)
+	Check(ctx context.Context, id string) (models.Result, error)
+	Delete(ctx context.Context, id string) (models.Result, error)
 }

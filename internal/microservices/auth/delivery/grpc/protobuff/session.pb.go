@@ -36,7 +36,7 @@ type UserID struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ID int32 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	ID string `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
 }
 
 func (x *UserID) Reset() {
@@ -71,11 +71,11 @@ func (*UserID) Descriptor() ([]byte, []int) {
 	return file_session_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserID) GetID() int32 {
+func (x *UserID) GetID() string {
 	if x != nil {
 		return x.ID
 	}
-	return 0
+	return ""
 }
 
 type Result struct {
@@ -84,7 +84,8 @@ type Result struct {
 	unknownFields protoimpl.UnknownFields
 
 	ID     *UserID `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	Status string  `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Hash   string  `protobuf:"bytes,2,opt,name=Hash,proto3" json:"Hash,omitempty"`
+	Status string  `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 }
 
 func (x *Result) Reset() {
@@ -126,9 +127,63 @@ func (x *Result) GetID() *UserID {
 	return nil
 }
 
+func (x *Result) GetHash() string {
+	if x != nil {
+		return x.Hash
+	}
+	return ""
+}
+
 func (x *Result) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+type Hash struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Hash string `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
+}
+
+func (x *Hash) Reset() {
+	*x = Hash{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_session_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Hash) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Hash) ProtoMessage() {}
+
+func (x *Hash) ProtoReflect() protoreflect.Message {
+	mi := &file_session_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Hash.ProtoReflect.Descriptor instead.
+func (*Hash) Descriptor() ([]byte, []int) {
+	return file_session_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Hash) GetHash() string {
+	if x != nil {
+		return x.Hash
 	}
 	return ""
 }
@@ -138,20 +193,23 @@ var File_session_proto protoreflect.FileDescriptor
 var file_session_proto_rawDesc = []byte{
 	0x0a, 0x0d, 0x73, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
 	0x04, 0x61, 0x75, 0x74, 0x68, 0x22, 0x18, 0x0a, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x12,
-	0x0e, 0x0a, 0x02, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x49, 0x44, 0x22,
-	0x3e, 0x0a, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x1c, 0x0a, 0x02, 0x49, 0x44, 0x18,
+	0x0e, 0x0a, 0x02, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x49, 0x44, 0x22,
+	0x52, 0x0a, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x1c, 0x0a, 0x02, 0x49, 0x44, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x55, 0x73, 0x65,
-	0x72, 0x49, 0x44, 0x52, 0x02, 0x49, 0x44, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
-	0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x32,
-	0x84, 0x01, 0x0a, 0x0b, 0x41, 0x75, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x65, 0x72, 0x12,
+	0x72, 0x49, 0x44, 0x52, 0x02, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x48, 0x61, 0x73, 0x68, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x48, 0x61, 0x73, 0x68, 0x12, 0x16, 0x0a, 0x06, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x22, 0x1a, 0x0a, 0x04, 0x48, 0x61, 0x73, 0x68, 0x12, 0x12, 0x0a, 0x04, 0x48,
+	0x61, 0x73, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x48, 0x61, 0x73, 0x68, 0x32,
+	0x80, 0x01, 0x0a, 0x0b, 0x41, 0x75, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x65, 0x72, 0x12,
 	0x26, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68,
 	0x2e, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x1a, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x52,
-	0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x00, 0x12, 0x25, 0x0a, 0x05, 0x43, 0x68, 0x65, 0x63, 0x6b,
-	0x12, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x1a, 0x0c,
-	0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x00, 0x12, 0x26,
-	0x0a, 0x06, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x12, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e,
-	0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x1a, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x52, 0x65,
-	0x73, 0x75, 0x6c, 0x74, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x00, 0x12, 0x23, 0x0a, 0x05, 0x43, 0x68, 0x65, 0x63, 0x6b,
+	0x12, 0x0a, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x48, 0x61, 0x73, 0x68, 0x1a, 0x0c, 0x2e, 0x61,
+	0x75, 0x74, 0x68, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x00, 0x12, 0x24, 0x0a, 0x06,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x12, 0x0a, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x48, 0x61,
+	0x73, 0x68, 0x1a, 0x0c, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74,
+	0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -166,16 +224,17 @@ func file_session_proto_rawDescGZIP() []byte {
 	return file_session_proto_rawDescData
 }
 
-var file_session_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_session_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_session_proto_goTypes = []interface{}{
 	(*UserID)(nil), // 0: auth.UserID
 	(*Result)(nil), // 1: auth.Result
+	(*Hash)(nil),   // 2: auth.Hash
 }
 var file_session_proto_depIdxs = []int32{
 	0, // 0: auth.Result.ID:type_name -> auth.UserID
 	0, // 1: auth.AuthChecker.Create:input_type -> auth.UserID
-	0, // 2: auth.AuthChecker.Check:input_type -> auth.UserID
-	0, // 3: auth.AuthChecker.Delete:input_type -> auth.UserID
+	2, // 2: auth.AuthChecker.Check:input_type -> auth.Hash
+	2, // 3: auth.AuthChecker.Delete:input_type -> auth.Hash
 	1, // 4: auth.AuthChecker.Create:output_type -> auth.Result
 	1, // 5: auth.AuthChecker.Check:output_type -> auth.Result
 	1, // 6: auth.AuthChecker.Delete:output_type -> auth.Result
@@ -216,6 +275,18 @@ func file_session_proto_init() {
 				return nil
 			}
 		}
+		file_session_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Hash); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -223,7 +294,7 @@ func file_session_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_session_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -250,8 +321,8 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AuthCheckerClient interface {
 	Create(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Result, error)
-	Check(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Result, error)
-	Delete(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Result, error)
+	Check(ctx context.Context, in *Hash, opts ...grpc.CallOption) (*Result, error)
+	Delete(ctx context.Context, in *Hash, opts ...grpc.CallOption) (*Result, error)
 }
 
 type authCheckerClient struct {
@@ -271,7 +342,7 @@ func (c *authCheckerClient) Create(ctx context.Context, in *UserID, opts ...grpc
 	return out, nil
 }
 
-func (c *authCheckerClient) Check(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Result, error) {
+func (c *authCheckerClient) Check(ctx context.Context, in *Hash, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
 	err := c.cc.Invoke(ctx, "/auth.AuthChecker/Check", in, out, opts...)
 	if err != nil {
@@ -280,7 +351,7 @@ func (c *authCheckerClient) Check(ctx context.Context, in *UserID, opts ...grpc.
 	return out, nil
 }
 
-func (c *authCheckerClient) Delete(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Result, error) {
+func (c *authCheckerClient) Delete(ctx context.Context, in *Hash, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
 	err := c.cc.Invoke(ctx, "/auth.AuthChecker/Delete", in, out, opts...)
 	if err != nil {
@@ -292,8 +363,8 @@ func (c *authCheckerClient) Delete(ctx context.Context, in *UserID, opts ...grpc
 // AuthCheckerServer is the server API for AuthChecker service.
 type AuthCheckerServer interface {
 	Create(context.Context, *UserID) (*Result, error)
-	Check(context.Context, *UserID) (*Result, error)
-	Delete(context.Context, *UserID) (*Result, error)
+	Check(context.Context, *Hash) (*Result, error)
+	Delete(context.Context, *Hash) (*Result, error)
 }
 
 // UnimplementedAuthCheckerServer can be embedded to have forward compatible implementations.
@@ -303,10 +374,10 @@ type UnimplementedAuthCheckerServer struct {
 func (*UnimplementedAuthCheckerServer) Create(context.Context, *UserID) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (*UnimplementedAuthCheckerServer) Check(context.Context, *UserID) (*Result, error) {
+func (*UnimplementedAuthCheckerServer) Check(context.Context, *Hash) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Check not implemented")
 }
-func (*UnimplementedAuthCheckerServer) Delete(context.Context, *UserID) (*Result, error) {
+func (*UnimplementedAuthCheckerServer) Delete(context.Context, *Hash) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
@@ -333,7 +404,7 @@ func _AuthChecker_Create_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _AuthChecker_Check_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserID)
+	in := new(Hash)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -345,13 +416,13 @@ func _AuthChecker_Check_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/auth.AuthChecker/Check",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthCheckerServer).Check(ctx, req.(*UserID))
+		return srv.(AuthCheckerServer).Check(ctx, req.(*Hash))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthChecker_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserID)
+	in := new(Hash)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -363,7 +434,7 @@ func _AuthChecker_Delete_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/auth.AuthChecker/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthCheckerServer).Delete(ctx, req.(*UserID))
+		return srv.(AuthCheckerServer).Delete(ctx, req.(*Hash))
 	}
 	return interceptor(ctx, in, info, handler)
 }
