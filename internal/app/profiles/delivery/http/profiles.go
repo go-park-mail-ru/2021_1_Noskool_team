@@ -167,7 +167,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		Password string `json:"password"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		//w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleLogin")
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
@@ -284,6 +284,7 @@ func (s *ProfilesServer) handleLogout() http.HandlerFunc {
 
 func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		userID, _ := r.Cookie("session_id")
 		s.logger.Info("starting handleProfile")
 		a, err := s.db.User().FindByID(userID.Value)
