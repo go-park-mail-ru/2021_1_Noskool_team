@@ -37,8 +37,6 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		logrus.Error(err)
 	}
 
-	//sesHmiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
-
 	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}", handler.GetTrackByMusicianID).Methods("GET")
@@ -65,7 +63,12 @@ func ConfigLogger(handler *TracksHandler, config *configs.Config) error {
 
 func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	trackID, _ := strconv.Atoi(mux.Vars(r)["track_id"])
+	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
 
 	track, err := handler.tracksUsecase.GetTrackByID(trackID)
 	if err != nil {
@@ -103,7 +106,12 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 }
 
 func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *http.Request) {
-	musicianID, _ := strconv.Atoi(mux.Vars(r)["musician_id"])
+	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 

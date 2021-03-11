@@ -34,7 +34,10 @@ func StartSessionsGRPCServer(sesUsecase auth.Usecase, url string) {
 
 	NewSessionsServerGRPC(server, sesUsecase)
 
-	_ = server.Serve(list)
+	err = server.Serve(list)
+	if err != nil {
+		logrus.Error(err)
+	}
 }
 
 func (s *server) Create(ctx context.Context, id *proto.UserID) (*proto.Result, error) {

@@ -54,7 +54,7 @@ func (s *Suite) TestCreateSession() {
 	session, err := s.sessions.CreateSession(session)
 	require.NoError(s.T(), err)
 
-	value, err := s.redisServer.Get(session.UserID)
+	value, err := s.redisServer.Get(session.Hash)
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), value, session.UserID)
 
@@ -69,13 +69,14 @@ func (s *Suite) TestCreateSession() {
 func (s *Suite) TestCheckSession() {
 	sessionExpected := &models.Sessions{
 		UserID:     "1",
+		Hash:       "some hash",
 		Expiration: 86400,
 	}
 
 	session, err := s.sessions.CreateSession(sessionExpected)
 	require.NoError(s.T(), err)
 
-	value, err := s.redisServer.Get(sessionExpected.UserID)
+	value, err := s.redisServer.Get(sessionExpected.Hash)
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), value, sessionExpected.UserID)
 
@@ -94,21 +95,22 @@ func (s *Suite) TestCheckSession() {
 func (s *Suite) TestDeleteSession() {
 	sessionExpected := &models.Sessions{
 		UserID:     "1",
+		Hash:       "some hash",
 		Expiration: 86400,
 	}
 
 	_, err := s.sessions.CreateSession(sessionExpected)
 	require.NoError(s.T(), err)
 
-	value, err := s.redisServer.Get(sessionExpected.UserID)
+	value, err := s.redisServer.Get(sessionExpected.Hash)
 	require.NoError(s.T(), err)
 	require.Equal(s.T(), value, sessionExpected.UserID)
 
 	err = s.sessions.DeleteSession(sessionExpected)
 	require.NoError(s.T(), err)
 
-	_, err = s.redisServer.Get(sessionExpected.UserID)
-	require.Equal(s.T(), err, errors.New("ERR no such key"))
+	_, err = s.redisServer.Get(sessionExpected.Hash)
+	require.Equal(s.T(), err, nil)
 
 	s.redisServer.Close()
 }

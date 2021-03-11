@@ -3,7 +3,9 @@ package middleware
 import (
 	"2021_1_Noskool_team/configs"
 	mock_client "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client/mocks"
+	"github.com/BurntSushi/toml"
 	"github.com/golang/mock/gomock"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -22,14 +24,22 @@ func TestLoggingMiddleware(t *testing.T) {
 	handlerToTest.ServeHTTP(w, req)
 }
 
+const (
+	configPath = "configs/config.toml"
+)
+
 func TestCORSMiddleware(t *testing.T) {
 	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.True(t, true)
 	})
 
-	corsMid := NewCORSMiddleware(&configs.Config{
-		FrontendURL: "some url",
-	})
+	config := configs.NewConfig()
+	_, err := toml.DecodeFile(configPath, config)
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	corsMid := NewCORSMiddleware(config)
 	handlerToTest := corsMid.CORS(nextHandler)
 
 	req := httptest.NewRequest("GET", "/api/v1/", nil)
@@ -39,7 +49,7 @@ func TestCORSMiddleware(t *testing.T) {
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Methods"),
 		"POST, GET, OPTIONS, PUT, DELETE")
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Origin"),
-		"http://178.154.245.200")
+		config.FrontendURL)
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Credentials"),
 		"true")
 }

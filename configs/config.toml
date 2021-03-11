@@ -1,5 +1,5 @@
 music_server_addr = ":8888"
-#session_microservice_addr = ":8081"
+session_microservice_addr = ":8081"
 session_microservice_addr = "sessions-service:8081"
 #session_redis_url = "redis://127.0.0.1:6379/0"
 session_redis_url = "redis://redis/0"

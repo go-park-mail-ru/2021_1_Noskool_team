@@ -29,7 +29,6 @@ func Start(config *configs.Config, handler Handler) error {
 		return err
 	}
 	logrus.Info(serv.config.MusicServerAddr)
-	//return http.ListenAndServeTLS(serv.config.MusicServerAddr, "server.crt", "server.key", serv.handler)
 	return http.ListenAndServe(serv.config.MusicServerAddr, serv.handler)
 }
 

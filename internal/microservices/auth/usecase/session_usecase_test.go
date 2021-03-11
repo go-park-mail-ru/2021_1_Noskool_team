@@ -17,7 +17,7 @@ func TestCheckSession(t *testing.T) {
 	mockUsecase := NewSessionsUsecase(mockRepo)
 
 	expectedSession := &models.Sessions{
-		UserID:     "1",
+		Hash:       "some hash",
 		Expiration: 86400,
 	}
 
@@ -25,7 +25,7 @@ func TestCheckSession(t *testing.T) {
 		EXPECT().CheckSession(gomock.Eq(expectedSession)).
 		Return(expectedSession, nil)
 
-	session, err := mockUsecase.CheckSession(expectedSession.UserID)
+	session, err := mockUsecase.CheckSession(expectedSession.Hash)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, expectedSession, session)
 }
@@ -38,7 +38,6 @@ func TestCheckSessionFailed(t *testing.T) {
 	mockUsecase := NewSessionsUsecase(mockRepo)
 
 	expectedSession := &models.Sessions{
-		UserID:     "-1",
 		Expiration: 86400,
 	}
 
@@ -100,6 +99,7 @@ func TestCreateSession(t *testing.T) {
 
 	expectedSession := &models.Sessions{
 		UserID:     "1",
+		Hash:       "c4ca4238a0b923820dcc509a6f75849b",
 		Expiration: 86400,
 	}
 
@@ -121,6 +121,7 @@ func TestCreateSessionFailed(t *testing.T) {
 
 	expectedSession := &models.Sessions{
 		UserID:     "1",
+		Hash:       "c4ca4238a0b923820dcc509a6f75849b",
 		Expiration: 86400,
 	}
 

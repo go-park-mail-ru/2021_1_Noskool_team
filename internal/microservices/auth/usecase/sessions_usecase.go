@@ -24,7 +24,7 @@ func NewSessionsUsecase(sessionRep auth.Repository) SessionsUsecase {
 
 func (usecase *SessionsUsecase) CheckSession(hash string) (*models.Sessions, error) {
 	session := &models.Sessions{
-		Hash:     hash,
+		Hash:       hash,
 		Expiration: oneDayTime,
 	}
 
@@ -62,7 +62,7 @@ func GetMD5Hash(text string) string {
 func (usecase *SessionsUsecase) CreateSession(userID string) (*models.Sessions, error) {
 	session := &models.Sessions{
 		UserID:     userID,
-		Hash: "",
+		Hash:       "",
 		Expiration: oneDayTime,
 	}
 

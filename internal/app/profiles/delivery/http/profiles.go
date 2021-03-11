@@ -79,8 +79,7 @@ func (s *ProfilesServer) configureRouter() {
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
-	s.router.HandleFunc("/api/v1/auth", s.HandleAuth())
-	s.router.HandleFunc("/api/v1/test", s.handleUpdateAvatar())
+	s.router.HandleFunc("/api/v1/auth", s.HandleAuth)
 	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate())
 	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
@@ -102,17 +101,15 @@ func (s *ProfilesServer) configureDB() error {
 	return nil
 }
 
-func (s *ProfilesServer) HandleAuth() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		SessionHash, _ := r.Cookie("session_id")
-		_, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
-		if err != nil {
-			s.logger.Error("Пользователь не авторизован ", err)
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(200)
+func (s *ProfilesServer) HandleAuth(w http.ResponseWriter, r *http.Request) {
+	SessionHash, _ := r.Cookie("session_id")
+	_, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
+	if err != nil {
+		s.logger.Error("Пользователь не авторизован ", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
+	w.WriteHeader(200)
 }
 
 func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
@@ -159,7 +156,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		}
 		defer f.Close()
 		io.Copy(f, file)
-		s.db.User().UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/" + session.ID + ext)
+		s.db.User().UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/"+session.ID+ext)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }

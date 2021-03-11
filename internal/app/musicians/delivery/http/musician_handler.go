@@ -83,7 +83,12 @@ func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *
 
 func (handler *MusiciansHandler) GetMusicByIDHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	musicianID, _ := strconv.Atoi(mux.Vars(r)["musician_id"])
+	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
 
 	track, err := handler.musicUsecase.GetMusicianByID(musicianID)
 	if err != nil {
@@ -99,5 +104,3 @@ func (handler *MusiciansHandler) GetMusicByIDHandler(w http.ResponseWriter, r *h
 	}
 	w.Write(resp)
 }
-
-

@@ -12,7 +12,7 @@ import (
 // Store ...
 type Store struct {
 	config            *configs.Config
-	con               *sql.DB
+	Con               *sql.DB
 	profileRepository *ProfileRepository
 }
 
@@ -39,13 +39,13 @@ func (s *Store) Open() error {
 		return err
 	}
 
-	s.con = db
+	s.Con = db
 	return nil
 }
 
 // Close ...
 func (s *Store) Close() {
-	s.con.Close()
+	s.Con.Close()
 }
 
 // User ...

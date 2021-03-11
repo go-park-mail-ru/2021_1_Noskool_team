@@ -27,8 +27,8 @@ func TestSessionServer(t *testing.T) {
 		Expiration: 86400,
 	}
 	expectedResult := models.Result{
-		"1",
-		"OK",
+		ID:     "1",
+		Status: "OK",
 	}
 
 	sessionsClient := client.NewSessionsClient(grpcConn)
@@ -55,7 +55,7 @@ func TestSessionServer(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if res != expectedResult {
+	if res.ID != "-1" {
 		t.Errorf("expected: %v\n got: %v", expectedResult, res)
 	}
 }
