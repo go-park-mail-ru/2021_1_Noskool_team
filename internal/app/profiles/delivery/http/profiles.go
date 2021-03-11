@@ -79,14 +79,18 @@ func (s *ProfilesServer) configureRouter() {
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
-	s.router.HandleFunc("/api/v1/auth", s.HandleAuth)
-	s.router.HandleFunc("/api/v1/login", s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/registrate", s.handleRegistrate())
-	s.router.HandleFunc("/api/v1/logout", authMiddleware.CheckSessionMiddleware(s.handleLogout()))
-	s.router.HandleFunc("/api/v1/profile", authMiddleware.CheckSessionMiddleware(s.handleProfile()))
+	s.router.HandleFunc("/api/v1/login",
+		s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/registrate",
+		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/logout",
+		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet)
+	s.router.HandleFunc("/api/v1/profile",
+		authMiddleware.CheckSessionMiddleware(s.handleProfile())).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}",
-		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))
-	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}", s.handleUpdateAvatar()).Methods(http.MethodPost)
+		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}",
+		s.handleUpdateAvatar()).Methods(http.MethodPost, http.MethodOptions)
 
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
