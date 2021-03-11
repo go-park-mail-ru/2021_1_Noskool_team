@@ -159,7 +159,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		}
 		defer f.Close()
 		io.Copy(f, file)
-		s.db.User().UpdateAvatar(userIDfromCookieStr, newAvatarPath)
+		s.db.User().UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/" + session.ID + ext)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
@@ -198,7 +198,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 			Value:    session.Hash,
 			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
-			HttpOnly: false,
+			HttpOnly: true,
 		}
 		http.SetCookie(w, &cookie)
 		s.respond(w, r, http.StatusOK, nil)
