@@ -2,3 +2,4 @@
 .idea/
 cover*
 envs/
+configs/config.toml
