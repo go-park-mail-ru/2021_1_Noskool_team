@@ -4,8 +4,8 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
-	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -63,69 +63,58 @@ func ConfigLogger(handler *TracksHandler, config *configs.Config) error {
 
 func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
 	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 500))
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct track id",
+		})
 		return
 	}
 
 	track, err := handler.tracksUsecase.GetTrackByID(trackID)
 	if err != nil {
-		handler.logger.Errorf("Error in GetTrackByID: %v", err)
-		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	resp, err := json.Marshal(track)
-	if err != nil {
-		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
-		return
-	}
-	w.Write(resp)
+	response.SendCorrectResponse(w, track, http.StatusOK)
 }
 
 func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.Request) {
-	trackTittle := mux.Vars(r)["track_tittle"]
-
 	w.Header().Set("Content-Type", "application/json")
+
+	trackTittle := mux.Vars(r)["track_tittle"]
 
 	track, err := handler.tracksUsecase.GetTracksByTittle(trackTittle)
 	if err != nil {
-		handler.logger.Errorf("Error in GetTracksByTittle: %v", err)
-		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	resp, err := json.Marshal(track)
-	if err != nil {
-		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
-		return
-	}
-	w.Write(resp)
+	response.SendCorrectResponse(w, track, http.StatusOK)
 }
 
 func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 500))
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 
 	track, err := handler.tracksUsecase.GetTrackByMusicianID(musicianID)
 	if err != nil {
-		handler.logger.Errorf("Error in GetTrackByMusicianID: %v", err)
-		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	res, err := json.Marshal(track)
-	if err != nil {
-		handler.logger.Errorf("Error in marshalling: %v", err)
-		w.Write(response.FailedResponse(w, http.StatusInternalServerError))
-		return
-	}
-	w.Write(res)
+	response.SendCorrectResponse(w, track, http.StatusOK)
 }

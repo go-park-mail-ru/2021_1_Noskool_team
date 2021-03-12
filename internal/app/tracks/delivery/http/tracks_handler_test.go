@@ -84,13 +84,9 @@ func TestGetTrackByIDHandlerFailed(t *testing.T) {
 
 	handler.GetTrackByIDHandler(w, r)
 
-	expected := http.StatusInternalServerError
+	expected := http.StatusNoContent
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
-	}
-
-	if !reflect.DeepEqual("{\"status\":\"failed\"}", w.Body.String()) {
-		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
 	}
 }
 
@@ -138,13 +134,9 @@ func TestGetTrackByMusicianIDFailed(t *testing.T) {
 
 	handler.GetTrackByMusicianID(w, r)
 
-	expected := http.StatusInternalServerError
+	expected := http.StatusNoContent
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
-	}
-
-	if !reflect.DeepEqual("{\"status\":\"failed\"}", w.Body.String()) {
-		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
 	}
 }
 
@@ -192,12 +184,8 @@ func TestGetTracksByTittleFailed(t *testing.T) {
 
 	handler.GetTracksByTittle(w, r)
 
-	expected := http.StatusInternalServerError
+	expected := http.StatusNoContent
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
-	}
-
-	if !reflect.DeepEqual("{\"status\":\"failed\"}", w.Body.String()) {
-		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
 	}
 }
