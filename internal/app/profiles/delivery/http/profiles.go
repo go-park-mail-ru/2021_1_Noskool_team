@@ -87,9 +87,9 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile",
 		authMiddleware.CheckSessionMiddleware(s.handleProfile())).Methods(http.MethodGet)
-	s.router.HandleFunc("/api/v1/profile/{user_id:[0-9]+}",
+	s.router.HandleFunc("/api/v1/profile/update",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/profile/avatar/{user_id:[0-9]+}",
+	s.router.HandleFunc("/api/v1/profile/avatar/upload",
 		s.handleUpdateAvatar()).Methods(http.MethodPost, http.MethodOptions)
 
 	s.router.Use(middleware.LoggingMiddleware)
@@ -109,7 +109,7 @@ func (s *ProfilesServer) HandleAuth(w http.ResponseWriter, r *http.Request) {
 	SessionHash, _ := r.Cookie("session_id")
 	_, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
 	if err != nil {
-		s.logger.Error("Пользователь не авторизован ", err)
+		s.logger.Error("Пользователь не авторизован", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -120,8 +120,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("handleUpdateAvatar")
-		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
-		userIDfromURLstr := fmt.Sprint(userIDfromURL)
+
 		SessionHash, _ := r.Cookie("session_id")
 		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
 		if err != nil {
@@ -129,10 +128,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		}
 		userIDfromCookie := session.ID
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
-		if userIDfromURLstr != userIDfromCookieStr {
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка доступа"))
-			return
-		}
+
 		r.ParseMultipartForm(5 * 1024 * 1025)
 		file, handler, err := r.FormFile("my_file")
 		if err != nil {
@@ -287,20 +283,14 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		s.logger.Info("starting handleUpdateProfile")
-		userIDfromURL, _ := strconv.Atoi(mux.Vars(r)["user_id"])
-		userIDfromURLstr := fmt.Sprint(userIDfromURL)
+
 		SessionHash, _ := r.Cookie("session_id")
 		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
 		userIDfromCookie := session.ID
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
-		// fmt.Println(">>>>>>>>>>", userIDfromURLstr, userIDfromCookieStr)
-		if userIDfromURLstr != userIDfromCookieStr {
-			fmt.Println("user_id from the cookie and from the url do not match")
-			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка доступа"))
-			return
-		}
+
 		// fmt.Println(userIDfromURLstr)
-		userForUpdates, err := s.db.User().FindByID(userIDfromURLstr)
+		userForUpdates, err := s.db.User().FindByID(userIDfromCookieStr)
 		if err != nil {
 			fmt.Println(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Не удалось найти пользователя"))
