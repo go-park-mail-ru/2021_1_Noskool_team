@@ -214,7 +214,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			fmt.Println(err)
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
 			return
 		}
 		fmt.Println("req", req)
@@ -222,10 +222,18 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 			Login:    req.Nickname,
+			Avatar:   "/api/v1/data/img/default.png",
 		}
 		if err := s.db.User().Create(u); err != nil {
+			var msgForUser string
+			if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
+				msgForUser = "Пользователь с таким email уже существует."
+			}
+			if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
+				msgForUser = "Пользователь с таким nickname уже существует."
+			}
 			fmt.Println(err)
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
+			s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
 			return
 		}
 		fmt.Println("result of registration: ", u)
@@ -299,7 +307,7 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			fmt.Println(err)
-			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
 			return
 		}
 		flagPassword := false
@@ -314,16 +322,30 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 			flagPassword = true
 		}
 		fmt.Println(userForUpdates)
+
+		var msgForUser string
 		if flagPassword {
 			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
 				fmt.Println(err)
-				s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
+				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
+					msgForUser = "Пользователь с таким email уже существует."
+				}
+				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
+					msgForUser = "Пользователь с таким nickname уже существует."
+				}
+				s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
 				return
 			}
 		} else {
 			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
 				fmt.Println(err)
-				s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
+				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
+					msgForUser = "Пользователь с таким email уже существует."
+				}
+				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
+					msgForUser = "Пользователь с таким nickname уже существует."
+				}
+				s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
 				return
 			}
 		}
