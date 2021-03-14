@@ -30,3 +30,12 @@ func (usecase *TracksUsecase) GetTrackByMusicianID(musicianID int) ([]*models.Tr
 	track, err := usecase.trackRep.GetTrackByMusicianID(musicianID)
 	return track, err
 }
+
+func (usecase *TracksUsecase) UploadPicture(trackID int, audioPath string) error {
+	err := usecase.trackRep.UploadPicture(trackID, audioPath)
+	return err
+}
+func (usecase *TracksUsecase) UploadAudio(trackID int, audioPath string) error {
+	err := usecase.trackRep.UploadAudio(trackID, audioPath)
+	return err
+}

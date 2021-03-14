@@ -5,3 +5,4 @@ envs/
 configs/config.toml
 test.go
 static/tracks/*
+static/audio/*

@@ -6,4 +6,6 @@ type Usecase interface {
 	GetTrackByID(trackID int) (*models.Track, error)
 	GetTracksByTittle(trackTittle string) ([]*models.Track, error)
 	GetTrackByMusicianID(musicianID int) ([]*models.Track, error)
+	UploadPicture(trackID int, audioPath string) error
+	UploadAudio(trackID int, audioPath string) error
 }

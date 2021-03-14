@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	"database/sql"
+	"fmt"
 )
 
 type TracksRepository struct {
@@ -36,6 +37,30 @@ func (trackRep *TracksRepository) CreateTrack(track *models.Track) (*models.Trac
 		return nil, err
 	}
 	return track, nil
+}
+
+func (trackRep *TracksRepository) UploadAudio(trackID int, audioPath string) error {
+	query := `UPDATE tracks SET audio = $1
+			WHERE track_id = $2`
+
+	res, err := trackRep.con.Exec(query, audioPath, trackID)
+	fmt.Println(res)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (trackRep *TracksRepository) UploadPicture(trackID int, audioPath string) error {
+	query := `UPDATE tracks SET picture = $1
+			WHERE track_id = $2`
+
+	res, err := trackRep.con.Exec(query, audioPath, trackID)
+	fmt.Println(res)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {

@@ -43,6 +43,7 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
 		handler.GetTrackByMusicianID).Methods("GET")
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture", handler.UploadTrackPictureHandler)
+	handler.router.HandleFunc("/{track_id:[0-9]+}/audio", handler.UploadTrackAudioHandler)
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main of tracks"))
 	})
@@ -96,7 +97,46 @@ func (handler *TracksHandler) UploadTrackPictureHandler(w http.ResponseWriter, r
 		return
 	}
 	fileNetPath := "/api/v1/data/img/track/" + *fileName
-	handler.logger.Info(fileNetPath)
+	trackIDINT, err := strconv.Atoi(trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusInternalServerError)
+		return
+	}
+
+	err = handler.tracksUsecase.UploadPicture(trackIDINT, fileNetPath)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusInternalServerError)
+		return
+	}
+
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *TracksHandler) UploadTrackAudioHandler(w http.ResponseWriter, r *http.Request) {
+	trackID := mux.Vars(r)["track_id"]
+
+	fileName, err := utility.SaveFile(r, "track_audio", "/static/audio/", trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusBadRequest)
+		return
+	}
+	fileNetPath := "/api/v1/data/audio/track/" + *fileName
+	trackIDINT, err := strconv.Atoi(trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusInternalServerError)
+		return
+	}
+
+	err = handler.tracksUsecase.UploadAudio(trackIDINT, fileNetPath)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusInternalServerError)
+		return
+	}
 	response.SendEmptyBody(w, http.StatusOK)
 }
 
