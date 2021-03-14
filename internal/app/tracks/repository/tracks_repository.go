@@ -26,6 +26,18 @@ func (trackRep *TracksRepository) GetTrackByID(trackID int) (*models.Track, erro
 	return track, err
 }
 
+func (trackRep *TracksRepository) CreateTrack(track *models.Track) (*models.Track, error) {
+	query := `INSERT INTO tracks (tittle, text, release_date) VALUES
+			($1, $2, $3) returning track_id`
+
+	err := trackRep.con.QueryRow(query, track.Tittle,
+		track.Text, track.ReleaseDate).Scan(&track.TrackID)
+	if err != nil {
+		return nil, err
+	}
+	return track, nil
+}
+
 func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {
 	rows, err := trackRep.con.Query(
 		"SELECT * FROM tracks where tittle = $1", trackTittle)

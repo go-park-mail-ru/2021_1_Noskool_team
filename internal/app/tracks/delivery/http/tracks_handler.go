@@ -6,6 +6,7 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -39,7 +40,9 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 
 	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
-	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}", handler.GetTrackByMusicianID).Methods("GET")
+	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
+		handler.GetTrackByMusicianID).Methods("GET")
+	handler.router.HandleFunc("/{track_id:[0-9]+}/picture", handler.UploadTrackPictureHandler)
 	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main of tracks"))
 	})
@@ -81,6 +84,20 @@ func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http
 		return
 	}
 	response.SendCorrectResponse(w, track, http.StatusOK)
+}
+
+func (handler *TracksHandler) UploadTrackPictureHandler(w http.ResponseWriter, r *http.Request) {
+	trackID := mux.Vars(r)["track_id"]
+
+	fileName, err := utility.SaveFile(r, "track_picture", "/static/img/tracks/", trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusBadRequest)
+		return
+	}
+	fileNetPath := "/api/v1/data/img/track/" + *fileName
+	handler.logger.Info(fileNetPath)
+	response.SendEmptyBody(w, http.StatusOK)
 }
 
 func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.Request) {

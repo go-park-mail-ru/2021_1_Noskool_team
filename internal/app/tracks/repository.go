@@ -6,4 +6,5 @@ type Repository interface {
 	GetTrackByID(trackID int) (*models.Track, error)
 	GetTracksByTittle(trackTittle string) ([]*models.Track, error)
 	GetTrackByMusicianID(musicianID int) ([]*models.Track, error)
+	CreateTrack(*models.Track) (*models.Track, error)
 }

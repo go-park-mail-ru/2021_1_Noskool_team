@@ -9,5 +9,5 @@ type Track struct {
 	ReleaseDate string   `json:"release_date"`
 	Genres      []string `json:"genres"`
 	Musicians   []string `json:"musicians"`
-	Album       string   `json:"album"`
+	Albums      []string `json:"album"`
 }
