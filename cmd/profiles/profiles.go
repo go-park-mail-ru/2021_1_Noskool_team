@@ -3,11 +3,15 @@ package main
 import (
 	"2021_1_Noskool_team/configs"
 	profiles "2021_1_Noskool_team/internal/app/profiles/delivery/http"
+	"2021_1_Noskool_team/internal/app/profiles/repository/postgresDB"
+	"2021_1_Noskool_team/internal/app/profiles/usecase"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
 	"log"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -28,7 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := profiles.New(config)
+	profDBCon, err := utility.CreatePostgresConnection(config.ProfileDB)
+	if err != nil {
+		logrus.Error(err)
+	}
+	profRep := postgresDB.NewProfileRepository(profDBCon)
+	profUsecase := usecase.NewProfilesUsecase(profRep)
+
+	s := profiles.New(config, profUsecase)
 
 	if err := s.Start(); err != nil {
 		log.Fatal(err)
