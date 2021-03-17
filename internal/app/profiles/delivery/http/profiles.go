@@ -215,15 +215,8 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Avatar:   "/api/v1/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
-			var msgForUser string
-			if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
-				msgForUser = "Пользователь с таким email уже существует."
-			}
-			if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
-				msgForUser = "Пользователь с таким nickname уже существует."
-			}
-			fmt.Println(err)
-			s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
+			msg, httpCode := checkDBerr(err)
+			s.error(w, r, httpCode, fmt.Errorf(msg))
 			return
 		}
 		fmt.Println("result of registration: ", u)
@@ -313,29 +306,17 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		}
 		fmt.Println(userForUpdates)
 
-		var msgForUser string
 		if flagPassword {
 			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
 				fmt.Println(err)
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
-					msgForUser = "Пользователь с таким email уже существует."
-				}
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
-					msgForUser = "Пользователь с таким nickname уже существует."
-				}
-				s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
+				msg, httpCode := checkDBerr(err)
+				s.error(w, r, httpCode, fmt.Errorf(msg))
 				return
 			}
 		} else {
 			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
-				fmt.Println(err)
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
-					msgForUser = "Пользователь с таким email уже существует."
-				}
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
-					msgForUser = "Пользователь с таким nickname уже существует."
-				}
-				s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
+				msg, httpCode := checkDBerr(err)
+				s.error(w, r, httpCode, fmt.Errorf(msg))
 				return
 			}
 		}
@@ -359,4 +340,23 @@ func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code in
 		}
 		w.Write(resp)
 	}
+}
+
+func checkDBerr(err error) (string, int) {
+	var msgForUser string
+	var httpCode int
+	errText := err.Error()
+
+	switch errText {
+	case "pq: duplicate key value violates unique constraint \"profiles_email_key\"":
+		msgForUser = "Пользователь с таким email уже существует."
+		httpCode = http.StatusUnprocessableEntity
+	case "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"":
+		msgForUser = "Пользователь с таким nickname уже существует."
+		httpCode = http.StatusUnprocessableEntity
+	default:
+		msgForUser = "Неопознаная ошибка на севере, ухх..."
+		httpCode = http.StatusInternalServerError
+	}
+	return msgForUser, httpCode
 }
