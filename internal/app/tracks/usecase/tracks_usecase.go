@@ -39,3 +39,8 @@ func (usecase *TracksUsecase) UploadAudio(trackID int, audioPath string) error {
 	err := usecase.trackRep.UploadAudio(trackID, audioPath)
 	return err
 }
+
+func (usecase *TracksUsecase) GetTracksByUserID(userID int) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetTracksByUserID(userID)
+	return tracks, err
+}

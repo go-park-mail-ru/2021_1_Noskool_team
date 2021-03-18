@@ -2,11 +2,13 @@ package http
 
 import (
 	"2021_1_Noskool_team/configs"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
+	"context"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -38,15 +40,22 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		logrus.Error(err)
 	}
 
-	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
-	handler.router.HandleFunc("/{track_tittle}", handler.GetTracksByTittle).Methods("GET")
+	//handler.router.Use(middleware.ContentTypeJson)
+
+	handler.router.HandleFunc("/{track_id:[0-9]+}",
+		middleware.ContentTypeJson(handler.GetTrackByIDHandler))
+	handler.router.HandleFunc("/",
+		middleware.ContentTypeJson(handler.GetTracksByUserID)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/{track_tittle}",
+		middleware.ContentTypeJson(handler.GetTracksByTittle)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
-		handler.GetTrackByMusicianID).Methods("GET")
-	handler.router.HandleFunc("/{track_id:[0-9]+}/picture", handler.UploadTrackPictureHandler)
-	handler.router.HandleFunc("/{track_id:[0-9]+}/audio", handler.UploadTrackAudioHandler)
-	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main of tracks"))
-	})
+		middleware.ContentTypeJson(handler.GetTrackByMusicianID)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
+		handler.UploadTrackPictureHandler).Methods(http.MethodPost)
+	handler.router.HandleFunc("/{track_id:[0-9]+}/audio",
+		handler.UploadTrackAudioHandler).Methods(http.MethodPost)
+	//handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	//	w.Write([]byte("main of tracks"))
 
 	return handler
 }
@@ -66,8 +75,6 @@ func ConfigLogger(handler *TracksHandler, config *configs.Config) error {
 }
 
 func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
 	if err != nil {
 		handler.logger.Error(err)
@@ -141,8 +148,6 @@ func (handler *TracksHandler) UploadTrackAudioHandler(w http.ResponseWriter, r *
 }
 
 func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	trackTittle := mux.Vars(r)["track_tittle"]
 
 	track, err := handler.tracksUsecase.GetTracksByTittle(trackTittle)
@@ -155,8 +160,6 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 }
 
 func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
 	if err != nil {
 		handler.logger.Error(err)
@@ -175,3 +178,34 @@ func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *htt
 	}
 	response.SendCorrectResponse(w, track, http.StatusOK)
 }
+
+func (handler *TracksHandler) GetTracksByUserID(w http.ResponseWriter, r *http.Request) {
+	SessionHash, _ := r.Cookie("session_id")
+	session, err := handler.sessionsClient.Check(context.Background(), SessionHash.Value)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+
+	tracks, err := handler.tracksUsecase.GetTracksByUserID(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+

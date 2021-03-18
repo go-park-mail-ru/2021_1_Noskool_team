@@ -9,4 +9,5 @@ type Repository interface {
 	CreateTrack(*models.Track) (*models.Track, error)
 	UploadPicture(trackID int, audioPath string) error
 	UploadAudio(trackID int, audioPath string) error
+	GetTracksByUserID(userID int) ([]*models.Track, error)
 }

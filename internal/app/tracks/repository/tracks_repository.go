@@ -5,6 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	"database/sql"
 	"fmt"
+	"github.com/sirupsen/logrus"
 )
 
 type TracksRepository struct {
@@ -111,4 +112,30 @@ func (trackRep *TracksRepository) GetTrackByMusicianID(musicianID int) ([]*model
 	}
 
 	return tracksByMusName, err
+}
+
+func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date from tracks
+			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
+			where ttu.user_id = $1`
+
+	rows, err := trackRep.con.Query(
+		query, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, err
 }
