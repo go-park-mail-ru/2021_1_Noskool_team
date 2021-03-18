@@ -44,3 +44,8 @@ func (usecase *TracksUsecase) GetTracksByUserID(userID int) ([]*models.Track, er
 	tracks, err := usecase.trackRep.GetTracksByUserID(userID)
 	return tracks, err
 }
+
+func (usecase *TracksUsecase) GetFavoriteTracks(userID int) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetFavoriteTracks(userID)
+	return tracks, err
+}

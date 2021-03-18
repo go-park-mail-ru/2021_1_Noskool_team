@@ -46,6 +46,8 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		middleware.ContentTypeJson(handler.GetTrackByIDHandler))
 	handler.router.HandleFunc("/",
 		middleware.ContentTypeJson(handler.GetTracksByUserID)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/favorites",
+		middleware.ContentTypeJson(handler.GetFavoriteTracks)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_tittle}",
 		middleware.ContentTypeJson(handler.GetTracksByTittle)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
@@ -54,8 +56,6 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		handler.UploadTrackPictureHandler).Methods(http.MethodPost)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/audio",
 		handler.UploadTrackAudioHandler).Methods(http.MethodPost)
-	//handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	//	w.Write([]byte("main of tracks"))
 
 	return handler
 }
@@ -209,3 +209,32 @@ func (handler *TracksHandler) GetTracksByUserID(w http.ResponseWriter, r *http.R
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
 
+func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.Request) {
+	SessionHash, _ := r.Cookie("session_id")
+	session, err := handler.sessionsClient.Check(context.Background(), SessionHash.Value)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+
+	tracks, err := handler.tracksUsecase.GetFavoriteTracks(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}

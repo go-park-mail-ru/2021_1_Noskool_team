@@ -102,5 +102,6 @@ CREATE TABLE if not exists tracks_to_user
 (
     user_id  INTEGER NOT NULL,
     track_id INTEGER NOT NULL,
+    favorite bool default false,
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
