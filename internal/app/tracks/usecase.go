@@ -10,4 +10,6 @@ type Usecase interface {
 	UploadAudio(trackID int, audioPath string) error
 	GetTracksByUserID(userID int) ([]*models.Track, error)
 	GetFavoriteTracks(userID int) ([]*models.Track, error)
+	AddTrackToFavorites(userID, trackID int) error
+	DeleteTrackFromFavorites(trackID, userID int) error
 }

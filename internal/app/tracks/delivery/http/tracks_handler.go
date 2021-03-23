@@ -53,11 +53,13 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/{track_tittle}",
 		middleware.ContentTypeJson(handler.GetTracksByTittle)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
-		middleware.ContentTypeJson(handler.GetTrackByMusicianID)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetMediatekaForUser))).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
 		handler.UploadTrackPictureHandler).Methods(http.MethodPost)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/audio",
 		handler.UploadTrackAudioHandler).Methods(http.MethodPost)
+	handler.router.HandleFunc("/{track_id:[0-9]+}/favorite",
+		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToFavorite)).Methods(http.MethodPost)
 
 	return handler
 }
@@ -161,7 +163,7 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 	response.SendCorrectResponse(w, track, http.StatusOK)
 }
 
-func (handler *TracksHandler) GetTrackByMusicianID(w http.ResponseWriter, r *http.Request) {
+func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
 	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
 	if err != nil {
 		handler.logger.Error(err)
@@ -221,7 +223,6 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 		})
 		return
 	}
-
 	userID, err := strconv.Atoi(session.ID)
 	if err != nil {
 		handler.logger.Error(err)
@@ -241,6 +242,45 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
 
-func (handler *TracksHandler) MarkTrackFavorite(w http.ResponseWriter, r *http.Request) {
+func (handler *TracksHandler) AddDeleteTrackToFavorite(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	musicianID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
 
+	addOrDelete := r.URL.Query().Get("type")
+	if addOrDelete == "add" {
+		err = handler.tracksUsecase.AddTrackToFavorites(userID, musicianID)
+	} else if addOrDelete == "delete" {
+		err = handler.tracksUsecase.DeleteTrackFromFavorites(userID, musicianID)
+	}
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
 }

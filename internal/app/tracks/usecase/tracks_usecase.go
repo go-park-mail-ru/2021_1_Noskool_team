@@ -49,3 +49,13 @@ func (usecase *TracksUsecase) GetFavoriteTracks(userID int) ([]*models.Track, er
 	tracks, err := usecase.trackRep.GetFavoriteTracks(userID)
 	return tracks, err
 }
+
+func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
+	err := usecase.trackRep.AddTrackToFavorites(userID, trackID)
+	return err
+}
+
+func (usecase *TracksUsecase) DeleteTrackFromFavorites(userID, trackID int) error {
+	err := usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
+	return err
+}

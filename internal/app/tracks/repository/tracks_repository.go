@@ -165,3 +165,21 @@ func (trackRep *TracksRepository) GetFavoriteTracks(userID int) ([]*models.Track
 	}
 	return tracks, err
 }
+
+func (trackRep *TracksRepository) AddTrackToFavorites(userID, trackID int) error {
+	query := `UPDATE tracks_to_user SET favorite = true
+			WHERE user_id = $1 and track_id = $2`
+
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	logrus.Info(res)
+	return err
+}
+
+func (trackRep *TracksRepository) DeleteTrackFromFavorites(userID, trackID int) error {
+	query := `UPDATE tracks_to_user SET favorite = false
+			WHERE user_id = $1 and track_id = $2`
+
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	logrus.Info(res)
+	return err
+}

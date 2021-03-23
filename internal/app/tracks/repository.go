@@ -11,4 +11,6 @@ type Repository interface {
 	UploadAudio(trackID int, audioPath string) error
 	GetTracksByUserID(userID int) ([]*models.Track, error)
 	GetFavoriteTracks(userID int) ([]*models.Track, error)
+	AddTrackToFavorites(userID, trackID int) error
+	DeleteTrackFromFavorites(userID, trackID int) error
 }
