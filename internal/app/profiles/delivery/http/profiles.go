@@ -3,8 +3,8 @@ package profiles
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
+	"2021_1_Noskool_team/internal/app/profiles"
 	"2021_1_Noskool_team/internal/app/profiles/models"
-	"2021_1_Noskool_team/internal/app/profiles/repository"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"context"
 	"encoding/json"
@@ -30,12 +30,12 @@ type ProfilesServer struct {
 	config         *configs.Config
 	logger         *logrus.Logger
 	router         *mux.Router
-	db             *repository.Store
 	sessionsClient client.AuthCheckerClient
+	profUsecase    profiles.Usecase
 }
 
 // New ...
-func New(config *configs.Config) *ProfilesServer {
+func New(config *configs.Config, profUsecase profiles.Usecase) *ProfilesServer {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		logrus.Error(err)
@@ -45,6 +45,7 @@ func New(config *configs.Config) *ProfilesServer {
 		logger:         logrus.New(),
 		router:         mux.NewRouter(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
+		profUsecase:    profUsecase,
 	}
 }
 
@@ -54,9 +55,7 @@ func (s *ProfilesServer) Start() error {
 		return err
 	}
 	s.configureRouter()
-	if err := s.configureDB(); err != nil {
-		return err
-	}
+
 	s.logger.Info("starting profile server")
 	return http.ListenAndServe(s.config.ProfilesServerAddr, s.router)
 }
@@ -94,15 +93,6 @@ func (s *ProfilesServer) configureRouter() {
 
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
-}
-
-func (s *ProfilesServer) configureDB() error {
-	st := repository.New(s.config)
-	if err := st.Open(); err != nil {
-		return err
-	}
-	s.db = st
-	return nil
 }
 
 func (s *ProfilesServer) HandleAuth(w http.ResponseWriter, r *http.Request) {
@@ -156,7 +146,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		}
 		defer f.Close()
 		io.Copy(f, file)
-		s.db.User().UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/"+session.ID+ext)
+		s.profUsecase.UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/"+session.ID+ext)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
@@ -175,7 +165,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка на сервере :("))
 			return
 		}
-		u, err := s.db.User().FindByLogin(req.Login)
+		u, err := s.profUsecase.FindByLogin(req.Login)
 
 		if err != nil || !u.ComparePassword(req.Password) {
 			fmt.Println(err)
@@ -224,16 +214,9 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Login:    req.Nickname,
 			Avatar:   "/api/v1/data/img/default.png",
 		}
-		if err := s.db.User().Create(u); err != nil {
-			var msgForUser string
-			if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
-				msgForUser = "Пользователь с таким email уже существует."
-			}
-			if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
-				msgForUser = "Пользователь с таким nickname уже существует."
-			}
-			fmt.Println(err)
-			s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
+		if err := s.profUsecase.Create(u); err != nil {
+			msg, httpCode := checkDBerr(err)
+			s.error(w, r, httpCode, fmt.Errorf(msg))
 			return
 		}
 		fmt.Println("result of registration: ", u)
@@ -272,7 +255,7 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 		SessionHash, _ := r.Cookie("session_id")
 		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
 		s.logger.Info("starting handleProfile")
-		a, err := s.db.User().FindByID(session.ID)
+		a, err := s.profUsecase.FindByID(session.ID)
 		if err != nil {
 			fmt.Println(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Не удалось найти пользователя"))
@@ -298,7 +281,7 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 
 		// fmt.Println(userIDfromURLstr)
-		userForUpdates, err := s.db.User().FindByID(userIDfromCookieStr)
+		userForUpdates, err := s.profUsecase.FindByID(userIDfromCookieStr)
 		if err != nil {
 			fmt.Println(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Не удалось найти пользователя"))
@@ -323,29 +306,17 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		}
 		fmt.Println(userForUpdates)
 
-		var msgForUser string
 		if flagPassword {
-			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
+			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
 				fmt.Println(err)
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
-					msgForUser = "Пользователь с таким email уже существует."
-				}
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
-					msgForUser = "Пользователь с таким nickname уже существует."
-				}
-				s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
+				msg, httpCode := checkDBerr(err)
+				s.error(w, r, httpCode, fmt.Errorf(msg))
 				return
 			}
 		} else {
-			if err := s.db.User().Update(userForUpdates, flagPassword); err != nil {
-				fmt.Println(err)
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_email_key\"" {
-					msgForUser = "Пользователь с таким email уже существует."
-				}
-				if err.Error() == "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"" {
-					msgForUser = "Пользователь с таким nickname уже существует."
-				}
-				s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf(msgForUser))
+			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
+				msg, httpCode := checkDBerr(err)
+				s.error(w, r, httpCode, fmt.Errorf(msg))
 				return
 			}
 		}
@@ -369,4 +340,23 @@ func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code in
 		}
 		w.Write(resp)
 	}
+}
+
+func checkDBerr(err error) (string, int) {
+	var msgForUser string
+	var httpCode int
+	errText := err.Error()
+
+	switch errText {
+	case "pq: duplicate key value violates unique constraint \"profiles_email_key\"":
+		msgForUser = "Пользователь с таким email уже существует."
+		httpCode = http.StatusUnprocessableEntity
+	case "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"":
+		msgForUser = "Пользователь с таким nickname уже существует."
+		httpCode = http.StatusUnprocessableEntity
+	default:
+		msgForUser = "Неопознаная ошибка на севере, ухх..."
+		httpCode = http.StatusInternalServerError
+	}
+	return msgForUser, httpCode
 }
