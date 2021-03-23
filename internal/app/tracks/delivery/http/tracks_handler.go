@@ -5,6 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	"2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
@@ -41,13 +42,14 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	}
 
 	//handler.router.Use(middleware.ContentTypeJson)
+	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
 		middleware.ContentTypeJson(handler.GetTrackByIDHandler))
 	handler.router.HandleFunc("/",
 		middleware.ContentTypeJson(handler.GetTracksByUserID)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
-		middleware.ContentTypeJson(handler.GetFavoriteTracks)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetFavoriteTracks))).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_tittle}",
 		middleware.ContentTypeJson(handler.GetTracksByTittle)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
@@ -210,16 +212,16 @@ func (handler *TracksHandler) GetTracksByUserID(w http.ResponseWriter, r *http.R
 }
 
 func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.Request) {
-	SessionHash, _ := r.Cookie("session_id")
-	session, err := handler.sessionsClient.Check(context.Background(), SessionHash.Value)
-	if err != nil {
-		handler.logger.Error(err)
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusBadRequest,
 			Message: "Not correct user id",
 		})
 		return
 	}
+
 	userID, err := strconv.Atoi(session.ID)
 	if err != nil {
 		handler.logger.Error(err)
@@ -237,4 +239,8 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 		return
 	}
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) MarkTrackFavorite(w http.ResponseWriter, r *http.Request) {
+
 }

@@ -4,10 +4,8 @@ import (
 	"2021_1_Noskool_team/configs"
 	profiles "2021_1_Noskool_team/internal/app/profiles/delivery/http"
 	"flag"
-	"log"
-	"time"
-
 	"github.com/BurntSushi/toml"
+	"log"
 )
 
 var (
@@ -19,7 +17,7 @@ func init() {
 }
 
 func main() {
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()
