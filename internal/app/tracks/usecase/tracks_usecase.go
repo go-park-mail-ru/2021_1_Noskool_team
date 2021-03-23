@@ -59,3 +59,8 @@ func (usecase *TracksUsecase) DeleteTrackFromFavorites(userID, trackID int) erro
 	err := usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
 	return err
 }
+
+func (usecase *TracksUsecase) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
+	tracksByAlbum, err := usecase.trackRep.GetTracksByAlbumID(albumID)
+	return tracksByAlbum, err
+}

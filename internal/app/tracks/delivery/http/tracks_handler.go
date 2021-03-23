@@ -47,19 +47,21 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
 		middleware.ContentTypeJson(handler.GetTrackByIDHandler))
 	handler.router.HandleFunc("/",
-		middleware.ContentTypeJson(handler.GetTracksByUserID)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetMediatekaForUser))).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
 		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetFavoriteTracks))).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_tittle}",
 		middleware.ContentTypeJson(handler.GetTracksByTittle)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
-		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetMediatekaForUser))).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetTracksByMusicinID))).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
 		handler.UploadTrackPictureHandler).Methods(http.MethodPost)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/audio",
 		handler.UploadTrackAudioHandler).Methods(http.MethodPost)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/favorite",
 		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToFavorite)).Methods(http.MethodPost)
+	handler.router.HandleFunc("/album/{album_id:[0-9]+}",
+		middleware.ContentTypeJson(handler.GetTracksByAlbumIDHandler)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -163,7 +165,7 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 	response.SendCorrectResponse(w, track, http.StatusOK)
 }
 
-func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
+func (handler *TracksHandler) GetTracksByMusicinID(w http.ResponseWriter, r *http.Request) {
 	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
 	if err != nil {
 		handler.logger.Error(err)
@@ -183,7 +185,7 @@ func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http
 	response.SendCorrectResponse(w, track, http.StatusOK)
 }
 
-func (handler *TracksHandler) GetTracksByUserID(w http.ResponseWriter, r *http.Request) {
+func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
 	SessionHash, _ := r.Cookie("session_id")
 	session, err := handler.sessionsClient.Check(context.Background(), SessionHash.Value)
 	if err != nil {
@@ -270,7 +272,6 @@ func (handler *TracksHandler) AddDeleteTrackToFavorite(w http.ResponseWriter, r 
 		})
 		return
 	}
-
 	addOrDelete := r.URL.Query().Get("type")
 	if addOrDelete == "add" {
 		err = handler.tracksUsecase.AddTrackToFavorites(userID, musicianID)
@@ -283,4 +284,24 @@ func (handler *TracksHandler) AddDeleteTrackToFavorite(w http.ResponseWriter, r 
 		return
 	}
 	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetTracksByAlbumIDHandler(w http.ResponseWriter, r *http.Request) {
+	albumID, err := strconv.Atoi(mux.Vars(r)["album_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+
+	tracks, err := handler.tracksUsecase.GetTracksByAlbumID(albumID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }

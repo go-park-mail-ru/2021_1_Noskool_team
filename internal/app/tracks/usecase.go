@@ -12,4 +12,5 @@ type Usecase interface {
 	GetFavoriteTracks(userID int) ([]*models.Track, error)
 	AddTrackToFavorites(userID, trackID int) error
 	DeleteTrackFromFavorites(trackID, userID int) error
+	GetTracksByAlbumID(albumID int) ([]*models.Track, error)
 }

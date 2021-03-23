@@ -13,4 +13,5 @@ type Repository interface {
 	GetFavoriteTracks(userID int) ([]*models.Track, error)
 	AddTrackToFavorites(userID, trackID int) error
 	DeleteTrackFromFavorites(userID, trackID int) error
+	GetTracksByAlbumID(albumID int) ([]*models.Track, error)
 }

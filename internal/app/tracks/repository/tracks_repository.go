@@ -183,3 +183,26 @@ func (trackRep *TracksRepository) DeleteTrackFromFavorites(userID, trackID int) 
 	logrus.Info(res)
 	return err
 }
+
+func (trackRep *TracksRepository) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date FROM tracks
+			left join tracks_to_albums tta on tracks.track_id = tta.track_id
+			WHERE tta.album_id = $1`
+	rows, err := trackRep.con.Query(query, albumID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByAlbum := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracksByAlbum = append(tracksByAlbum, track)
+	}
+	return tracksByAlbum, nil
+}
