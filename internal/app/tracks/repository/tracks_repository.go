@@ -206,3 +206,26 @@ func (trackRep *TracksRepository) GetTracksByAlbumID(albumID int) ([]*models.Tra
 	}
 	return tracksByAlbum, nil
 }
+
+func (trackRep *TracksRepository) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date FROM tracks
+			LEFT JOIN tracks_to_genres ttg ON tracks.track_id = ttg.track_id
+			WHERE ttg.genre_id = $1`
+	rows, err := trackRep.con.Query(query, genreID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByGenre := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracksByGenre = append(tracksByGenre, track)
+	}
+	return tracksByGenre, nil
+}

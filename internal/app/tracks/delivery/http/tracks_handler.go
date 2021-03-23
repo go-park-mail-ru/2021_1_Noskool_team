@@ -62,6 +62,8 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToFavorite)).Methods(http.MethodPost)
 	handler.router.HandleFunc("/album/{album_id:[0-9]+}",
 		middleware.ContentTypeJson(handler.GetTracksByAlbumIDHandler)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
+		middleware.ContentTypeJson(handler.GetTracksByGenreIDHandler)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -298,6 +300,26 @@ func (handler *TracksHandler) GetTracksByAlbumIDHandler(w http.ResponseWriter, r
 	}
 
 	tracks, err := handler.tracksUsecase.GetTracksByAlbumID(albumID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetTracksByGenreIDHandler(w http.ResponseWriter, r *http.Request) {
+	genreID, err := strconv.Atoi(mux.Vars(r)["genre_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+
+	tracks, err := handler.tracksUsecase.GetTracksByGenreID(genreID)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)

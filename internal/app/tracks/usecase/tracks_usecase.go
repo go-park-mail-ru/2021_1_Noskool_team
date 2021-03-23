@@ -64,3 +64,8 @@ func (usecase *TracksUsecase) GetTracksByAlbumID(albumID int) ([]*models.Track, 
 	tracksByAlbum, err := usecase.trackRep.GetTracksByAlbumID(albumID)
 	return tracksByAlbum, err
 }
+
+func (usecase *TracksUsecase) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
+	tracksByGenre, err := usecase.trackRep.GetTracksByGenreID(genreID)
+	return tracksByGenre, err
+}
