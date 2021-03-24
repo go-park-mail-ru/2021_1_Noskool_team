@@ -3,3 +3,6 @@
 cover*
 envs/
 configs/config.toml
+test.go
+static/img/*.png
+static/audio/*.mp3

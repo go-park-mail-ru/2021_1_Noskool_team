@@ -7,11 +7,9 @@ import (
 	"2021_1_Noskool_team/internal/app/profiles/usecase"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
-	"log"
-	"time"
-
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
+  "time"
 )
 
 var (

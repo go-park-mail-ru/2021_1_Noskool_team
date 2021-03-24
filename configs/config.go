@@ -10,6 +10,7 @@ type Config struct {
 	ProfilesServerAddr      string `toml:"profiles_server_addr"`
 	ProfileDB               string `toml:"profiles_db_url"`
 	FrontendURL             string `toml:"frontend_url"`
+	MediaFolder             string `toml:"media_folder"`
 }
 
 // NewConfig ...
@@ -23,5 +24,6 @@ func NewConfig() *Config {
 		ProfileDB:               "",
 		LogLevel:                "debug",
 		FrontendURL:             "some_url",
+		MediaFolder:             "",
 	}
 }

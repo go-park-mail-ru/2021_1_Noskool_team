@@ -6,34 +6,50 @@ package mock_tracks
 
 import (
 	models "2021_1_Noskool_team/internal/app/tracks/models"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
-// MockRepository is a mock of Repository interface
+// MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockRepositoryMockRecorder
 }
 
-// MockRepositoryMockRecorder is the mock recorder for MockRepository
+// MockRepositoryMockRecorder is the mock recorder for MockRepository.
 type MockRepositoryMockRecorder struct {
 	mock *MockRepository
 }
 
-// NewMockRepository creates a new mock instance
+// NewMockRepository creates a new mock instance.
 func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 	mock := &MockRepository{ctrl: ctrl}
 	mock.recorder = &MockRepositoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetTrackByID mocks base method
+// CreateTrack mocks base method.
+func (m *MockRepository) CreateTrack(arg0 *models.Track) (*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTrack", arg0)
+	ret0, _ := ret[0].(*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTrack indicates an expected call of CreateTrack.
+func (mr *MockRepositoryMockRecorder) CreateTrack(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTrack", reflect.TypeOf((*MockRepository)(nil).CreateTrack), arg0)
+}
+
+// GetTrackByID mocks base method.
 func (m *MockRepository) GetTrackByID(trackID int) (*models.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTrackByID", trackID)
@@ -42,28 +58,13 @@ func (m *MockRepository) GetTrackByID(trackID int) (*models.Track, error) {
 	return ret0, ret1
 }
 
-// GetTrackByID indicates an expected call of GetTrackByID
+// GetTrackByID indicates an expected call of GetTrackByID.
 func (mr *MockRepositoryMockRecorder) GetTrackByID(trackID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrackByID", reflect.TypeOf((*MockRepository)(nil).GetTrackByID), trackID)
 }
 
-// GetTracksByTittle mocks base method
-func (m *MockRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTracksByTittle", trackTittle)
-	ret0, _ := ret[0].([]*models.Track)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetTracksByTittle indicates an expected call of GetTracksByTittle
-func (mr *MockRepositoryMockRecorder) GetTracksByTittle(trackTittle interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByTittle", reflect.TypeOf((*MockRepository)(nil).GetTracksByTittle), trackTittle)
-}
-
-// GetTrackByMusicianID mocks base method
+// GetTrackByMusicianID mocks base method.
 func (m *MockRepository) GetTrackByMusicianID(musicianID int) ([]*models.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTrackByMusicianID", musicianID)
@@ -72,8 +73,23 @@ func (m *MockRepository) GetTrackByMusicianID(musicianID int) ([]*models.Track, 
 	return ret0, ret1
 }
 
-// GetTrackByMusicianID indicates an expected call of GetTrackByMusicianID
+// GetTrackByMusicianID indicates an expected call of GetTrackByMusicianID.
 func (mr *MockRepositoryMockRecorder) GetTrackByMusicianID(musicianID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrackByMusicianID", reflect.TypeOf((*MockRepository)(nil).GetTrackByMusicianID), musicianID)
+}
+
+// GetTracksByTittle mocks base method.
+func (m *MockRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByTittle", trackTittle)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByTittle indicates an expected call of GetTracksByTittle.
+func (mr *MockRepositoryMockRecorder) GetTracksByTittle(trackTittle interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByTittle", reflect.TypeOf((*MockRepository)(nil).GetTracksByTittle), trackTittle)
 }

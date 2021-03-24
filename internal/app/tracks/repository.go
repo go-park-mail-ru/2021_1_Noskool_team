@@ -6,4 +6,13 @@ type Repository interface {
 	GetTrackByID(trackID int) (*models.Track, error)
 	GetTracksByTittle(trackTittle string) ([]*models.Track, error)
 	GetTrackByMusicianID(musicianID int) ([]*models.Track, error)
+	CreateTrack(*models.Track) (*models.Track, error)
+	UploadPicture(trackID int, audioPath string) error
+	UploadAudio(trackID int, audioPath string) error
+	GetTracksByUserID(userID int) ([]*models.Track, error)
+	GetFavoriteTracks(userID int) ([]*models.Track, error)
+	AddTrackToFavorites(userID, trackID int) error
+	DeleteTrackFromFavorites(userID, trackID int) error
+	GetTracksByAlbumID(albumID int) ([]*models.Track, error)
+	GetTracksByGenreID(genreID int) ([]*models.Track, error)
 }

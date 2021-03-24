@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS musicians
 
 CREATE TABLE if not exists Musicians_to_Genres
 (
-    genre_id INTEGER NOT NULL,
+    genre_id    INTEGER NOT NULL,
     musician_id INTEGER NOT NULL,
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE,
     FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE
@@ -84,14 +84,24 @@ CREATE TABLE if not exists Albums_to_Genres
 
 CREATE TABLE IF NOT EXISTS Profiles
 (
-    profiles_id     bigserial not null primary key,
-    email       varchar not null unique,
-    nickname      varchar not null unique,
-    encrypted_password varchar not null,
-    avatar varchar not null
+    profiles_id        bigserial not null primary key,
+    email              varchar   not null unique,
+    nickname           varchar   not null unique,
+    encrypted_password varchar   not null,
+    avatar             varchar   not null
 );
 
-insert into tracks (tittle, text, audio, picture, release_date) VALUES
-('track1', 'some text', 'audio1', 'picture', '2020-03-04'), ('track2', 'some text', 'audio2', 'picture', '2020-03-04'),
-('track3', 'some text', 'audio3', 'picture', '2020-03-04'), ('track4', 'some text', 'audio4', 'picture', '2020-03-04');
+insert into tracks (tittle, text, audio, picture, release_date)
+VALUES ('track1', 'some text', 'audio1', 'picture', '2020-03-04'),
+       ('track2', 'some text', 'audio2', 'picture', '2020-03-04'),
+       ('track3', 'some text', 'audio3', 'picture', '2020-03-04'),
+       ('track4', 'some text', 'audio4', 'picture', '2020-03-04');
 
+
+CREATE TABLE if not exists tracks_to_user
+(
+    user_id  INTEGER NOT NULL,
+    track_id INTEGER NOT NULL,
+    favorite bool default false,
+    FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
+);

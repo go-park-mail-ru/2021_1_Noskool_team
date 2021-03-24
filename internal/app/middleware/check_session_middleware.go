@@ -21,7 +21,6 @@ func NewSessionMiddleware(grpcClient client.AuthCheckerClient) *SessionsMiddlewa
 func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := r.Cookie("session_id")
-
 		if err != nil {
 			fmt.Printf("Error in parsing cookie: %v\n", err)
 			w.WriteHeader(http.StatusUnauthorized)
@@ -39,6 +38,7 @@ func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handl
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		r = r.WithContext(context.WithValue(r.Context(), "user_id", session))
 		next.ServeHTTP(w, r)
 	})
 }

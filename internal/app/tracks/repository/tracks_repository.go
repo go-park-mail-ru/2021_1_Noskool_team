@@ -4,6 +4,8 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	"database/sql"
+	"fmt"
+	"github.com/sirupsen/logrus"
 )
 
 type TracksRepository struct {
@@ -24,6 +26,42 @@ func (trackRep *TracksRepository) GetTrackByID(trackID int) (*models.Track, erro
 		&track.ReleaseDate)
 
 	return track, err
+}
+
+func (trackRep *TracksRepository) CreateTrack(track *models.Track) (*models.Track, error) {
+	query := `INSERT INTO tracks (tittle, text, release_date) VALUES
+			($1, $2, $3) returning track_id`
+
+	err := trackRep.con.QueryRow(query, track.Tittle,
+		track.Text, track.ReleaseDate).Scan(&track.TrackID)
+	if err != nil {
+		return nil, err
+	}
+	return track, nil
+}
+
+func (trackRep *TracksRepository) UploadAudio(trackID int, audioPath string) error {
+	query := `UPDATE tracks SET audio = $1
+			WHERE track_id = $2`
+
+	res, err := trackRep.con.Exec(query, audioPath, trackID)
+	fmt.Println(res)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (trackRep *TracksRepository) UploadPicture(trackID int, audioPath string) error {
+	query := `UPDATE tracks SET picture = $1
+			WHERE track_id = $2`
+
+	res, err := trackRep.con.Exec(query, audioPath, trackID)
+	fmt.Println(res)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {
@@ -74,4 +112,120 @@ func (trackRep *TracksRepository) GetTrackByMusicianID(musicianID int) ([]*model
 	}
 
 	return tracksByMusName, err
+}
+
+func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date from tracks
+			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
+			where ttu.user_id = $1`
+
+	rows, err := trackRep.con.Query(
+		query, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, err
+}
+
+func (trackRep *TracksRepository) GetFavoriteTracks(userID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date from tracks
+			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
+			where ttu.user_id = $1 and ttu.favorite = true`
+
+	rows, err := trackRep.con.Query(
+		query, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, err
+}
+
+func (trackRep *TracksRepository) AddTrackToFavorites(userID, trackID int) error {
+	query := `UPDATE tracks_to_user SET favorite = true
+			WHERE user_id = $1 and track_id = $2`
+
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	logrus.Info(res)
+	return err
+}
+
+func (trackRep *TracksRepository) DeleteTrackFromFavorites(userID, trackID int) error {
+	query := `UPDATE tracks_to_user SET favorite = false
+			WHERE user_id = $1 and track_id = $2`
+
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	logrus.Info(res)
+	return err
+}
+
+func (trackRep *TracksRepository) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date FROM tracks
+			left join tracks_to_albums tta on tracks.track_id = tta.track_id
+			WHERE tta.album_id = $1`
+	rows, err := trackRep.con.Query(query, albumID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByAlbum := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracksByAlbum = append(tracksByAlbum, track)
+	}
+	return tracksByAlbum, nil
+}
+
+func (trackRep *TracksRepository) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date FROM tracks
+			LEFT JOIN tracks_to_genres ttg ON tracks.track_id = ttg.track_id
+			WHERE ttg.genre_id = $1`
+	rows, err := trackRep.con.Query(query, genreID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByGenre := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			logrus.Error(err)
+		}
+		tracksByGenre = append(tracksByGenre, track)
+	}
+	return tracksByGenre, nil
 }

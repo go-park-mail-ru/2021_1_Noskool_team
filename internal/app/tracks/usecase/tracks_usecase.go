@@ -30,3 +30,42 @@ func (usecase *TracksUsecase) GetTrackByMusicianID(musicianID int) ([]*models.Tr
 	track, err := usecase.trackRep.GetTrackByMusicianID(musicianID)
 	return track, err
 }
+
+func (usecase *TracksUsecase) UploadPicture(trackID int, audioPath string) error {
+	err := usecase.trackRep.UploadPicture(trackID, audioPath)
+	return err
+}
+func (usecase *TracksUsecase) UploadAudio(trackID int, audioPath string) error {
+	err := usecase.trackRep.UploadAudio(trackID, audioPath)
+	return err
+}
+
+func (usecase *TracksUsecase) GetTracksByUserID(userID int) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetTracksByUserID(userID)
+	return tracks, err
+}
+
+func (usecase *TracksUsecase) GetFavoriteTracks(userID int) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetFavoriteTracks(userID)
+	return tracks, err
+}
+
+func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
+	err := usecase.trackRep.AddTrackToFavorites(userID, trackID)
+	return err
+}
+
+func (usecase *TracksUsecase) DeleteTrackFromFavorites(userID, trackID int) error {
+	err := usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
+	return err
+}
+
+func (usecase *TracksUsecase) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
+	tracksByAlbum, err := usecase.trackRep.GetTracksByAlbumID(albumID)
+	return tracksByAlbum, err
+}
+
+func (usecase *TracksUsecase) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
+	tracksByGenre, err := usecase.trackRep.GetTracksByGenreID(genreID)
+	return tracksByGenre, err
+}

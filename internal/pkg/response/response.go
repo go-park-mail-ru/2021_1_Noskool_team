@@ -40,15 +40,8 @@ func SendCorrectResponse(w http.ResponseWriter, data interface{}, HTTPStatus int
 		return
 	}
 
-	_, err = w.Write(body)
-	if err != nil {
-		SendErrorResponse(w, &commonModels.HTTPError{
-			Code:    http.StatusInternalServerError,
-			Message: err.Error(),
-		})
-		return
-	}
 	w.WriteHeader(HTTPStatus)
+	w.Write(body)
 }
 
 func SendEmptyBody(w http.ResponseWriter, HTTPStatusCode int) {
