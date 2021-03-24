@@ -9,7 +9,8 @@ import (
 	"flag"
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
-  "time"
+	"log"
+	"time"
 )
 
 var (
@@ -27,7 +28,7 @@ func main() {
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
 	}
 
 	profDBCon, err := utility.CreatePostgresConnection(config.ProfileDB)
