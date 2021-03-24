@@ -6,6 +6,7 @@ import (
 	"flag"
 	"github.com/BurntSushi/toml"
 	"log"
+	"time"
 )
 
 var (
@@ -17,7 +18,7 @@ func init() {
 }
 
 func main() {
-	//time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()
