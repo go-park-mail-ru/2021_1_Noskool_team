@@ -8,7 +8,6 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 const (
@@ -16,7 +15,7 @@ const (
 )
 
 func main() {
-	time.Sleep(5 * time.Second)
+	//time.Sleep(5 * time.Second)
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {

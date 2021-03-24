@@ -1,6 +1,7 @@
 package utility
 
 import (
+	"2021_1_Noskool_team/internal/models"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq" //goland:noinspection
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 func CreatePostgresConnection(dbSettings string) (*sql.DB, error) {
@@ -53,4 +55,19 @@ func SaveFile(r *http.Request, formKey string, directory string, fileName string
 	defer f.Close()
 	io.Copy(f, file)
 	return &newFileName, nil
+}
+
+func ParsePagination(r *http.Request) *models.Pagination {
+	pagination := &models.Pagination{}
+	limit := r.URL.Query().Get("limit")
+	limitInt, err := strconv.Atoi(limit)
+	if err == nil {
+		pagination.Limit = limitInt
+	}
+	offset := r.URL.Query().Get("offset")
+	offsetInt, err := strconv.Atoi(offset)
+	if err == nil {
+		pagination.Offset = offsetInt
+	}
+	return pagination
 }

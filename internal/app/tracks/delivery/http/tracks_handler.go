@@ -236,8 +236,8 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 		})
 		return
 	}
-
-	tracks, err := handler.tracksUsecase.GetFavoriteTracks(userID)
+	pagination := utility.ParsePagination(r)
+	tracks, err := handler.tracksUsecase.GetFavoriteTracks(userID, pagination)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)
