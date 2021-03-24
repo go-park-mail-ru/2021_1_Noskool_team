@@ -3,6 +3,7 @@ package repository
 import (
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"database/sql"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -140,13 +141,17 @@ func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track
 	return tracks, err
 }
 
-func (trackRep *TracksRepository) GetFavoriteTracks(userID int) ([]*models.Track, error) {
+func (trackRep *TracksRepository) GetFavoriteTracks(userID int,
+	pagination *commonModels.Pagination) ([]*models.Track, error) {
 	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date from tracks
 			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
-			where ttu.user_id = $1 and ttu.favorite = true`
+			where ttu.user_id = $1 and ttu.favorite = true
+			order by tracks.track_id
+			limit $2
+			offset $3`
 
 	rows, err := trackRep.con.Query(
-		query, userID)
+		query, userID, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return nil, err
 	}
