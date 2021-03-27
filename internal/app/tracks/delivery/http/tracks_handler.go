@@ -41,19 +41,18 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 		logrus.Error(err)
 	}
 
-	//handler.router.Use(middleware.ContentTypeJson)
+	handler.router.Use(middleware.ContentTypeJson)
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
-	handler.router.HandleFunc("/{track_id:[0-9]+}",
-		middleware.ContentTypeJson(handler.GetTrackByIDHandler))
-	handler.router.HandleFunc("/",
-		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetMediatekaForUser))).Methods(http.MethodGet)
+	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
+	handler.router.HandleFunc("/mediateka",
+		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
-		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetFavoriteTracks))).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(handler.GetFavoriteTracks)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_tittle}",
-		middleware.ContentTypeJson(handler.GetTracksByTittle)).Methods(http.MethodGet)
+		handler.GetTracksByTittle).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
-		authMiddleware.CheckSessionMiddleware(middleware.ContentTypeJson(handler.GetTracksByMusicinID))).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(handler.GetTracksByMusicinID)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
 		handler.UploadTrackPictureHandler).Methods(http.MethodPost)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/audio",
@@ -63,9 +62,9 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/{track_id:[0-9]+}/mediateka",
 		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToMediateka)).Methods(http.MethodPost)
 	handler.router.HandleFunc("/album/{album_id:[0-9]+}",
-		middleware.ContentTypeJson(handler.GetTracksByAlbumIDHandler)).Methods(http.MethodGet)
+		handler.GetTracksByAlbumIDHandler).Methods(http.MethodGet)
 	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
-		middleware.ContentTypeJson(handler.GetTracksByGenreIDHandler)).Methods(http.MethodGet)
+		handler.GetTracksByGenreIDHandler).Methods(http.MethodGet)
 
 	return handler
 }
@@ -113,7 +112,7 @@ func (handler *TracksHandler) UploadTrackPictureHandler(w http.ResponseWriter, r
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	fileNetPath := "/api/v1/data/img/track/" + *fileName
+	fileNetPath := "/api/v1/data/img/tracks/" + *fileName
 	trackIDINT, err := strconv.Atoi(trackID)
 	if err != nil {
 		handler.logger.Error(err)
@@ -140,7 +139,7 @@ func (handler *TracksHandler) UploadTrackAudioHandler(w http.ResponseWriter, r *
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	fileNetPath := "/api/v1/data/audio/track/" + *fileName
+	fileNetPath := "/api/v1/data/audio/" + *fileName
 	trackIDINT, err := strconv.Atoi(trackID)
 	if err != nil {
 		handler.logger.Error(err)
