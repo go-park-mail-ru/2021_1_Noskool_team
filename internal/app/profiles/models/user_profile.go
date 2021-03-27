@@ -11,6 +11,8 @@ type UserProfile struct {
 	ProfileID         int    `json:"user_id"`
 	Email             string `json:"email"`
 	Login             string `json:"login"`
+	Name              string `json:"first_name"`
+	Surname           string `json:"second_name"`
 	Password          string `json:"password,omitempty"`
 	EncryptedPassword string `json:"-"`
 	Avatar            string `json:"avatar"`

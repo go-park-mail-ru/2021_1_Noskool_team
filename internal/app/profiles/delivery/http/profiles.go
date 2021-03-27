@@ -197,6 +197,8 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 		Nickname string `json:"nickname"`
+		Name     string `json:"first_name"`
+		Surname  string `json:"second_name"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
