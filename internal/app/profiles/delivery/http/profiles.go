@@ -169,7 +169,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 
 		if err != nil || !u.ComparePassword(req.Password) {
 			fmt.Println(err)
-			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Некорректный email или пароль"))
+			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Некорректный nickname или пароль"))
 			return
 		}
 		session, err := s.sessionsClient.Create(context.Background(), strconv.Itoa(u.ProfileID))
@@ -214,9 +214,12 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 			Login:    req.Nickname,
+			Name:     req.Name,
+			Surname:  req.Surname,
 			Avatar:   "/api/v1/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
+			//fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", err)
 			msg, httpCode := checkDBerr(err)
 			s.error(w, r, httpCode, fmt.Errorf(msg))
 			return
@@ -272,6 +275,8 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 		Nickname string `json:"nickname"`
+		Name     string `json:"first_name"`
+		Surname  string `json:"second_name"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -298,6 +303,12 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		flagPassword := false
 		if req.Email != "" {
 			userForUpdates.Email = req.Email
+		}
+		if req.Name != "" {
+			userForUpdates.Name = req.Name
+		}
+		if req.Surname != "" {
+			userForUpdates.Surname = req.Surname
 		}
 		if req.Nickname != "" {
 			userForUpdates.Login = req.Nickname
@@ -362,3 +373,22 @@ func checkDBerr(err error) (string, int) {
 	}
 	return msgForUser, httpCode
 }
+
+// func checkCredentialsFromReq(err error) (string, int) {
+// 	var msgForUser string
+// 	var httpCode int
+// 	errText := err.Error()
+
+// 	switch errText {
+// 	case "pq: duplicate key value violates unique constraint \"profiles_email_key\"":
+// 		msgForUser = "Пользователь с таким email уже существует."
+// 		httpCode = http.StatusUnprocessableEntity
+// 	case "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"":
+// 		msgForUser = "Пользователь с таким nickname уже существует."
+// 		httpCode = http.StatusUnprocessableEntity
+// 	default:
+// 		msgForUser = "Неопознаная ошибка на севере, ухх..."
+// 		httpCode = http.StatusInternalServerError
+// 	}
+// 	return msgForUser, httpCode
+// }

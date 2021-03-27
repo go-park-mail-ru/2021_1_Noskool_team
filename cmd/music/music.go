@@ -12,6 +12,8 @@ import (
 	"2021_1_Noskool_team/internal/pkg/server"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
+	"time"
+
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
 )
@@ -21,7 +23,7 @@ const (
 )
 
 func main() {
-	//time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second)
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {

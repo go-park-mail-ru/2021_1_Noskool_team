@@ -27,11 +27,13 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 		return err
 	}
 	return r.con.QueryRow("INSERT INTO Profiles"+
-		"(email, nickname, encrypted_password, avatar)"+
-		"VALUES ($1, $2, $3, $4)"+
+		"(email, nickname, first_name, second_name, encrypted_password, avatar)"+
+		"VALUES ($1, $2, $3, $4, $5, $6)"+
 		"RETURNING profiles_id;",
 		u.Email,
 		u.Login,
+		u.Name,
+		u.Surname,
 		u.EncryptedPassword,
 		u.Avatar).Scan(&u.ProfileID)
 }
@@ -51,10 +53,12 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 	}
 
 	return r.con.QueryRow("UPDATE Profiles "+
-		"SET email = $1, nickname = $2, encrypted_password = $3 "+
-		"WHERE profiles_id = $4 RETURNING profiles_id;",
+		"SET email = $1, nickname = $2, first_name = $3, second_name = $4, encrypted_password = $5 "+
+		"WHERE profiles_id = $6 RETURNING profiles_id;",
 		u.Email,
 		u.Login,
+		u.Name,
+		u.Surname,
 		u.EncryptedPassword,
 		u.ProfileID).Scan(&u.ProfileID)
 }
@@ -62,12 +66,14 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 // FindByID ...
 func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, encrypted_password, avatar FROM Profiles"+
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, first_name, second_name, encrypted_password, avatar FROM Profiles"+
 		" WHERE profiles_id = %s;", id)
 	if err := r.con.QueryRow(sqlReq).Scan(
 		&u.ProfileID,
 		&u.Email,
 		&u.Login,
+		&u.Name,
+		&u.Surname,
 		&u.EncryptedPassword,
 		&u.Avatar); err != nil {
 		return nil, err
@@ -85,12 +91,14 @@ func (r *ProfileRepository) UpdateAvatar(userID string, newAvatar string) {
 // FindByLogin ...
 func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, encrypted_password FROM Profiles"+
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, first_name, second_name, encrypted_password FROM Profiles"+
 		" WHERE nickname = '%s';", nickname)
 	if err := r.con.QueryRow(sqlReq).Scan(
 		&u.ProfileID,
 		&u.Email,
 		&u.Login,
+		&u.Name,
+		&u.Surname,
 		&u.EncryptedPassword); err != nil {
 		return nil, err
 	}
