@@ -18,4 +18,6 @@ type Repository interface {
 	DeleteTrackFromFavorites(userID, trackID int) error
 	GetTracksByAlbumID(albumID int) ([]*models.Track, error)
 	GetTracksByGenreID(genreID int) ([]*models.Track, error)
+	AddTrackToMediateka(userID, trackID int) error
+	DeleteTrackFromMediateka(userID, trackID int) error
 }

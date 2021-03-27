@@ -244,7 +244,7 @@ func (trackRep *TracksRepository) AddTrackToMediateka(userID, trackID int) error
 
 func (trackRep *TracksRepository) DeleteTrackFromMediateka(userID, trackID int) error {
 	query := `DELETE FROM tracks_to_user
-			WHERE user_id = 23 and track_id = 1`
+			WHERE user_id = $1 and track_id = $2`
 	res, err := trackRep.con.Exec(query, userID, trackID)
 	fmt.Println(res)
 	return err

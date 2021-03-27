@@ -5,7 +5,6 @@ import (
 	commonModels "2021_1_Noskool_team/internal/models"
 )
 
-
 type Usecase interface {
 	GetTrackByID(trackID int) (*models.Track, error)
 	GetTracksByTittle(trackTittle string) ([]*models.Track, error)
@@ -18,4 +17,5 @@ type Usecase interface {
 	DeleteTrackFromFavorites(trackID, userID int) error
 	GetTracksByAlbumID(albumID int) ([]*models.Track, error)
 	GetTracksByGenreID(genreID int) ([]*models.Track, error)
+	AddDeleteTrackToMediateka(userID, trackID int, operationType string) error
 }
