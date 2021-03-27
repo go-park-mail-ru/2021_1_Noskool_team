@@ -234,3 +234,18 @@ func (trackRep *TracksRepository) GetTracksByGenreID(genreID int) ([]*models.Tra
 	}
 	return tracksByGenre, nil
 }
+
+func (trackRep *TracksRepository) AddTrackToMediateka(userID, trackID int) error {
+	query := `INSERT INTO tracks_to_user(user_id, track_id) VALUES ($1, $2);`
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	fmt.Println(res)
+	return err
+}
+
+func (trackRep *TracksRepository) DeleteTrackFromMediateka(userID, trackID int) error {
+	query := `DELETE FROM tracks_to_user
+			WHERE user_id = 23 and track_id = 1`
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	fmt.Println(res)
+	return err
+}
