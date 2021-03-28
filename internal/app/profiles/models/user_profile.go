@@ -29,6 +29,7 @@ func (u *UserProfile) Validate(withPassword bool) error {
 			validation.Field(&u.Name, validation.Required, validation.Length(2, 64)),
 			validation.Field(&u.Surname, validation.Required, validation.Length(2, 128)),
 			validation.Field(&u.Password, validation.By(requiredIF(u.EncryptedPassword == "")), validation.Length(6, 32)),
+			validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
 		)
 	}
 	return validation.ValidateStruct(
@@ -37,6 +38,7 @@ func (u *UserProfile) Validate(withPassword bool) error {
 		validation.Field(&u.Name, validation.Required, validation.Length(2, 64)),
 		validation.Field(&u.Surname, validation.Required, validation.Length(2, 128)),
 		validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
+		validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
 	)
 
 }
