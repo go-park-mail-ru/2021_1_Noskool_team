@@ -194,11 +194,12 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 
 func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 	type request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Nickname string `json:"nickname"`
-		Name     string `json:"first_name"`
-		Surname  string `json:"second_name"`
+		Email         string `json:"email"`
+		Password      string `json:"password"`
+		Nickname      string `json:"nickname"`
+		Name          string `json:"first_name"`
+		Surname       string `json:"second_name"`
+		FavoriteGenre string `json:"favorite_genre"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -211,12 +212,13 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		}
 
 		u := &models.UserProfile{
-			Email:    req.Email,
-			Password: req.Password,
-			Login:    req.Nickname,
-			Name:     req.Name,
-			Surname:  req.Surname,
-			Avatar:   "/api/v1/data/img/default.png",
+			Email:         req.Email,
+			Password:      req.Password,
+			Login:         req.Nickname,
+			Name:          req.Name,
+			Surname:       req.Surname,
+			FavoriteGenre: req.FavoriteGenre,
+			Avatar:        "/api/v1/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
 			fmt.Println(err)
@@ -272,11 +274,12 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 
 func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 	type request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Nickname string `json:"nickname"`
-		Name     string `json:"first_name"`
-		Surname  string `json:"second_name"`
+		Email         string `json:"email"`
+		Password      string `json:"password"`
+		Nickname      string `json:"nickname"`
+		Name          string `json:"first_name"`
+		Surname       string `json:"second_name"`
+		FavoriteGenre string `json:"favorite_genre"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -312,11 +315,14 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		if req.Nickname != "" {
 			userForUpdates.Login = req.Nickname
 		}
+		if req.FavoriteGenre != "" {
+			userForUpdates.FavoriteGenre = req.FavoriteGenre
+		}
 		if req.Password != "" {
 			userForUpdates.Password = req.Password
 			flagPassword = true
 		}
-		fmt.Println(userForUpdates)
+		fmt.Println("(userForUpdates: ", userForUpdates)
 
 		if flagPassword {
 			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {

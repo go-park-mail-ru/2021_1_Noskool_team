@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS Profiles
     first_name         varchar   not null,
     second_name        varchar   not null,
     encrypted_password varchar   not null,
-    avatar             varchar   not null
+    avatar             varchar   not null,
+    favorite_genre     varchar   not null
 );

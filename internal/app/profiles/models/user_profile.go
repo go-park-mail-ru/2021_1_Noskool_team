@@ -16,6 +16,7 @@ type UserProfile struct {
 	Password          string `json:"password,omitempty"`
 	EncryptedPassword string `json:"-"`
 	Avatar            string `json:"avatar"`
+	FavoriteGenre     string `json:"favorite_genre"`
 }
 
 // Validate ....

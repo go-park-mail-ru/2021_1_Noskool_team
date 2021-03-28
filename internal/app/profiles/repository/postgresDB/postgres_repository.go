@@ -30,14 +30,15 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 		return err
 	}
 	sqlReq := fmt.Sprintf("INSERT INTO Profiles"+
-		"(email, nickname, first_name, second_name, encrypted_password, avatar)"+
-		"VALUES ('%s', '%s', '%s', '%s', '%s', '%s');",
+		"(email, nickname, first_name, second_name, encrypted_password, avatar, favorite_genre)"+
+		"VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s');",
 		u.Email,
 		u.Login,
 		u.Name,
 		u.Surname,
 		u.EncryptedPassword,
-		u.Avatar)
+		u.Avatar,
+		u.FavoriteGenre)
 	_, err := r.con.Exec(sqlReq)
 	pgErr, ok := err.(*pq.Error)
 	if ok {
@@ -63,13 +64,14 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 	}
 
 	sqlReq := fmt.Sprintf("UPDATE Profiles "+
-		"SET email = '%s', nickname = '%s', first_name = '%s', second_name = '%s', encrypted_password = '%s' "+
+		"SET email = '%s', nickname = '%s', first_name = '%s', second_name = '%s', encrypted_password = '%s', favorite_genre = '%s' "+
 		"WHERE profiles_id = '%d';",
 		u.Email,
 		u.Login,
 		u.Name,
 		u.Surname,
 		u.EncryptedPassword,
+		u.FavoriteGenre,
 		u.ProfileID)
 	_, err := r.con.Exec(sqlReq)
 	pgErr, ok := err.(*pq.Error)
@@ -82,7 +84,7 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 // FindByID ...
 func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, first_name, second_name, encrypted_password, avatar FROM Profiles"+
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, first_name, second_name, encrypted_password, avatar, favorite_genre  FROM Profiles"+
 		" WHERE profiles_id = %s;", id)
 	if err := r.con.QueryRow(sqlReq).Scan(
 		&u.ProfileID,
@@ -91,7 +93,8 @@ func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 		&u.Name,
 		&u.Surname,
 		&u.EncryptedPassword,
-		&u.Avatar); err != nil {
+		&u.Avatar,
+		&u.FavoriteGenre); err != nil {
 		return nil, err
 	}
 	return u, nil
@@ -107,7 +110,7 @@ func (r *ProfileRepository) UpdateAvatar(userID string, newAvatar string) {
 // FindByLogin ...
 func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, error) {
 	u := &models.UserProfile{}
-	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, first_name, second_name, encrypted_password FROM Profiles"+
+	sqlReq := fmt.Sprintf("SELECT profiles_id, email, nickname, first_name, second_name, encrypted_password, avatar, favorite_genre  FROM Profiles"+
 		" WHERE nickname = '%s';", nickname)
 	if err := r.con.QueryRow(sqlReq).Scan(
 		&u.ProfileID,
@@ -115,7 +118,9 @@ func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, e
 		&u.Login,
 		&u.Name,
 		&u.Surname,
-		&u.EncryptedPassword); err != nil {
+		&u.EncryptedPassword,
+		&u.Avatar,
+		&u.FavoriteGenre); err != nil {
 		return nil, err
 	}
 	return u, nil
