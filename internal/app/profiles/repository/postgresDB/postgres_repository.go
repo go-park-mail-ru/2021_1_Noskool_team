@@ -4,7 +4,10 @@ import (
 	"2021_1_Noskool_team/internal/app/profiles"
 	"2021_1_Noskool_team/internal/app/profiles/models"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+
+	"github.com/lib/pq"
 )
 
 type ProfileRepository struct {
@@ -19,48 +22,61 @@ func NewProfileRepository(con *sql.DB) profiles.Repository {
 
 // Create ...
 func (r *ProfileRepository) Create(u *models.UserProfile) error {
-	//const defaultAvatar = "/api/v1/data/img/default.png"
 	if err := u.Validate(true); err != nil {
-		return err
+		validationErr, _ := json.Marshal(err)
+		return fmt.Errorf(string(validationErr))
 	}
 	if err := u.BeforeCreate(); err != nil {
 		return err
 	}
-	return r.con.QueryRow("INSERT INTO Profiles"+
+	sqlReq := fmt.Sprintf("INSERT INTO Profiles"+
 		"(email, nickname, first_name, second_name, encrypted_password, avatar)"+
-		"VALUES ($1, $2, $3, $4, $5, $6)"+
-		"RETURNING profiles_id;",
+		"VALUES ('%s', '%s', '%s', '%s', '%s', '%s');",
 		u.Email,
 		u.Login,
 		u.Name,
 		u.Surname,
 		u.EncryptedPassword,
-		u.Avatar).Scan(&u.ProfileID)
+		u.Avatar)
+	_, err := r.con.Exec(sqlReq)
+	pgErr, ok := err.(*pq.Error)
+	if ok {
+		err = formattingDBerr(pgErr)
+	}
+	return err
 }
 
 // Update ...
 func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) error {
 	if withPassword {
 		if err := u.Validate(true); err != nil {
-			return err
+			validationErr, _ := json.Marshal(err)
+			return fmt.Errorf(string(validationErr))
 		}
 		if err := u.BeforeCreate(); err != nil {
 			return err
 		}
 	}
 	if err := u.Validate(false); err != nil {
-		return err
+		validationErr, _ := json.Marshal(err)
+		return fmt.Errorf(string(validationErr))
 	}
 
-	return r.con.QueryRow("UPDATE Profiles "+
-		"SET email = $1, nickname = $2, first_name = $3, second_name = $4, encrypted_password = $5 "+
-		"WHERE profiles_id = $6 RETURNING profiles_id;",
+	sqlReq := fmt.Sprintf("UPDATE Profiles "+
+		"SET email = '%s', nickname = '%s', first_name = '%s', second_name = '%s', encrypted_password = '%s' "+
+		"WHERE profiles_id = '%d';",
 		u.Email,
 		u.Login,
 		u.Name,
 		u.Surname,
 		u.EncryptedPassword,
-		u.ProfileID).Scan(&u.ProfileID)
+		u.ProfileID)
+	_, err := r.con.Exec(sqlReq)
+	pgErr, ok := err.(*pq.Error)
+	if ok {
+		err = formattingDBerr(pgErr)
+	}
+	return err
 }
 
 // FindByID ...
@@ -103,4 +119,17 @@ func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, e
 		return nil, err
 	}
 	return u, nil
+}
+
+func formattingDBerr(err *pq.Error) error {
+	var formatedErr error
+	switch {
+	case err.Code == "23505" && err.Constraint == "profiles_email_key":
+		formatedErr = models.ErrConstraintViolationEmail
+	case err.Code == "23505" && err.Constraint == "profiles_nickname_key":
+		formatedErr = models.ErrConstraintViolationNickname
+	default:
+		formatedErr = models.ErrDefaultDB
+	}
+	return formatedErr
 }

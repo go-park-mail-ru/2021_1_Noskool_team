@@ -137,7 +137,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		path, _ := os.Getwd()
 		photoPath := path + "/static/img/"
 		newAvatarPath := photoPath + session.ID + ext
-		fmt.Println(newAvatarPath)
+		fmt.Println("newAvatarPath: ", newAvatarPath)
 		f, err := os.OpenFile(newAvatarPath, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			fmt.Println(err)
@@ -209,7 +209,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
 			return
 		}
-		fmt.Println("req", req)
+
 		u := &models.UserProfile{
 			Email:    req.Email,
 			Password: req.Password,
@@ -219,7 +219,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Avatar:   "/api/v1/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
-			//fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", err)
+			fmt.Println(err)
 			msg, httpCode := checkDBerr(err)
 			s.error(w, r, httpCode, fmt.Errorf(msg))
 			return
@@ -287,7 +287,6 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		userIDfromCookie := session.ID
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 
-		// fmt.Println(userIDfromURLstr)
 		userForUpdates, err := s.profUsecase.FindByID(userIDfromCookieStr)
 		if err != nil {
 			fmt.Println(err)
@@ -321,7 +320,6 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 
 		if flagPassword {
 			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
-				fmt.Println(err)
 				msg, httpCode := checkDBerr(err)
 				s.error(w, r, httpCode, fmt.Errorf(msg))
 				return
@@ -356,39 +354,26 @@ func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code in
 }
 
 func checkDBerr(err error) (string, int) {
+	fmt.Println("checkDBerr", err)
 	var msgForUser string
 	var httpCode int
-	errText := err.Error()
 
-	switch errText {
-	case "pq: duplicate key value violates unique constraint \"profiles_email_key\"":
+	var rightJSON map[string]interface{}
+	errorMsgInJSON := json.Unmarshal([]byte(err.Error()), &rightJSON)
+
+	switch {
+	case err == models.ErrConstraintViolationEmail:
 		msgForUser = "Пользователь с таким email уже существует."
 		httpCode = http.StatusUnprocessableEntity
-	case "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"":
+	case err == models.ErrConstraintViolationNickname:
 		msgForUser = "Пользователь с таким nickname уже существует."
 		httpCode = http.StatusUnprocessableEntity
+	case errorMsgInJSON == nil:
+		msgForUser = err.Error()
+		httpCode = http.StatusBadRequest
 	default:
 		msgForUser = "Неопознаная ошибка на севере, ухх..."
 		httpCode = http.StatusInternalServerError
 	}
 	return msgForUser, httpCode
 }
-
-// func checkCredentialsFromReq(err error) (string, int) {
-// 	var msgForUser string
-// 	var httpCode int
-// 	errText := err.Error()
-
-// 	switch errText {
-// 	case "pq: duplicate key value violates unique constraint \"profiles_email_key\"":
-// 		msgForUser = "Пользователь с таким email уже существует."
-// 		httpCode = http.StatusUnprocessableEntity
-// 	case "pq: duplicate key value violates unique constraint \"profiles_nickname_key\"":
-// 		msgForUser = "Пользователь с таким nickname уже существует."
-// 		httpCode = http.StatusUnprocessableEntity
-// 	default:
-// 		msgForUser = "Неопознаная ошибка на севере, ухх..."
-// 		httpCode = http.StatusInternalServerError
-// 	}
-// 	return msgForUser, httpCode
-// }
