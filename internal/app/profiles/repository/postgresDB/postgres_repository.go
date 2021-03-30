@@ -29,17 +29,17 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 	if err := u.BeforeCreate(); err != nil {
 		return err
 	}
-	sqlReq := fmt.Sprintf("INSERT INTO Profiles"+
+	_, err := r.con.Exec("INSERT INTO Profiles"+
 		"(email, nickname, first_name, second_name, encrypted_password, avatar, favorite_genre)"+
-		"VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s');",
+		"VALUES ($1, $2, $3, $4, $5, $6, $7);",
 		u.Email,
 		u.Login,
 		u.Name,
 		u.Surname,
 		u.EncryptedPassword,
 		u.Avatar,
-		u.FavoriteGenre)
-	_, err := r.con.Exec(sqlReq)
+		pq.Array(u.FavoriteGenre))
+
 	pgErr, ok := err.(*pq.Error)
 	if ok {
 		err = formattingDBerr(pgErr)
@@ -63,17 +63,17 @@ func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) err
 		return fmt.Errorf(string(validationErr))
 	}
 
-	sqlReq := fmt.Sprintf("UPDATE Profiles "+
-		"SET email = '%s', nickname = '%s', first_name = '%s', second_name = '%s', encrypted_password = '%s', favorite_genre = '%s' "+
-		"WHERE profiles_id = '%d';",
+	_, err := r.con.Exec("UPDATE Profiles "+
+		"SET email = $1, nickname = $2, first_name = $3, second_name = $4, encrypted_password = $5, favorite_genre = $6 "+
+		"WHERE profiles_id = $7;",
 		u.Email,
 		u.Login,
 		u.Name,
 		u.Surname,
 		u.EncryptedPassword,
-		u.FavoriteGenre,
+		pq.Array(u.FavoriteGenre),
 		u.ProfileID)
-	_, err := r.con.Exec(sqlReq)
+
 	pgErr, ok := err.(*pq.Error)
 	if ok {
 		err = formattingDBerr(pgErr)
@@ -94,7 +94,7 @@ func (r *ProfileRepository) FindByID(id string) (*models.UserProfile, error) {
 		&u.Surname,
 		&u.EncryptedPassword,
 		&u.Avatar,
-		&u.FavoriteGenre); err != nil {
+		pq.Array(&u.FavoriteGenre)); err != nil {
 		return nil, err
 	}
 	return u, nil
@@ -120,13 +120,14 @@ func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, e
 		&u.Surname,
 		&u.EncryptedPassword,
 		&u.Avatar,
-		&u.FavoriteGenre); err != nil {
+		pq.Array(&u.FavoriteGenre)); err != nil {
 		return nil, err
 	}
 	return u, nil
 }
 
 func formattingDBerr(err *pq.Error) error {
+	fmt.Println(err)
 	var formatedErr error
 	switch {
 	case err.Code == "23505" && err.Constraint == "profiles_email_key":

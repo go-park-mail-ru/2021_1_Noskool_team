@@ -17,7 +17,7 @@ func requiredIF(cond bool) validation.RuleFunc {
 
 func chrckGenres() validation.RuleFunc {
 	return func(value interface{}) error {
-		acceptableMusicGenres := [12]string{
+		acceptableMusicGenres := []string{
 			"classical",
 			"jazz",
 			"rap",
@@ -31,18 +31,41 @@ func chrckGenres() validation.RuleFunc {
 			"reggae",
 			"indie",
 		}
-		reciveGenre, ok := value.(string)
+		reciveGenres, ok := value.([]string)
 		if !ok {
 			return errors.New("must be a valid genre type")
 		}
-		if reciveGenre == "" {
+		if len(reciveGenres) == 0 {
 			return errors.New("cannot be blank")
 		}
-		for _, acceptableGenre := range acceptableMusicGenres {
-			if reciveGenre == acceptableGenre {
-				return nil
+		for _, Gengre := range reciveGenres {
+			if !Contains(acceptableMusicGenres, Gengre) {
+				return errors.New("must be a valid genre type")
 			}
 		}
-		return errors.New("must be a valid genre type")
+		if !CheckAllUniq(reciveGenres) {
+			return errors.New("genres should not be repeated")
+		}
+		return nil
 	}
+}
+
+func Contains(set []string, x string) bool {
+	for _, n := range set {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}
+
+func CheckAllUniq(set []string) bool {
+	for idx, item := range set {
+		for idy, curr := range set {
+			if item == curr && idx != idy {
+				return false
+			}
+		}
+	}
+	return true
 }

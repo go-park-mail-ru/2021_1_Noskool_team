@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS Profiles
     second_name        varchar   not null,
     encrypted_password varchar   not null,
     avatar             varchar   not null,
-    favorite_genre     varchar   not null
+    favorite_genre     text[]    not null default '{}'::text[]
 );
 
 insert into tracks (tittle, text, audio, picture, release_date)

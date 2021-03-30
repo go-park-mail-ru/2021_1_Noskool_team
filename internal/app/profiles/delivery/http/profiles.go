@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -203,12 +204,12 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 
 func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 	type request struct {
-		Email         string `json:"email"`
-		Password      string `json:"password"`
-		Nickname      string `json:"nickname"`
-		Name          string `json:"first_name"`
-		Surname       string `json:"second_name"`
-		FavoriteGenre string `json:"favorite_genre"`
+		Email         string   `json:"email"`
+		Password      string   `json:"password"`
+		Nickname      string   `json:"nickname"`
+		Name          string   `json:"first_name"`
+		Surname       string   `json:"second_name"`
+		FavoriteGenre []string `json:"favorite_genre"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleRegistrate")
@@ -217,7 +218,14 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		// TODO: проверка авторизован ли уже пользователь???
 
 		req := &request{}
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			s.logger.Error(err)
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
+			return
+		}
+		err = json.Unmarshal(body, &req)
+		if err != nil {
 			s.logger.Error(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
 			return
@@ -293,12 +301,12 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 
 func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 	type request struct {
-		Email         string `json:"email"`
-		Password      string `json:"password"`
-		Nickname      string `json:"nickname"`
-		Name          string `json:"first_name"`
-		Surname       string `json:"second_name"`
-		FavoriteGenre string `json:"favorite_genre"`
+		Email         string   `json:"email"`
+		Password      string   `json:"password"`
+		Nickname      string   `json:"nickname"`
+		Name          string   `json:"first_name"`
+		Surname       string   `json:"second_name"`
+		FavoriteGenre []string `json:"favorite_genre"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleUpdateProfile")
@@ -344,7 +352,7 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		if req.Nickname != "" {
 			userForUpdates.Login = req.Nickname
 		}
-		if req.FavoriteGenre != "" {
+		if len(req.FavoriteGenre) != 0 {
 			userForUpdates.FavoriteGenre = req.FavoriteGenre
 		}
 		if req.Password != "" {
