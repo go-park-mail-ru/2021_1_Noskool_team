@@ -104,7 +104,7 @@ func TestGetTrackByMusicianID(t *testing.T) {
 
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
-	handler.GetTrackByMusicianID(w, r)
+	handler.GetTracksByMusicinID(w, r)
 
 	expected := http.StatusOK
 	if w.Code != expected {
@@ -132,7 +132,7 @@ func TestGetTrackByMusicianIDFailed(t *testing.T) {
 
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
-	handler.GetTrackByMusicianID(w, r)
+	handler.GetTracksByMusicinID(w, r)
 
 	expected := http.StatusNoContent
 	if w.Code != expected {
