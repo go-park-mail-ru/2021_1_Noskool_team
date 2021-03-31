@@ -2,6 +2,7 @@ package repository
 
 import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
@@ -173,6 +174,88 @@ func TestGetTrackByAlbumID(t *testing.T) {
 
 	assert.NoError(t, err)
 	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetTrackByGenreID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date",
+	})
+	for _, row := range tracksForTests {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate)
+	}
+	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date FROM " +
+		"tracks\n\t\t\tLEFT JOIN tracks_to_genres"
+	mock.ExpectQuery(query).WithArgs(uint64(1)).WillReturnRows(rows)
+	track, err := tracRep.GetTracksByGenreID(1)
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetFavoriteTracks(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date",
+	})
+	for _, row := range tracksForTests {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate)
+	}
+	pagination := &commonModels.Pagination{
+		Limit:  5,
+		Offset: 0,
+	}
+
+	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date " +
+		"from tracks\n\t\t\tLEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id"
+	mock.ExpectQuery(query).WithArgs(uint64(1), pagination.Limit, pagination.Offset).WillReturnRows(rows)
+	track, err := tracRep.GetFavoriteTracks(1, pagination)
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+
+func TestCreateTrack(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id",
+	}).AddRow(tracksForTests[0].TrackID)
+	query := "INSERT"
+	mock.ExpectQuery(query).WithArgs(tracksForTests[0].Tittle,
+		tracksForTests[0].Text, tracksForTests[0].ReleaseDate).WillReturnRows(rows)
+	trackID, err := tracRep.CreateTrack(tracksForTests[0])
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests[0], trackID) {
 		t.Fatalf("Not equal")
 	}
 }
