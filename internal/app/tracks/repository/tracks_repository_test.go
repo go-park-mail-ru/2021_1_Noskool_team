@@ -236,7 +236,6 @@ func TestGetFavoriteTracks(t *testing.T) {
 	}
 }
 
-
 func TestCreateTrack(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -258,4 +257,100 @@ func TestCreateTrack(t *testing.T) {
 	if !reflect.DeepEqual(tracksForTests[0], trackID) {
 		t.Fatalf("Not equal")
 	}
+}
+
+func TestAddTrackToMediateka(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "INSERT INTO tracks_to_user"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.AddTrackToMediateka(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestDeleteTrackFromMediateka(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "DELETE FROM tracks_to_user"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.DeleteTrackFromMediateka(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestAddTrackToFavorites(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "UPDATE tracks_to_user SET favorite = true"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.AddTrackToFavorites(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestDeleteTrackFromFavorites(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "UPDATE tracks_to_user SET favorite = false"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.DeleteTrackFromFavorites(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestUploadAudio(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "UPDATE tracks SET audio"
+	mock.ExpectExec(query).WithArgs("/api/v1/data/audio/1.mp3", 1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.UploadAudio(1, "/api/v1/data/audio/1.mp3")
+
+	assert.NoError(t, err)
+}
+
+func TestUploadPicture(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "UPDATE tracks SET picture"
+	mock.ExpectExec(query).WithArgs("/api/v1/data/img/tracks/3.png", 1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.UploadPicture(1, "/api/v1/data/img/tracks/3.png")
+
+	assert.NoError(t, err)
 }
