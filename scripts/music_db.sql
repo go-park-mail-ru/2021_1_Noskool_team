@@ -2,6 +2,8 @@ create database music_service;
 CREATE USER andrew WITH ENCRYPTED PASSWORD 'password';
 GRANT ALL PRIVILEGES ON DATABASE music_service TO andrew;
 
+CREATE EXTENSION IF NOT EXISTS citext;
+
 CREATE TABLE IF NOT EXISTS genres
 (
     genre_id serial PRIMARY KEY,
@@ -35,7 +37,7 @@ CREATE TABLE IF NOT EXISTS albums
 CREATE TABLE IF NOT EXISTS tracks
 (
     track_id     serial PRIMARY KEY,
-    tittle       varchar(100),
+    tittle       citext,
     text         text,
     audio        bytea,
     picture      varchar(100),

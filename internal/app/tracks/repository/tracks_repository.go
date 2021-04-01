@@ -249,3 +249,26 @@ func (trackRep *TracksRepository) DeleteTrackFromMediateka(userID, trackID int) 
 	fmt.Println(res)
 	return err
 }
+
+func (trackRep *TracksRepository) SearchTracks(searchQuery string) ([]*models.Track, error) {
+	query := `SELECT track_id, tittle, text, audio, picture, release_date FROM tracks
+			WHERE tittle LIKE '%' || $1 || '%'`
+
+	rows, err := trackRep.con.Query(query, searchQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByQuery := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracksByQuery = append(tracksByQuery, track)
+	}
+	return tracksByQuery, nil
+}
