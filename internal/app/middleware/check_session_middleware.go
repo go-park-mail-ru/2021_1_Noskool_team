@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"context"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -40,5 +41,28 @@ func (sessMiddleware *SessionsMiddleware) CheckSessionMiddleware(next http.Handl
 		}
 		r = r.WithContext(context.WithValue(r.Context(), "user_id", session))
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (sessMiddleware *SessionsMiddleware) CheckIsNotAuthorized(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		sessionID, err := r.Cookie("session_id")
+		if err != nil {
+			logrus.Info("User not Authorized")
+			next.ServeHTTP(w, r)
+			return
+		}
+		userID := sessionID.Value
+		session, err := sessMiddleware.sessionsClient.Check(context.Background(), userID)
+		fmt.Println("Result: = " + session.Status)
+		if err != nil || session.ID == "-1" {
+			logrus.Info("User not Authorized")
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		logrus.Error("Error, User is Authorized")
+		w.WriteHeader(418)
+		return
 	})
 }

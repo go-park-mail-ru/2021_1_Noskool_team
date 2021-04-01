@@ -6,6 +6,7 @@ package mock_tracks
 
 import (
 	models "2021_1_Noskool_team/internal/app/tracks/models"
+	models0 "2021_1_Noskool_team/internal/models"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,6 +35,34 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddTrackToFavorites mocks base method.
+func (m *MockRepository) AddTrackToFavorites(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTrackToFavorites", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTrackToFavorites indicates an expected call of AddTrackToFavorites.
+func (mr *MockRepositoryMockRecorder) AddTrackToFavorites(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToFavorites", reflect.TypeOf((*MockRepository)(nil).AddTrackToFavorites), userID, trackID)
+}
+
+// AddTrackToMediateka mocks base method.
+func (m *MockRepository) AddTrackToMediateka(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTrackToMediateka", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTrackToMediateka indicates an expected call of AddTrackToMediateka.
+func (mr *MockRepositoryMockRecorder) AddTrackToMediateka(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToMediateka", reflect.TypeOf((*MockRepository)(nil).AddTrackToMediateka), userID, trackID)
+}
+
 // CreateTrack mocks base method.
 func (m *MockRepository) CreateTrack(arg0 *models.Track) (*models.Track, error) {
 	m.ctrl.T.Helper()
@@ -47,6 +76,49 @@ func (m *MockRepository) CreateTrack(arg0 *models.Track) (*models.Track, error) 
 func (mr *MockRepositoryMockRecorder) CreateTrack(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTrack", reflect.TypeOf((*MockRepository)(nil).CreateTrack), arg0)
+}
+
+// DeleteTrackFromFavorites mocks base method.
+func (m *MockRepository) DeleteTrackFromFavorites(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrackFromFavorites", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrackFromFavorites indicates an expected call of DeleteTrackFromFavorites.
+func (mr *MockRepositoryMockRecorder) DeleteTrackFromFavorites(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackFromFavorites", reflect.TypeOf((*MockRepository)(nil).DeleteTrackFromFavorites), userID, trackID)
+}
+
+// DeleteTrackFromMediateka mocks base method.
+func (m *MockRepository) DeleteTrackFromMediateka(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrackFromMediateka", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrackFromMediateka indicates an expected call of DeleteTrackFromMediateka.
+func (mr *MockRepositoryMockRecorder) DeleteTrackFromMediateka(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackFromMediateka", reflect.TypeOf((*MockRepository)(nil).DeleteTrackFromMediateka), userID, trackID)
+}
+
+// GetFavoriteTracks mocks base method.
+func (m *MockRepository) GetFavoriteTracks(userID int, pagination *models0.Pagination) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFavoriteTracks", userID, pagination)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFavoriteTracks indicates an expected call of GetFavoriteTracks.
+func (mr *MockRepositoryMockRecorder) GetFavoriteTracks(userID, pagination interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockRepository)(nil).GetFavoriteTracks), userID, pagination)
 }
 
 // GetTrackByID mocks base method.
@@ -79,6 +151,36 @@ func (mr *MockRepositoryMockRecorder) GetTrackByMusicianID(musicianID interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTrackByMusicianID", reflect.TypeOf((*MockRepository)(nil).GetTrackByMusicianID), musicianID)
 }
 
+// GetTracksByAlbumID mocks base method.
+func (m *MockRepository) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByAlbumID", albumID)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByAlbumID indicates an expected call of GetTracksByAlbumID.
+func (mr *MockRepositoryMockRecorder) GetTracksByAlbumID(albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByAlbumID", reflect.TypeOf((*MockRepository)(nil).GetTracksByAlbumID), albumID)
+}
+
+// GetTracksByGenreID mocks base method.
+func (m *MockRepository) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByGenreID", genreID)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByGenreID indicates an expected call of GetTracksByGenreID.
+func (mr *MockRepositoryMockRecorder) GetTracksByGenreID(genreID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByGenreID", reflect.TypeOf((*MockRepository)(nil).GetTracksByGenreID), genreID)
+}
+
 // GetTracksByTittle mocks base method.
 func (m *MockRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {
 	m.ctrl.T.Helper()
@@ -92,4 +194,47 @@ func (m *MockRepository) GetTracksByTittle(trackTittle string) ([]*models.Track,
 func (mr *MockRepositoryMockRecorder) GetTracksByTittle(trackTittle interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByTittle", reflect.TypeOf((*MockRepository)(nil).GetTracksByTittle), trackTittle)
+}
+
+// GetTracksByUserID mocks base method.
+func (m *MockRepository) GetTracksByUserID(userID int) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTracksByUserID", userID)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTracksByUserID indicates an expected call of GetTracksByUserID.
+func (mr *MockRepositoryMockRecorder) GetTracksByUserID(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByUserID", reflect.TypeOf((*MockRepository)(nil).GetTracksByUserID), userID)
+}
+
+// UploadAudio mocks base method.
+func (m *MockRepository) UploadAudio(trackID int, audioPath string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadAudio", trackID, audioPath)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadAudio indicates an expected call of UploadAudio.
+func (mr *MockRepositoryMockRecorder) UploadAudio(trackID, audioPath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAudio", reflect.TypeOf((*MockRepository)(nil).UploadAudio), trackID, audioPath)
+}
+
+// UploadPicture mocks base method.
+func (m *MockRepository) UploadPicture(trackID int, audioPath string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadPicture", trackID, audioPath)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadPicture indicates an expected call of UploadPicture.
+func (mr *MockRepositoryMockRecorder) UploadPicture(trackID, audioPath interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPicture", reflect.TypeOf((*MockRepository)(nil).UploadPicture), trackID, audioPath)
 }
