@@ -44,7 +44,8 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.Use(middleware.ContentTypeJson)
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
-	handler.router.HandleFunc("/{track_id:[0-9]+}", handler.GetTrackByIDHandler)
+	handler.router.HandleFunc("/{track_id:[0-9]+}",
+		handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/mediateka",
 		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
