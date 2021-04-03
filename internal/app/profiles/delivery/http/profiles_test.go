@@ -41,7 +41,7 @@ func TestHandleAuthWithCookie(t *testing.T) {
 	http.SetCookie(recorder, &http.Cookie{Name: "session_id", Value: "fdsjfkdsjelfdlksjfkjds"})
 	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}}
 
-	handler := ProfilesServer{sessionsClient: mockSeshClient}
+	handler := ProfilesServer{sessionsClient: mockSeshClient, logger: logrus.New()}
 
 	handler.HandleAuth(w, request)
 	expected := http.StatusOK

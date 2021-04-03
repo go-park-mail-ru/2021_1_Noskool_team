@@ -182,6 +182,21 @@ func (mr *MockUsecaseMockRecorder) GetTracksByUserID(userID interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByUserID", reflect.TypeOf((*MockUsecase)(nil).GetTracksByUserID), userID)
 }
 
+// SearchTracks mocks base method.
+func (m *MockUsecase) SearchTracks(searchQuery string) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchTracks", searchQuery)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchTracks indicates an expected call of SearchTracks.
+func (mr *MockUsecaseMockRecorder) SearchTracks(searchQuery interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchTracks", reflect.TypeOf((*MockUsecase)(nil).SearchTracks), searchQuery)
+}
+
 // UploadAudio mocks base method.
 func (m *MockUsecase) UploadAudio(trackID int, audioPath string) error {
 	m.ctrl.T.Helper()
