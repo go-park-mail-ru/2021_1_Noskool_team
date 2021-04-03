@@ -22,7 +22,7 @@ var (
 		},
 		{
 			TrackID:     2,
-			Tittle:      "helloWorld",
+			Tittle:      "song helloWorld",
 			Text:        "sing song song ooooo",
 			Audio:       "/api/v1/data/audio/2.mp3",
 			Picture:     "/api/v1/data/audio/tracks/2.mp3",
@@ -353,4 +353,31 @@ func TestUploadPicture(t *testing.T) {
 	err = tracRep.UploadPicture(1, "/api/v1/data/img/tracks/3.png")
 
 	assert.NoError(t, err)
+}
+
+func TestSearchTracks(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date",
+	})
+	for _, row := range tracksForTests {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate)
+	}
+
+	query := "SELECT track_id, tittle, text, audio, picture, release_date " +
+		"FROM tracks\n\t\t\tWHERE tittle LIKE"
+	mock.ExpectQuery(query).WithArgs("song").WillReturnRows(rows)
+	track, err := tracRep.SearchTracks("song")
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
 }

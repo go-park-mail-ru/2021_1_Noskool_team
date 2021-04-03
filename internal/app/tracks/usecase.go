@@ -18,4 +18,5 @@ type Usecase interface {
 	GetTracksByAlbumID(albumID int) ([]*models.Track, error)
 	GetTracksByGenreID(genreID int) ([]*models.Track, error)
 	AddDeleteTrackToMediateka(userID, trackID int, operationType string) error
+	SearchTracks(searchQuery string) ([]*models.Track, error)
 }

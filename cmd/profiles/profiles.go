@@ -7,11 +7,9 @@ import (
 	"2021_1_Noskool_team/internal/app/profiles/usecase"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
-	"log"
-	"time"
-
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
+	"log"
 )
 
 var (
@@ -23,7 +21,7 @@ func init() {
 }
 
 func main() {
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()

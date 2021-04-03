@@ -51,3 +51,25 @@ func (musicRep *MusicianRepository) GetMusicianByID(musicianID int) (*models.Mus
 
 	return musician, err
 }
+
+func (musicRep *MusicianRepository) SearchMusicians(searchQuery string) ([]*models.Musician, error) {
+	query := `SELECT musician_id, name, description, picture FROM musicians
+			WHERE musicians.name LIKE '%' || $1 || '%'`
+
+	rows, err := musicRep.con.Query(query, searchQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	musiciansByQuery := make([]*models.Musician, 0)
+
+	for rows.Next() {
+		musician := &models.Musician{}
+		err := rows.Scan(&musician.MusicianID, &musician.Name, &musician.Description, &musician.Picture)
+		if err != nil {
+			return nil, err
+		}
+		musiciansByQuery = append(musiciansByQuery, musician)
+	}
+	return musiciansByQuery, nil
+}

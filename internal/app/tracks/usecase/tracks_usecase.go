@@ -84,3 +84,8 @@ func (usecase *TracksUsecase) AddDeleteTrackToMediateka(userID, trackID int, ope
 	}
 	return err
 }
+
+func (usecase *TracksUsecase) SearchTracks(searchQuery string) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.SearchTracks(searchQuery)
+	return tracks, err
+}

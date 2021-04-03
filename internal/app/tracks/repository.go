@@ -20,4 +20,5 @@ type Repository interface {
 	GetTracksByGenreID(genreID int) ([]*models.Track, error)
 	AddTrackToMediateka(userID, trackID int) error
 	DeleteTrackFromMediateka(userID, trackID int) error
+	SearchTracks(searchQuery string) ([]*models.Track, error)
 }

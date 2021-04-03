@@ -367,3 +367,14 @@ func (handler *TracksHandler) AddDeleteTrackToMediateka(w http.ResponseWriter, r
 	}
 	response.SendEmptyBody(w, http.StatusOK)
 }
+
+func (handler *TracksHandler) SearchTracks(w http.ResponseWriter, r *http.Request) {
+	searchQuery := r.URL.Query().Get("search")
+	tracks, err := handler.tracksUsecase.SearchTracks(searchQuery)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}

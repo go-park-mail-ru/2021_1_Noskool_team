@@ -63,3 +63,18 @@ func (mr *MockRepositoryMockRecorder) GetMusiciansByGenres(genre interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansByGenres", reflect.TypeOf((*MockRepository)(nil).GetMusiciansByGenres), genre)
 }
+
+// SearchMusicians mocks base method.
+func (m *MockRepository) SearchMusicians(searchQuery string) ([]*models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchMusicians", searchQuery)
+	ret0, _ := ret[0].([]*models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchMusicians indicates an expected call of SearchMusicians.
+func (mr *MockRepositoryMockRecorder) SearchMusicians(searchQuery interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchMusicians", reflect.TypeOf((*MockRepository)(nil).SearchMusicians), searchQuery)
+}

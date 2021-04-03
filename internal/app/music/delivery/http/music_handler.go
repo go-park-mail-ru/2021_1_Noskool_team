@@ -7,6 +7,8 @@ import (
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
 	musicHttp "2021_1_Noskool_team/internal/app/musicians/delivery/http"
+	"2021_1_Noskool_team/internal/app/search"
+	searchHttp "2021_1_Noskool_team/internal/app/search/delivery/http"
 	"2021_1_Noskool_team/internal/app/tracks"
 	trackHttp "2021_1_Noskool_team/internal/app/tracks/delivery/http"
 	"github.com/gorilla/mux"
@@ -19,6 +21,7 @@ type MusicHandler struct {
 	tracksHandler   *trackHttp.TracksHandler
 	musicianHandler *musicHttp.MusiciansHandler
 	albumsHandler   *albumHttp.AlbumsHandler
+	searchHandler   *searchHttp.SearchHandler
 }
 
 func (handler MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +29,8 @@ func (handler MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
-	musicUsecase musicians.Usecase, albumsUsecase album.Usecase) *MusicHandler {
+	musicUsecase musicians.Usecase, albumsUsecase album.Usecase,
+	searchUsecase search.Usecase) *MusicHandler {
 	handler := &MusicHandler{
 		router: mux.NewRouter(),
 	}
@@ -41,9 +45,11 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	musicRouter := handler.router.PathPrefix("/api/v1/musician/").Subrouter()
 	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
 	albumsRouter := handler.router.PathPrefix("/api/v1/album/").Subrouter()
+	searchRouter := handler.router.PathPrefix("/api/v1/search/").Subrouter()
 	handler.musicianHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
 	handler.tracksHandler = trackHttp.NewTracksHandler(tracksRouter, config, tracksUsecase)
 	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase)
+	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase)
 
 	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main main page"))
