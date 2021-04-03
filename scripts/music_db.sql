@@ -110,3 +110,27 @@ CREATE TABLE if not exists tracks_to_user
     favorite bool default false,
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS playlists
+(
+    playlist_id  serial PRIMARY KEY,
+    tittle       varchar(100),
+    description  text,
+    picture      varchar(100),
+    release_date date
+);
+
+CREATE TABLE if not exists playlists_to_genres
+(
+    playlist_id INTEGER NOT NULL,
+    genre_id    INTEGER NOT NULL,
+    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
+);
+
+CREATE TABLE if not exists playlists_to_user
+(
+    user_id     INTEGER NOT NULL,
+    playlist_id INTEGER NOT NULL,
+    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
+);
