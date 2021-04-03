@@ -2,11 +2,13 @@ package utility
 
 import (
 	"2021_1_Noskool_team/internal/models"
+	"crypto/sha256"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq" //goland:noinspection
 	"github.com/sirupsen/logrus"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -70,4 +72,19 @@ func ParsePagination(r *http.Request) *models.Pagination {
 		pagination.Offset = offsetInt
 	}
 	return pagination
+}
+
+var characterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+func RandomString(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = characterRunes[rand.Intn(len(characterRunes))]
+	}
+	return string(b)
+}
+
+func CreateCSRFToken(secret string) string {
+	b := secret + RandomString(5)
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(b)))
 }
