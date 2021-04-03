@@ -7,7 +7,7 @@ import (
 )
 
 type Search struct {
-	Tracks    []*trackModels.Track        `json:"tracks,omitempty"`
-	Albums    []*albumsModels.Album       `json:"albums,omitempty"`
-	Musicians []*musiciansModels.Musician `json:"musicians,omitempty"`
+	Tracks    []*trackModels.Track        `json:"tracks"`
+	Albums    []*albumsModels.Album       `json:"albums"`
+	Musicians []*musiciansModels.Musician `json:"musicians"`
 }

@@ -28,6 +28,8 @@ func NewSearchHandler(r *mux.Router, config *configs.Config, usecase search.Usec
 	}
 	handler.router.Use(middleware.ContentTypeJson)
 
+	handler.router.HandleFunc("/", handler.SearchContent)
+
 	return handler
 }
 
@@ -41,7 +43,7 @@ func ConfigLogger(handler *SearchHandler, config *configs.Config) error {
 	return nil
 }
 
-func (handler *SearchHandler) SearchTracks(w http.ResponseWriter, r *http.Request) {
+func (handler *SearchHandler) SearchContent(w http.ResponseWriter, r *http.Request) {
 	searchQuery := r.URL.Query().Get("search")
 	search := handler.searchUsecase.SearchContent(searchQuery)
 	response.SendCorrectResponse(w, search, http.StatusOK)

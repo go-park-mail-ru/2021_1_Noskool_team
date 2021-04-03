@@ -24,3 +24,25 @@ func (albumsRep *AlbumsRepository) GetAlbumByID(albumID int) (*models.Album, err
 
 	return album, err
 }
+
+func (albumRep *AlbumsRepository) SearchAlbums(searchQuery string) ([]*models.Album, error) {
+	query := `SELECT album_id, tittle, picture, release_date FROM albums
+			WHERE tittle LIKE '%' || $1 || '%'`
+
+	rows, err := albumRep.con.Query(query, searchQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	albumsByQuery := make([]*models.Album, 0)
+
+	for rows.Next() {
+		album := &models.Album{}
+		err := rows.Scan(&album.AlbumID, &album.Tittle, &album.Picture, &album.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		albumsByQuery = append(albumsByQuery, album)
+	}
+	return albumsByQuery, nil
+}

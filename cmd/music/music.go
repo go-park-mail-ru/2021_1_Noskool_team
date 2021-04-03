@@ -7,13 +7,12 @@ import (
 	musicHttp "2021_1_Noskool_team/internal/app/music/delivery/http"
 	musiciansRepository "2021_1_Noskool_team/internal/app/musicians/repository"
 	musicianUsecase "2021_1_Noskool_team/internal/app/musicians/usecase"
+	searchUsecase "2021_1_Noskool_team/internal/app/search/usecase"
 	trackRepository "2021_1_Noskool_team/internal/app/tracks/repository"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
 	"2021_1_Noskool_team/internal/pkg/server"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
-	"time"
-
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
 )
@@ -23,7 +22,7 @@ const (
 )
 
 func main() {
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
@@ -50,9 +49,10 @@ func main() {
 		logrus.Error(err)
 	}
 	albumRep := albumRepository.NewAlbumsRepository(albumDBCon)
-
 	albumsUse := albumUsecase.NewAlbumcUsecase(albumRep)
-	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase, albumsUse)
+
+	searhUse := searchUsecase.NewSearchUsecase(trackRep, albumRep, musicianskRep)
+	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase, albumsUse, searhUse)
 	fmt.Println("Нормально запустились")
 	err = server.Start(config, handler)
 	if err != nil {
