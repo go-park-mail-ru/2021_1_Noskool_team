@@ -24,3 +24,16 @@ func (usecase *PlaylistUsecase) DeletePlaylistFromUser(userID, playlistID int) e
 	err := usecase.playlistRep.DeletePlaylistFromUser(userID, playlistID)
 	return err
 }
+
+func (usecase *PlaylistUsecase) GetPlaylistByID(playlistID int) (*models.Playlist, error) {
+	playlist, err := usecase.playlistRep.GetPlaylistByID(playlistID)
+	if err != nil {
+		return nil, err
+	}
+	tracks, err := usecase.playlistRep.GetTracksByPlaylistID(playlistID)
+	if err != nil {
+		return nil, err
+	}
+	playlist.Tracks = tracks
+	return playlist, nil
+}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"2021_1_Noskool_team/internal/app/playlists/models"
+	trackModels "2021_1_Noskool_team/internal/app/tracks/models"
 	"database/sql"
 	"fmt"
 )
@@ -50,4 +51,42 @@ func (playlistRep *PlaylistRepository) DeletePlaylistFromUser(userID, playlistID
 
 	_, err := playlistRep.con.Exec(query, playlistID, userID)
 	return err
+}
+
+func (playlistRep *PlaylistRepository) GetPlaylistByID(playlistID int) (*models.Playlist, error) {
+	queryGetPlaylist := `SELECT playlist_id, tittle, description, picture, release_date, user_id FROM playlists
+						WHERE playlist_id = $1`
+	playlist := &models.Playlist{}
+	err := playlistRep.con.QueryRow(queryGetPlaylist, playlistID).Scan(
+		&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
+		&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID)
+	if err != nil {
+		return nil, err
+	}
+	return playlist, nil
+}
+
+func (playlistRep *PlaylistRepository) GetTracksByPlaylistID(playlistID int) ([]*trackModels.Track, error) {
+	query := `select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date from tracks_to_playlist as t_p
+			left outer join tracks as t on t.track_id = t_p.track_id
+			where playlist_id = $1`
+
+	rows, err := playlistRep.con.Query(query, playlistID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByPlaylistID := make([]*trackModels.Track, 0)
+
+	for rows.Next() {
+		track := &trackModels.Track{}
+		err = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracksByPlaylistID = append(tracksByPlaylistID, track)
+	}
+
+	return tracksByPlaylistID, err
 }

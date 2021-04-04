@@ -9,6 +9,7 @@ import (
 	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -48,6 +49,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
 		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromUserHandler)).Methods(http.MethodDelete)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -145,4 +148,26 @@ func (handler *PlaylistsHandler) DeletePlaylistFromUserHandler(w http.ResponseWr
 		return
 	}
 	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r *http.Request) {
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	playlist, err := handler.playlistsUsecase.GetPlaylistByID(playlistID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant find playlist with id = %d", playlistID),
+		})
+		return
+	}
+	response.SendCorrectResponse(w, playlist, http.StatusOK)
 }
