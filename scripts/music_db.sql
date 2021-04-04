@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS tracks
 CREATE TABLE IF NOT EXISTS playlists
 (
     playlist_id  serial PRIMARY KEY,
+    user_id      int not null,
     tittle       varchar(100),
     description  text,
     picture      varchar(100),
@@ -65,6 +66,14 @@ CREATE TABLE if not exists playlists_to_user
 (
     user_id     INTEGER NOT NULL,
     playlist_id INTEGER NOT NULL,
+    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
+);
+
+CREATE TABLE if not exists Tracks_to_Playlist
+(
+    track_id    INTEGER NOT NULL,
+    playlist_id INTEGER NOT NULL,
+    FOREIGN KEY (track_id) REFERENCES Tracks (track_id) on delete CASCADE,
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
 );
 
@@ -134,3 +143,4 @@ CREATE TABLE if not exists tracks_to_user
     favorite bool default false,
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
+
