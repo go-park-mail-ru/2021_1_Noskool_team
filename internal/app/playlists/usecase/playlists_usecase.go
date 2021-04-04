@@ -19,3 +19,8 @@ func (usecase *PlaylistUsecase) CreatePlaylist(playlist *models.Playlist) (*mode
 	playlist, err := usecase.playlistRep.CreatePlaylist(playlist)
 	return playlist, err
 }
+
+func (usecase *PlaylistUsecase) DeletePlaylistFromUser(userID, playlistID int) error {
+	err := usecase.playlistRep.DeletePlaylistFromUser(userID, playlistID)
+	return err
+}

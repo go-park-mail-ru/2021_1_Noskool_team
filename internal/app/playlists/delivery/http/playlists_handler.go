@@ -18,10 +18,10 @@ import (
 )
 
 type PlaylistsHandler struct {
-	router         *mux.Router
-	playlists      playlists.Usecase
-	logger         *logrus.Logger
-	sessionsClient client.AuthCheckerClient
+	router           *mux.Router
+	playlistsUsecase playlists.Usecase
+	logger           *logrus.Logger
+	sessionsClient   client.AuthCheckerClient
 }
 
 func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase playlists.Usecase) *PlaylistsHandler {
@@ -31,10 +31,10 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	}
 
 	handler := &PlaylistsHandler{
-		router:         r,
-		playlists:      playlistsUsecase,
-		logger:         logrus.New(),
-		sessionsClient: client.NewSessionsClient(grpcCon),
+		router:           r,
+		playlistsUsecase: playlistsUsecase,
+		logger:           logrus.New(),
+		sessionsClient:   client.NewSessionsClient(grpcCon),
 	}
 
 	err = ConfigLogger(handler, config)
@@ -46,6 +46,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 
 	handler.router.HandleFunc("/",
 		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
+		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromUserHandler)).Methods(http.MethodDelete)
 
 	return handler
 }
@@ -93,8 +95,7 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 		return
 	}
 	playlist.UserID = userID
-
-	playlist, err = handler.playlists.CreatePlaylist(playlist)
+	playlist, err = handler.playlistsUsecase.CreatePlaylist(playlist)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendErrorResponse(w, &commonModels.HTTPError{
@@ -104,4 +105,44 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 		return
 	}
 	response.SendCorrectResponse(w, playlist, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) DeletePlaylistFromUserHandler(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(sessionModels.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	err = handler.playlistsUsecase.DeletePlaylistFromUser(userID, playlistID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error while deleting playlist",
+		})
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
 }

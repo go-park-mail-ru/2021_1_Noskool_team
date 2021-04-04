@@ -44,3 +44,10 @@ func (playlistRep *PlaylistRepository) CreatePlaylist(playlist *models.Playlist)
 	}
 	return playlist, nil
 }
+
+func (playlistRep *PlaylistRepository) DeletePlaylistFromUser(userID, playlistID int) error {
+	query := `DELETE FROM playlists_to_user where playlist_id = $1 and user_id = $2`
+
+	_, err := playlistRep.con.Exec(query, playlistID, userID)
+	return err
+}
