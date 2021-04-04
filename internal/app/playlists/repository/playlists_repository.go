@@ -120,3 +120,27 @@ func (plalistRep *PlaylistRepository) GetMediateka(userID int) ([]*models.Playli
 	}
 	return playlists, err
 }
+
+func (playlistRep *PlaylistRepository) SearchTracks(searchQuery string) ([]*models.Playlist, error) {
+	query := `SELECT p.playlist_id, p.tittle, p.description, p.picture,
+    		p.release_date, p.user_id FROM playlists as p
+			WHERE p.tittle LIKE '%' || $1 || '%'`
+
+	rows, err := playlistRep.con.Query(query, searchQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	playlists := make([]*models.Playlist, 0)
+
+	for rows.Next() {
+		playlist := &models.Playlist{}
+		err = rows.Scan(&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
+			&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID)
+		if err != nil {
+			return nil, err
+		}
+		playlists = append(playlists, playlist)
+	}
+	return playlists, nil
+}

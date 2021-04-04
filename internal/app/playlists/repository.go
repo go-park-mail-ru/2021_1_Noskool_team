@@ -12,4 +12,5 @@ type Repository interface {
 	GetPlaylistByID(playlistID int) (*models.Playlist, error)
 	AddPlaylistToMediateka(userID, playlistID int) error
 	GetMediateka(userID int) ([]*models.Playlist, error)
+	SearchTracks(searchQuery string) ([]*models.Playlist, error)
 }
