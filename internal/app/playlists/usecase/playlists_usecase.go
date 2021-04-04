@@ -37,3 +37,23 @@ func (usecase *PlaylistUsecase) GetPlaylistByID(playlistID int) (*models.Playlis
 	playlist.Tracks = tracks
 	return playlist, nil
 }
+
+func (usecase *PlaylistUsecase) AddPlaylistToMediateka(userID, playlistID int) error {
+	err := usecase.playlistRep.AddPlaylistToMediateka(userID, playlistID)
+	return err
+}
+
+func (usecase *PlaylistUsecase) GetMediateka(userID int) ([]*models.Playlist, error) {
+	playlists, err := usecase.playlistRep.GetMediateka(userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, playlist := range playlists {
+		tracks, err := usecase.playlistRep.GetTracksByPlaylistID(playlist.PlaylistID)
+		if err != nil {
+			return nil, err
+		}
+		playlist.Tracks = tracks
+	}
+	return playlists, nil
+}

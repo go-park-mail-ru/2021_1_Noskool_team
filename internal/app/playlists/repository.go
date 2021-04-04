@@ -10,4 +10,6 @@ type Repository interface {
 	DeletePlaylistFromUser(userID, playlistID int) error
 	GetTracksByPlaylistID(playlistID int) ([]*trackModels.Track, error)
 	GetPlaylistByID(playlistID int) (*models.Playlist, error)
+	AddPlaylistToMediateka(userID, playlistID int) error
+	GetMediateka(userID int) ([]*models.Playlist, error)
 }

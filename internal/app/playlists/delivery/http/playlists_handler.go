@@ -47,10 +47,14 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 
 	handler.router.HandleFunc("/",
 		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost)
+	handler.router.HandleFunc("/",
+		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
-		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromUserHandler)).Methods(http.MethodDelete)
+		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
 		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
+		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost)
 
 	return handler
 }
@@ -110,7 +114,7 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 	response.SendCorrectResponse(w, playlist, http.StatusOK)
 }
 
-func (handler *PlaylistsHandler) DeletePlaylistFromUserHandler(w http.ResponseWriter, r *http.Request) {
+func (handler *PlaylistsHandler) DeletePlaylistFromMediatekaHandler(w http.ResponseWriter, r *http.Request) {
 	session, ok := r.Context().Value("user_id").(sessionModels.Result)
 	if !ok {
 		handler.logger.Error("Не получилось достать из конекста")
@@ -170,4 +174,75 @@ func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r
 		return
 	}
 	response.SendCorrectResponse(w, playlist, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) AddPlaylistToMediatekaHandler(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(sessionModels.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	err = handler.playlistsUsecase.AddPlaylistToMediateka(userID, playlistID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant add playlist with id = %d to mediateka", playlistID),
+		})
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) GetMediateka(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(sessionModels.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	playlists, err := handler.playlistsUsecase.GetMediateka(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant get mediateka for user with id = %d", userID),
+		})
+		return
+	}
+	response.SendCorrectResponse(w, playlists, http.StatusOK)
 }

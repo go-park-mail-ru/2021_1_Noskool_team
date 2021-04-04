@@ -70,7 +70,6 @@ func (playlistRep *PlaylistRepository) GetTracksByPlaylistID(playlistID int) ([]
 	query := `select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date from tracks_to_playlist as t_p
 			left outer join tracks as t on t.track_id = t_p.track_id
 			where playlist_id = $1`
-
 	rows, err := playlistRep.con.Query(query, playlistID)
 	if err != nil {
 		return nil, err
@@ -87,6 +86,37 @@ func (playlistRep *PlaylistRepository) GetTracksByPlaylistID(playlistID int) ([]
 		}
 		tracksByPlaylistID = append(tracksByPlaylistID, track)
 	}
-
 	return tracksByPlaylistID, err
+}
+
+func (playlistRep *PlaylistRepository) AddPlaylistToMediateka(userID, playlistID int) error {
+	query := `INSERT INTO playlists_to_user (user_id, playlist_id) VALUES ($1, $2)`
+
+	_, err := playlistRep.con.Exec(query, userID, playlistID)
+	return err
+}
+
+func (plalistRep *PlaylistRepository) GetMediateka(userID int) ([]*models.Playlist, error) {
+	query := `select p.playlist_id, p.tittle, p.description, p.picture,
+       p.release_date, p.user_id from playlists_to_user as p_u
+			left join playlists p on p_u.playlist_id = p.playlist_id
+			where p.user_id = $1`
+
+	rows, err := plalistRep.con.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	playlists := make([]*models.Playlist, 0)
+
+	for rows.Next() {
+		playlist := &models.Playlist{}
+		err = rows.Scan(&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
+			&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID)
+		if err != nil {
+			return nil, err
+		}
+		playlists = append(playlists, playlist)
+	}
+	return playlists, err
 }
