@@ -6,6 +6,10 @@ import (
 	"2021_1_Noskool_team/internal/app/profiles"
 	"2021_1_Noskool_team/internal/app/profiles/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	authModels "2021_1_Noskool_team/internal/microservices/auth/models"
+	commonModels "2021_1_Noskool_team/internal/models"
+	"2021_1_Noskool_team/internal/pkg/response"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -85,6 +89,8 @@ func (s *ProfilesServer) configureRouter() {
 		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/logout",
 		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet)
+	s.router.HandleFunc("/api/v1/profile/csrf",
+		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodPost)
 	s.router.HandleFunc("/api/v1/profile",
 		authMiddleware.CheckSessionMiddleware(s.handleProfile())).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/update",
@@ -94,6 +100,30 @@ func (s *ProfilesServer) configureRouter() {
 
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
+}
+
+func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(authModels.Result)
+	if !ok {
+		s.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	b := session.ID + session.Hash
+	csrfToken := utility.CreateCSRFToken(b)
+	csrfCookie := &http.Cookie{
+		Name:     "csrf",
+		Value:    csrfToken,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Now().Add(30 * time.Minute),
+	}
+	http.SetCookie(w, csrfCookie)
+	w.Header().Set("X-Csrf-Token", csrfToken)
+
 }
 
 func (s *ProfilesServer) HandleAuth(w http.ResponseWriter, r *http.Request) {
