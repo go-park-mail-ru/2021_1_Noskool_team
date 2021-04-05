@@ -49,12 +49,14 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost)
 	handler.router.HandleFunc("/",
 		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
-	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
-	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet)
-	handler.router.HandleFunc("/{playlist_id:[0-9]+}/",
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost)
+	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -245,4 +247,26 @@ func (handler *PlaylistsHandler) GetMediateka(w http.ResponseWriter, r *http.Req
 		return
 	}
 	response.SendCorrectResponse(w, playlists, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r *http.Request) {
+	genreID, err := strconv.Atoi(mux.Vars(r)["genre_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct genre id",
+		})
+		return
+	}
+	playlistsByGenreID, err := handler.playlistsUsecase.GetTracksByGenreID(genreID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant get playlists by genre id = %d", genreID),
+		})
+		return
+	}
+	response.SendCorrectResponse(w, playlistsByGenreID, http.StatusOK)
 }

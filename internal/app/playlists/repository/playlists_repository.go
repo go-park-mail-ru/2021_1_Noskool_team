@@ -144,3 +144,27 @@ func (playlistRep *PlaylistRepository) SearchTracks(searchQuery string) ([]*mode
 	}
 	return playlists, nil
 }
+
+func (playlistRep *PlaylistRepository) GetTracksByGenreID(genreID int) ([]*models.Playlist, error) {
+	query := `select p.playlist_id, p.tittle, p.description, p.picture, p.release_date,
+     		p.user_id from playlists_to_genres as p_g
+			left join playlists p on p.playlist_id = p_g.playlist_id
+			where p_g.genre_id = $1`
+	rows, err := playlistRep.con.Query(query, genreID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	playlists := make([]*models.Playlist, 0)
+
+	for rows.Next() {
+		playlist := &models.Playlist{}
+		err = rows.Scan(&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
+			&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID)
+		if err != nil {
+			return nil, err
+		}
+		playlists = append(playlists, playlist)
+	}
+	return playlists, nil
+}
