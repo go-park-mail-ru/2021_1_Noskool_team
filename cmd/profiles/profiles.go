@@ -10,6 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
 	"log"
+	"time"
 )
 
 var (
@@ -21,7 +22,7 @@ func init() {
 }
 
 func main() {
-	//time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()
@@ -30,7 +31,7 @@ func main() {
 		logrus.Error(err)
 	}
 
-	profDBCon, err := utility.CreatePostgresConnection(config.ProfileDB)
+	profDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
 	if err != nil {
 		logrus.Error(err)
 	}

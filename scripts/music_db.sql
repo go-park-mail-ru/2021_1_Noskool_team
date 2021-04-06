@@ -1,6 +1,5 @@
-create database music_service;
 CREATE USER andrew WITH ENCRYPTED PASSWORD 'password';
-GRANT ALL PRIVILEGES ON DATABASE music_service TO andrew;
+GRANT ALL PRIVILEGES ON DATABASE music_service_docker TO andrew;
 
 CREATE EXTENSION IF NOT EXISTS citext;
 
