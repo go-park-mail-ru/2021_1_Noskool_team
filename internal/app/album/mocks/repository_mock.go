@@ -48,3 +48,18 @@ func (mr *MockRepositoryMockRecorder) GetAlbumByID(albumID interface{}) *gomock.
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumByID", reflect.TypeOf((*MockRepository)(nil).GetAlbumByID), albumID)
 }
+
+// SearchAlbums mocks base method.
+func (m *MockRepository) SearchAlbums(searchQuery string) ([]*models.Album, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchAlbums", searchQuery)
+	ret0, _ := ret[0].([]*models.Album)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchAlbums indicates an expected call of SearchAlbums.
+func (mr *MockRepositoryMockRecorder) SearchAlbums(searchQuery interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchAlbums", reflect.TypeOf((*MockRepository)(nil).SearchAlbums), searchQuery)
+}

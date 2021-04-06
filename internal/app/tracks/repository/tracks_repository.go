@@ -3,6 +3,7 @@ package repository
 import (
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"database/sql"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -140,13 +141,17 @@ func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track
 	return tracks, err
 }
 
-func (trackRep *TracksRepository) GetFavoriteTracks(userID int) ([]*models.Track, error) {
+func (trackRep *TracksRepository) GetFavoriteTracks(userID int,
+	pagination *commonModels.Pagination) ([]*models.Track, error) {
 	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date from tracks
 			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
-			where ttu.user_id = $1 and ttu.favorite = true`
+			where ttu.user_id = $1 and ttu.favorite = true
+			order by tracks.track_id
+			limit $2
+			offset $3`
 
 	rows, err := trackRep.con.Query(
-		query, userID)
+		query, userID, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -228,4 +233,42 @@ func (trackRep *TracksRepository) GetTracksByGenreID(genreID int) ([]*models.Tra
 		tracksByGenre = append(tracksByGenre, track)
 	}
 	return tracksByGenre, nil
+}
+
+func (trackRep *TracksRepository) AddTrackToMediateka(userID, trackID int) error {
+	query := `INSERT INTO tracks_to_user(user_id, track_id) VALUES ($1, $2);`
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	fmt.Println(res)
+	return err
+}
+
+func (trackRep *TracksRepository) DeleteTrackFromMediateka(userID, trackID int) error {
+	query := `DELETE FROM tracks_to_user
+			WHERE user_id = $1 and track_id = $2`
+	res, err := trackRep.con.Exec(query, userID, trackID)
+	fmt.Println(res)
+	return err
+}
+
+func (trackRep *TracksRepository) SearchTracks(searchQuery string) ([]*models.Track, error) {
+	query := `SELECT track_id, tittle, text, audio, picture, release_date FROM tracks
+			WHERE tittle LIKE '%' || $1 || '%'`
+
+	rows, err := trackRep.con.Query(query, searchQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracksByQuery := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracksByQuery = append(tracksByQuery, track)
+	}
+	return tracksByQuery, nil
 }

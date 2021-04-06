@@ -3,6 +3,8 @@ package usecase
 import (
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
+	commonModels "2021_1_Noskool_team/internal/models"
+	"errors"
 	_ "github.com/lib/pq" //goland:noinspection
 )
 
@@ -45,8 +47,9 @@ func (usecase *TracksUsecase) GetTracksByUserID(userID int) ([]*models.Track, er
 	return tracks, err
 }
 
-func (usecase *TracksUsecase) GetFavoriteTracks(userID int) ([]*models.Track, error) {
-	tracks, err := usecase.trackRep.GetFavoriteTracks(userID)
+func (usecase *TracksUsecase) GetFavoriteTracks(userID int,
+	pagination *commonModels.Pagination) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetFavoriteTracks(userID, pagination)
 	return tracks, err
 }
 
@@ -68,4 +71,21 @@ func (usecase *TracksUsecase) GetTracksByAlbumID(albumID int) ([]*models.Track, 
 func (usecase *TracksUsecase) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
 	tracksByGenre, err := usecase.trackRep.GetTracksByGenreID(genreID)
 	return tracksByGenre, err
+}
+
+func (usecase *TracksUsecase) AddDeleteTrackToMediateka(userID, trackID int, operationType string) error {
+	var err error
+	if operationType == "add" {
+		err = usecase.trackRep.AddTrackToMediateka(userID, trackID)
+	} else if operationType == "delete" {
+		err = usecase.trackRep.DeleteTrackFromMediateka(userID, trackID)
+	} else {
+		return errors.New("unknown operation")
+	}
+	return err
+}
+
+func (usecase *TracksUsecase) SearchTracks(searchQuery string) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.SearchTracks(searchQuery)
+	return tracks, err
 }

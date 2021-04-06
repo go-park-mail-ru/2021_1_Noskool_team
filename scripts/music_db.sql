@@ -2,6 +2,8 @@ create database music_service;
 CREATE USER andrew WITH ENCRYPTED PASSWORD 'password';
 GRANT ALL PRIVILEGES ON DATABASE music_service TO andrew;
 
+CREATE EXTENSION IF NOT EXISTS citext;
+
 CREATE TABLE IF NOT EXISTS genres
 (
     genre_id serial PRIMARY KEY,
@@ -11,7 +13,7 @@ CREATE TABLE IF NOT EXISTS genres
 CREATE TABLE IF NOT EXISTS musicians
 (
     musician_id serial PRIMARY KEY,
-    name        varchar(40) NOT NULL,
+    name        citext NOT NULL,
     description text,
     picture     varchar(100)
 );
@@ -27,7 +29,7 @@ CREATE TABLE if not exists Musicians_to_Genres
 CREATE TABLE IF NOT EXISTS albums
 (
     album_id     serial PRIMARY KEY,
-    tittle       varchar(100),
+    tittle       citext,
     picture      varchar(100),
     release_date date
 );
@@ -79,7 +81,6 @@ CREATE TABLE if not exists Tracks_to_Playlist
 
 -- ///
 
-
 CREATE TABLE if not exists Musicians_to_Tracks
 (
     track_id    INTEGER NOT NULL,
@@ -124,9 +125,12 @@ CREATE TABLE IF NOT EXISTS Profiles
 (
     profiles_id        bigserial not null primary key,
     email              varchar   not null unique,
-    nickname           varchar   not null unique,
+    nickname           citext    not null unique,
+    first_name         varchar   not null,
+    second_name        varchar   not null,
     encrypted_password varchar   not null,
-    avatar             varchar   not null
+    avatar             varchar   not null,
+    favorite_genre     text[]    not null default '{}'::text[]
 );
 
 insert into tracks (tittle, text, audio, picture, release_date)
@@ -143,4 +147,3 @@ CREATE TABLE if not exists tracks_to_user
     favorite bool default false,
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
-
