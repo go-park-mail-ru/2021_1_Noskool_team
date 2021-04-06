@@ -189,3 +189,95 @@ func TestGetTracksByTittleFailed(t *testing.T) {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 }
+
+func TestGetTracksByGenreID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+
+	mockTracksUsecase.EXPECT().GetTracksByGenreID(1).Return(testTreks, nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/genre/", nil)
+	r = mux.SetURLVars(r, map[string]string{"genre_id": strconv.Itoa(1)})
+
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTracksByGenreIDHandler(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecaseFailed := mock_tracks.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/genre/", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecaseFailed)
+	handler.GetTracksByGenreIDHandler(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockTracksUsecaseEmptyBody := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecaseEmptyBody.EXPECT().GetTracksByGenreID(1).Return(nil,
+		errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/genre/", nil)
+	r = mux.SetURLVars(r, map[string]string{"genre_id": strconv.Itoa(1)})
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecaseEmptyBody)
+	handler.GetTracksByGenreIDHandler(w, r)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestGetTracksByAlbumID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+
+	mockTracksUsecase.EXPECT().GetTracksByAlbumID(1).Return(testTreks, nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/album/", nil)
+	r = mux.SetURLVars(r, map[string]string{"album_id": strconv.Itoa(1)})
+
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTracksByAlbumIDHandler(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecaseFailed := mock_tracks.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/album/", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecaseFailed)
+	handler.GetTracksByAlbumIDHandler(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockTracksUsecaseEmptyBody := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecaseEmptyBody.EXPECT().GetTracksByAlbumID(1).Return(nil,
+		errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/album/", nil)
+	r = mux.SetURLVars(r, map[string]string{"album_id": strconv.Itoa(1)})
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecaseEmptyBody)
+	handler.GetTracksByAlbumIDHandler(w, r)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+}
