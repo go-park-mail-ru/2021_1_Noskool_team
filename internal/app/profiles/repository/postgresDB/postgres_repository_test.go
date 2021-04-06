@@ -18,8 +18,10 @@ func TestFindByID(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"profiles_id", "email", "nickname", "encrypted_password", "avatar",
-	}).AddRow("1", "some email", "some nickname", "4324322", "fdsfd")
+		"profiles_id", "email", "nickname", "encrypted_password", "avatar", "first_name",
+		"second_name", "favorite_genre",
+	}).AddRow("1", "some email", "some nickname", "4324322", "fdsfd",
+		"alex", "alex", "{rok, pop}")
 	query := "SELECT"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
@@ -40,8 +42,10 @@ func TestFindByLogin(t *testing.T) {
 
 	defer db.Close()
 	rows := sqlmock.NewRows([]string{
-		"profiles_id", "email", "nickname", "encrypted_password",
-	}).AddRow("1", "some email", "some nickname", "4324322")
+		"profiles_id", "email", "nickname", "encrypted_password", "avatar", "first_name",
+		"second_name", "favorite_genre",
+	}).AddRow("1", "some email", "some nickname", "4324322", "fdsfd",
+		"alex", "alex", "{rok, pop}")
 	query := "SELECT"
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
