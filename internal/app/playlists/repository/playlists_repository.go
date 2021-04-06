@@ -120,7 +120,7 @@ func (plalistRep *PlaylistRepository) GetMediateka(userID int) ([]*models.Playli
 	return playlists, err
 }
 
-func (playlistRep *PlaylistRepository) SearchTracks(searchQuery string) ([]*models.Playlist, error) {
+func (playlistRep *PlaylistRepository) SearchPlaylists(searchQuery string) ([]*models.Playlist, error) {
 	query := `SELECT p.playlist_id, p.tittle, p.description, p.picture,
     		p.release_date, p.user_id FROM playlists as p
 			WHERE p.tittle LIKE '%' || $1 || '%'`

@@ -223,7 +223,7 @@ func TestSearchTracks(t *testing.T) {
 		",\n    \t\tp.release_date, p.user_id FROM playlists as p\n\t\t\tWHERE p.tittle LIKE"
 
 	mock.ExpectQuery(query).WithArgs("some query").WillReturnRows(rows)
-	playlists, err := playlistRep.SearchTracks("some query")
+	playlists, err := playlistRep.SearchPlaylists("some query")
 	assert.NoError(t, err)
 	if !reflect.DeepEqual(playlistsForTest, playlists) {
 		t.Fatalf("Not equal")

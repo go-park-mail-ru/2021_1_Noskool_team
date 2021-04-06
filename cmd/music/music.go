@@ -61,7 +61,7 @@ func main() {
 	playlistRep := playlistRepository.NewPlaylistRepository(playlistDBCon)
 	playlistUse := playlistUsecase.NewPlaylistUsecase(playlistRep)
 
-	searhUse := searchUsecase.NewSearchUsecase(trackRep, albumRep, musicianskRep)
+	searhUse := searchUsecase.NewSearchUsecase(trackRep, albumRep, musicianskRep, playlistRep)
 	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase,
 		albumsUse, playlistUse, searhUse)
 	fmt.Println("Нормально запустились")
