@@ -63,7 +63,7 @@ func main() {
 
 	searhUse := searchUsecase.NewSearchUsecase(trackRep, albumRep, musicianskRep)
 	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase,
-		albumsUse, searhUse, playlistUse)
+		albumsUse, playlistUse, searhUse)
 	fmt.Println("Нормально запустились")
 	err = server.Start(config, handler)
 	if err != nil {

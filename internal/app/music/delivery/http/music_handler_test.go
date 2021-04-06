@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	mock_album "2021_1_Noskool_team/internal/app/album/mocks"
 	mock_musicians "2021_1_Noskool_team/internal/app/musicians/mocks"
+	mock_playlists "2021_1_Noskool_team/internal/app/playlists/mocks"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	mock_search "2021_1_Noskool_team/internal/app/search/mocks"
 	mock_tracks "2021_1_Noskool_team/internal/app/tracks/mocks"
@@ -42,7 +43,7 @@ func TestFinalHandler(t *testing.T) {
 	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
 	mockSearchUsecase := mock_search.NewMockUsecase(ctrl)
-
+	mockPlaylistsUsecase := mock_playlists.NewMockUsecase(ctrl)
 
 	mockMusiciansUsecase.EXPECT().GetMusicianByID(testMusicians[0].MusicianID).Times(1).Return(&testMusicians[0], nil)
 
@@ -51,7 +52,7 @@ func TestFinalHandler(t *testing.T) {
 	r = mux.SetURLVars(r, map[string]string{"musician_id": strconv.Itoa(testMusicians[0].MusicianID)})
 
 	handler := NewFinalHandler(configs.NewConfig(), mockTracksUsecase, mockMusiciansUsecase,
-		mockAlbumUsecase, mockSearchUsecase)
+		mockAlbumUsecase, mockPlaylistsUsecase, mockSearchUsecase)
 
 	handler.musicianHandler.GetMusicByIDHandler(w, r)
 
