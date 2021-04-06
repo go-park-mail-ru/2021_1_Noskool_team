@@ -8,6 +8,6 @@ type Usecase interface {
 	GetPlaylistByID(playlistID int) (*models.Playlist, error)
 	AddPlaylistToMediateka(userID, playlistID int) error
 	GetMediateka(userID int) ([]*models.Playlist, error)
-	GetTracksByGenreID(genreID int) ([]*models.Playlist, error)
+	GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error)
 	UploadAudio(playlistID int, audioPath string) error
 }

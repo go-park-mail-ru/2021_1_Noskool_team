@@ -32,7 +32,6 @@ func (playlistRep *PlaylistRepository) CreatePlaylist(playlist *models.Playlist)
 				" INSERT INTO Tracks_to_Playlist (track_id, playlist_id) VALUES (%d, %d);",
 				track.TrackID, playlist.PlaylistID)
 		}
-		fmt.Println(queryTracksToPlaylists)
 		_, err = playlistRep.con.Exec(queryTracksToPlaylists)
 		if err != nil {
 			return nil, err
@@ -145,7 +144,7 @@ func (playlistRep *PlaylistRepository) SearchTracks(searchQuery string) ([]*mode
 	return playlists, nil
 }
 
-func (playlistRep *PlaylistRepository) GetTracksByGenreID(genreID int) ([]*models.Playlist, error) {
+func (playlistRep *PlaylistRepository) GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error) {
 	query := `select p.playlist_id, p.tittle, p.description, p.picture, p.release_date,
      		p.user_id from playlists_to_genres as p_g
 			left join playlists p on p.playlist_id = p_g.playlist_id
