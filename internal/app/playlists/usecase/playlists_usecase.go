@@ -58,8 +58,8 @@ func (usecase *PlaylistUsecase) GetMediateka(userID int) ([]*models.Playlist, er
 	return playlists, nil
 }
 
-func (usecase *PlaylistUsecase) GetTracksByGenreID(genreID int) ([]*models.Playlist, error) {
-	playlist, err := usecase.playlistRep.GetTracksByGenreID(genreID)
+func (usecase *PlaylistUsecase) GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error) {
+	playlist, err := usecase.playlistRep.GetPlaylistsByGenreID(genreID)
 	return playlist, err
 }
 

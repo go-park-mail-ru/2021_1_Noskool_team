@@ -262,7 +262,7 @@ func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r 
 		})
 		return
 	}
-	playlistsByGenreID, err := handler.playlistsUsecase.GetTracksByGenreID(genreID)
+	playlistsByGenreID, err := handler.playlistsUsecase.GetPlaylistsByGenreID(genreID)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendErrorResponse(w, &commonModels.HTTPError{
