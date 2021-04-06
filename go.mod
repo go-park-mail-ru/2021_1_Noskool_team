@@ -16,6 +16,7 @@ require (
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jcmturner/gokrb5 v8.4.2+incompatible
 	github.com/lib/pq v1.9.0
+	github.com/mailru/easyjson v0.7.7
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.8.0
 	github.com/stretchr/testify v1.5.1

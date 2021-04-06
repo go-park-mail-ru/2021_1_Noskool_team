@@ -7,6 +7,8 @@ import (
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
 	musicHttp "2021_1_Noskool_team/internal/app/musicians/delivery/http"
+	"2021_1_Noskool_team/internal/app/playlists"
+	playlistHttp "2021_1_Noskool_team/internal/app/playlists/delivery/http"
 	"2021_1_Noskool_team/internal/app/search"
 	searchHttp "2021_1_Noskool_team/internal/app/search/delivery/http"
 	"2021_1_Noskool_team/internal/app/tracks"
@@ -21,6 +23,7 @@ type MusicHandler struct {
 	tracksHandler   *trackHttp.TracksHandler
 	musicianHandler *musicHttp.MusiciansHandler
 	albumsHandler   *albumHttp.AlbumsHandler
+	playlistHandler *playlistHttp.PlaylistsHandler
 	searchHandler   *searchHttp.SearchHandler
 }
 
@@ -30,7 +33,7 @@ func (handler MusicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	musicUsecase musicians.Usecase, albumsUsecase album.Usecase,
-	searchUsecase search.Usecase) *MusicHandler {
+	playlistUsecase playlists.Usecase, searchUsecase search.Usecase) *MusicHandler {
 	handler := &MusicHandler{
 		router: mux.NewRouter(),
 	}
@@ -46,10 +49,12 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
 	albumsRouter := handler.router.PathPrefix("/api/v1/album/").Subrouter()
 	searchRouter := handler.router.PathPrefix("/api/v1/search/").Subrouter()
+	playlistsRouter := handler.router.PathPrefix("/api/v1/playlist/").Subrouter()
 	handler.musicianHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
 	handler.tracksHandler = trackHttp.NewTracksHandler(tracksRouter, config, tracksUsecase)
 	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase)
 	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase)
+	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
 
 	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main main page"))
