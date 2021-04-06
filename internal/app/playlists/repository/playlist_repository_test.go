@@ -83,40 +83,57 @@ func TestGetTrackByID(t *testing.T) {
 	}
 }
 
-//func TestCreatePlaylist(t *testing.T) {
-//	db, mock, err := sqlmock.New()
-//	if err != nil {
-//		t.Fatalf("cant create mock '%s'", err)
-//	}
-//	playlistRep := NewPlaylistRepository(db)
-//
-//	defer db.Close()
-//
-//	rows := sqlmock.NewRows([]string{
-//		"playlist_id",
-//	}).AddRow(playlistsForTest[2].PlaylistID)
-//
-//	queryFirst := "INSERT INTO playlists"
-//
-//	mock.ExpectQuery(queryFirst).WithArgs(playlistsForTest[2].Tittle, playlistsForTest[2].Description,
-//		playlistsForTest[2].Picture, playlistsForTest[2].ReleaseDate, playlistsForTest[2].UserID,
-//	).WillReturnRows(rows)
-//
-//	querySecond := "INSERT INTO Tracks_to_Playlist"
-//	mock.ExpectExec(querySecond).WithArgs(playlistsForTest[2].UserID, playlistsForTest[2].PlaylistID,
-//	).WillReturnResult(sqlmock.NewResult(1, 1))
-//
-//	thirdSecond := "INSERT INTO playlists_to_user"
-//	mock.ExpectExec(thirdSecond).WithArgs(playlistsForTest[2].UserID, playlistsForTest[2].PlaylistID,
-//	).WillReturnResult(sqlmock.NewResult(1, 1))
-//
-//	playlist, err := playlistRep.CreatePlaylist(playlistsForTest[2])
-//
-//	assert.NoError(t, err)
-//	if !reflect.DeepEqual(playlist, playlistsForTest[2]) {
-//		t.Fatalf("Not equal")
-//	}
-//}
+func TestCreatePlaylist(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	playlistRep := NewPlaylistRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"playlist_id",
+	}).AddRow(playlistsForTest[2].PlaylistID)
+
+	queryFirst := "INSERT INTO playlists"
+
+	mock.ExpectQuery(queryFirst).WithArgs(playlistsForTest[2].Tittle, playlistsForTest[2].Description,
+		playlistsForTest[2].Picture, playlistsForTest[2].ReleaseDate, playlistsForTest[2].UserID,
+	).WillReturnRows(rows)
+
+	querySecond := "INSERT INTO Tracks_to_Playlist"
+	mock.ExpectExec(querySecond).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	thirdSecond := "INSERT INTO playlists_to_user"
+	mock.ExpectExec(thirdSecond).WithArgs(playlistsForTest[2].UserID, playlistsForTest[2].PlaylistID,
+	).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	playlist := &models.Playlist{
+			PlaylistID:  3,
+			Tittle:      "Tittle without tracks",
+			Description: "some description",
+			Picture:     "/api/v1/data/img/playlists/3.png",
+			ReleaseDate: "2020-03-04",
+			UserID:      1,
+			Tracks: []*trackModels.Track{
+				{
+					TrackID:     1,
+					Tittle:      "song",
+					Text:        "sing song song",
+					Audio:       "audio",
+					Picture:     "picture",
+					ReleaseDate: "date",
+				},
+			},
+	}
+	playlistAfterCreation, err := playlistRep.CreatePlaylist(playlist)
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(playlistAfterCreation, playlist) {
+		t.Fatalf("Not equal")
+	}
+}
 
 func TestGetTracksByPlaylistID(t *testing.T) {
 	db, mock, err := sqlmock.New()
