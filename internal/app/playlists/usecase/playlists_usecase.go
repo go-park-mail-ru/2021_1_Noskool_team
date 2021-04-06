@@ -62,3 +62,8 @@ func (usecase *PlaylistUsecase) GetTracksByGenreID(genreID int) ([]*models.Playl
 	playlist, err := usecase.playlistRep.GetTracksByGenreID(genreID)
 	return playlist, err
 }
+
+func (usecase *PlaylistUsecase) UploadAudio(playlistID int, audioPath string) error {
+	err := usecase.playlistRep.UploadPicture(playlistID, audioPath)
+	return err
+}

@@ -9,6 +9,7 @@ import (
 	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -57,6 +58,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost)
 	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/picture",
+		handler.UploadPlaylistPictureHandler).Methods(http.MethodPost)
 
 	return handler
 }
@@ -269,4 +272,31 @@ func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r 
 		return
 	}
 	response.SendCorrectResponse(w, playlistsByGenreID, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWriter, r *http.Request) {
+	playlistID := mux.Vars(r)["playlist_id"]
+
+	fileName, err := utility.SaveFile(r, "playlist_picture", "/static/img/playlists/", playlistID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusBadRequest)
+		return
+	}
+	fileNetPath := "/api/v1/data/img/playlists/" + *fileName
+	playlistIDINT, err := strconv.Atoi(playlistID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusInternalServerError)
+		return
+	}
+
+	err = handler.playlistsUsecase.UploadAudio(playlistIDINT, fileNetPath)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusInternalServerError)
+		return
+	}
+
+	response.SendEmptyBody(w, http.StatusOK)
 }

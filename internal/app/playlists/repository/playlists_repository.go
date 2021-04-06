@@ -168,3 +168,13 @@ func (playlistRep *PlaylistRepository) GetTracksByGenreID(genreID int) ([]*model
 	}
 	return playlists, nil
 }
+
+func (playlistRep *PlaylistRepository) UploadPicture(playlistID int, audioPath string) error {
+	query := `UPDATE playlists SET picture = $1
+			WHERE playlist_id = $2`
+	_, err := playlistRep.con.Exec(query, audioPath, playlistID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

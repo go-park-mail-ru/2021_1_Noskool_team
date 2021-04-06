@@ -111,7 +111,7 @@ func (handler *TracksHandler) UploadTrackPictureHandler(w http.ResponseWriter, r
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	fileNetPath := "/api/v1/data/img/track/" + *fileName
+	fileNetPath := "/api/v1/data/img/tracks/" + *fileName
 	trackIDINT, err := strconv.Atoi(trackID)
 	if err != nil {
 		handler.logger.Error(err)
@@ -138,7 +138,7 @@ func (handler *TracksHandler) UploadTrackAudioHandler(w http.ResponseWriter, r *
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	fileNetPath := "/api/v1/data/audio/track/" + *fileName
+	fileNetPath := "/api/v1/data/audio/" + *fileName
 	trackIDINT, err := strconv.Atoi(trackID)
 	if err != nil {
 		handler.logger.Error(err)
