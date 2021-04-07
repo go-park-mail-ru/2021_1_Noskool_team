@@ -9,7 +9,6 @@ import (
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
-	"context"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -190,10 +189,9 @@ func (handler *TracksHandler) GetTracksByMusicinID(w http.ResponseWriter, r *htt
 }
 
 func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
-	SessionHash, _ := r.Cookie("session_id")
-	session, err := handler.sessionsClient.Check(context.Background(), SessionHash.Value)
-	if err != nil {
-		handler.logger.Error(err)
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusBadRequest,
 			Message: "Not correct user id",

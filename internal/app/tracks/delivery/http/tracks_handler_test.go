@@ -4,6 +4,9 @@ import (
 	"2021_1_Noskool_team/configs"
 	mock_tracks "2021_1_Noskool_team/internal/app/tracks/mocks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
+	models2 "2021_1_Noskool_team/internal/microservices/auth/models"
+	models0 "2021_1_Noskool_team/internal/models"
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/golang/mock/gomock"
@@ -280,4 +283,165 @@ func TestGetTracksByAlbumID(t *testing.T) {
 	if w.Code != http.StatusNoContent {
 		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
 	}
+}
+
+func TestAddDeleteTrackToFavorite(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().AddTrackToFavorites(1, 1).Return(nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r.URL.RawQuery = "type=add"
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.AddDeleteTrackToFavorite(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddDeleteTrackToFavorite(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "not correct id"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddDeleteTrackToFavorite(w, r)
+	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "1"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddDeleteTrackToFavorite(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestAddDeleteTrackToMediateka(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().AddDeleteTrackToMediateka(1, 1, "add")
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r.URL.RawQuery = "type=add"
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.AddDeleteTrackToMediateka(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddDeleteTrackToMediateka(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "not correct id"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddDeleteTrackToMediateka(w, r)
+	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "1"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddDeleteTrackToMediateka(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestGetFavoriteTracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetFavoriteTracks(1, &models0.Pagination{
+		Limit:  10,
+		Offset: 0,
+	}).Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r.URL.RawQuery = "limit=10&offset=0"
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.GetFavoriteTracks(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetFavoriteTracks(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "not correct id"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetFavoriteTracks(w, r)
+	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	//w = httptest.NewRecorder()
+	//r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
+	//r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	//	models2.Result{ID: "1"}))
+	//handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	//handler.AddDeleteTrackToMediateka(w, r)
+	//expected = http.StatusBadRequest
+	//if w.Code != expected {
+	//	t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	//}
 }
