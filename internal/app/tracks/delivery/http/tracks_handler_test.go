@@ -54,7 +54,6 @@ func TestGetTrackByIDHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(testTreks[0].TrackID)})
-
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
 	handler.GetTrackByIDHandler(w, r)
@@ -67,6 +66,17 @@ func TestGetTrackByIDHandler(t *testing.T) {
 	expectedMsg, _ := json.Marshal(testTreks[0])
 	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
 		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.GetTrackByIDHandler(w, r)
+
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 }
 
@@ -104,11 +114,9 @@ func TestGetTrackByMusicianID(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/musician/", nil)
 	r = mux.SetURLVars(r, map[string]string{"musician_id": strconv.Itoa(1)})
-
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
 	handler.GetTracksByMusicinID(w, r)
-
 	expected := http.StatusOK
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
@@ -117,6 +125,16 @@ func TestGetTrackByMusicianID(t *testing.T) {
 	expectedMsg, _ := json.Marshal(testTreks)
 	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
 		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/musician/", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.GetTracksByMusicinID(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 }
 
@@ -433,15 +451,47 @@ func TestGetFavoriteTracks(t *testing.T) {
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
+}
 
-	//w = httptest.NewRecorder()
-	//r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
-	//r = r.WithContext(context.WithValue(r.Context(), "user_id",
-	//	models2.Result{ID: "1"}))
-	//handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
-	//handler.AddDeleteTrackToMediateka(w, r)
-	//expected = http.StatusBadRequest
-	//if w.Code != expected {
-	//	t.Errorf("expected: %v\n got: %v", expected, w.Code)
-	//}
+func TestGetMediatekaForUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetTracksByUserID(1).Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/mediateka", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.GetMediatekaForUser(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/mediateka", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetMediatekaForUser(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "not correct id"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetMediatekaForUser(w, r)
+	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
 }
