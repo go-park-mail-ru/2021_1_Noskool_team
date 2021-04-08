@@ -87,3 +87,16 @@ func TestCheckSessionMiddleware(t *testing.T) {
 	handlerToTest := sessionsMidl.CheckSessionMiddleware(nextHandler)
 	handlerToTest.ServeHTTP(w, r)
 }
+
+func TestContentTypeJson(t *testing.T) {
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.True(t, true)
+	})
+
+	req := httptest.NewRequest("GET", "/api/v1/", nil)
+	w := httptest.NewRecorder()
+
+	handlerToTest := ContentTypeJson(nextHandler)
+	handlerToTest.ServeHTTP(w, req)
+	assert.Equal(t, w.Header().Get("Content-Type"), "application/json")
+}
