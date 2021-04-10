@@ -2,15 +2,16 @@ package http
 
 import (
 	"2021_1_Noskool_team/configs"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/response"
-	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"net/http"
-	"strconv"
 )
 
 const (
@@ -18,10 +19,10 @@ const (
 )
 
 type MusiciansHandler struct {
-	router         *mux.Router
-	musicUsecase   musicians.Usecase
-	logger         *logrus.Logger
-	sessionsClient client.AuthCheckerClient
+	router          *mux.Router
+	musicianUsecase musicians.Usecase
+	logger          *logrus.Logger
+	sessionsClient  client.AuthCheckerClient
 }
 
 func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Usecase) *MusiciansHandler {
@@ -31,21 +32,24 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	}
 
 	handler := &MusiciansHandler{
-		router:         r,
-		musicUsecase:   usecase,
-		logger:         logrus.New(),
-		sessionsClient: client.NewSessionsClient(grpcCon),
+		router:          r,
+		musicianUsecase: usecase,
+		logger:          logrus.New(),
+		sessionsClient:  client.NewSessionsClient(grpcCon),
 	}
 	err = ConfigLogger(handler, config)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	handler.router.HandleFunc("/{genre}/", handler.GetMusiciansByGenres)
-	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicByIDHandler)
-	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main page of music"))
-	})
+	// /api/v1/musicians/
+	middleware.ContentTypeJson(handler.router)
+	handler.router.HandleFunc("/api/v1/musicians/{genre}", handler.GetMusiciansByGenres)
+	handler.router.HandleFunc("/api/v1/musicians/{musician_id:[0-9]+}", handler.GetMusicianByID)
+	handler.router.HandleFunc("/api/v1/musicians/{track_id:[0-9]+}", handler.GetMusicianByTrackID)
+	handler.router.HandleFunc("/api/v1/musicians/{album_id:[0-9]+}", handler.GetMusicianByAlbumID)
+	handler.router.HandleFunc("/api/v1/musicians/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID)
+
 	return handler
 }
 
@@ -64,43 +68,115 @@ func (handler *MusiciansHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 }
 
 func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	genre := mux.Vars(r)["genre"]
-	musicians, err := handler.musicUsecase.GetMusiciansByGenres(genre)
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	genre, ok := vars["genre"]
+	if !ok {
+		handler.logger.Errorf("Error get genre from query string")
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	musicians, err := handler.musicianUsecase.GetMusiciansByGenres(genre)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	resp, err := json.Marshal(musicians)
-	if err != nil {
-		handler.logger.Errorf("Error in marshalling json: %v", err)
-		w.Write(response.FailedResponse(w, 500))
-		return
-	}
-	w.Write(resp)
+	response.SendCorrectResponse(w, musicians, 200)
 }
 
-func (handler *MusiciansHandler) GetMusicByIDHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
-	if err != nil {
-		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 500))
+func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	musicianID, ok := vars["musician_id"]
+	if !ok {
+		handler.logger.Errorf("Error get musician_id from query string")
+		w.Write(response.FailedResponse(w, 400))
 		return
 	}
-
-	track, err := handler.musicUsecase.GetMusicianByID(musicianID)
+	musicianIDint, err := strconv.Atoi(musicianID)
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	musician, err := handler.musicianUsecase.GetMusicianByID(musicianIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusicianByID: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	resp, err := json.Marshal(track)
+	response.SendCorrectResponse(w, musician, 200)
+}
+
+func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	trackID, ok := vars["track_id"]
+	if !ok {
+		handler.logger.Errorf("Error get track_id from query string")
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	trackIDint, err := strconv.Atoi(trackID)
 	if err != nil {
-		handler.logger.Errorf("Error in marshalling: %v", err)
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	musicians, err := handler.musicianUsecase.GetMusicianByTrackID(trackIDint)
+	if err != nil {
+		handler.logger.Errorf("Error in GetMusicianByTrackID: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	w.Write(resp)
+	response.SendCorrectResponse(w, musicians, 200)
+}
+
+func (handler *MusiciansHandler) GetMusicianByAlbumID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	albumID, ok := vars["album_id"]
+	if !ok {
+		handler.logger.Errorf("Error get album_id from query string")
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	albumIDint, err := strconv.Atoi(albumID)
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	musicians, err := handler.musicianUsecase.GetMusicianByAlbumID(albumIDint)
+	if err != nil {
+		handler.logger.Errorf("Error in GetMusicianByAlbumID: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	response.SendCorrectResponse(w, musicians, 200)
+}
+
+func (handler *MusiciansHandler) GetMusicianByPlaylistID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	playlistID, ok := vars["playlist_id"]
+	if !ok {
+		handler.logger.Errorf("Error get playlist_id from query string")
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	playlistIDint, err := strconv.Atoi(playlistID)
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	musicians, err := handler.musicianUsecase.GetMusicianByPlaylistID(playlistIDint)
+	if err != nil {
+		handler.logger.Errorf("Error in GetMusicianByPlaylistID: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	response.SendCorrectResponse(w, musicians, 200)
 }

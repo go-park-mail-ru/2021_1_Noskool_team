@@ -5,7 +5,10 @@ import (
 )
 
 type Repository interface {
+	SearchMusicians(searchQuery string) ([]*models.Musician, error)
 	GetMusiciansByGenres(genre string) (*[]models.Musician, error)
 	GetMusicianByID(musicianID int) (*models.Musician, error)
-	SearchMusicians(searchQuery string) ([]*models.Musician, error)
+	GetMusicianByTrackID(musicianID int) (*[]models.Musician, error)
+	GetMusicianByAlbumID(musicianID int) (*[]models.Musician, error)
+	GetMusicianByPlaylistID(musicianID int) (*[]models.Musician, error)
 }
