@@ -13,6 +13,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/microcosm-cc/bluemonday"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -37,10 +38,11 @@ type ProfilesServer struct {
 	router         *mux.Router
 	sessionsClient client.AuthCheckerClient
 	profUsecase    profiles.Usecase
+	sanitizer      *bluemonday.Policy
 }
 
 // New ...
-func New(config *configs.Config, profUsecase profiles.Usecase) *ProfilesServer {
+func New(config *configs.Config, profUsecase profiles.Usecase, sanitizer *bluemonday.Policy) *ProfilesServer {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		logrus.Error(err)
@@ -51,6 +53,7 @@ func New(config *configs.Config, profUsecase profiles.Usecase) *ProfilesServer {
 		router:         mux.NewRouter(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 		profUsecase:    profUsecase,
+		sanitizer:      sanitizer,
 	}
 }
 
@@ -88,18 +91,19 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.HandleFunc("/api/v1/registrate",
 		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/logout",
-		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet)
+		middleware.CheckCSRFMiddleware(authMiddleware.CheckSessionMiddleware(s.handleLogout()))).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/csrf",
 		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodPost)
 	s.router.HandleFunc("/api/v1/profile",
-		authMiddleware.CheckSessionMiddleware(s.handleProfile())).Methods(http.MethodGet)
+		middleware.CheckCSRFMiddleware(authMiddleware.CheckSessionMiddleware(s.handleProfile()))).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/update",
-		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
+		middleware.CheckCSRFMiddleware(authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
-		s.handleUpdateAvatar()).Methods(http.MethodPost, http.MethodOptions)
+		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleUpdateAvatar()))).Methods(http.MethodPost, http.MethodOptions)
 
 	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
+	s.router.Use(middleware.ContentTypeJson)
 }
 
 func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Request) {
@@ -123,7 +127,6 @@ func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Reques
 	}
 	http.SetCookie(w, csrfCookie)
 	w.Header().Set("X-Csrf-Token", csrfToken)
-
 }
 
 func (s *ProfilesServer) HandleAuth(w http.ResponseWriter, r *http.Request) {
@@ -194,19 +197,16 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 }
 
 func (s *ProfilesServer) handleLogin() http.HandlerFunc {
-	type request struct {
-		Login    string `json:"nickname"`
-		Password string `json:"password"`
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleLogin")
 		w.Header().Set("Content-Type", "application/json")
-		req := &request{}
+		req := &models.RequestLogin{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			s.logger.Error(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Ошибка на сервере :("))
 			return
 		}
+		req.Sanitize(s.sanitizer)
 		u, err := s.profUsecase.FindByLogin(req.Login)
 		if err != nil || !u.ComparePassword(req.Password) {
 			s.logger.Error(err)
@@ -233,21 +233,13 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 }
 
 func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
-	type request struct {
-		Email         string   `json:"email"`
-		Password      string   `json:"password"`
-		Nickname      string   `json:"nickname"`
-		Name          string   `json:"first_name"`
-		Surname       string   `json:"second_name"`
-		FavoriteGenre []string `json:"favorite_genre"`
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleRegistrate")
 		w.Header().Set("Content-Type", "application/json")
 
 		// TODO: проверка авторизован ли уже пользователь???
 
-		req := &request{}
+		req := &models.ProfileRequest{}
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			s.logger.Error(err)
@@ -260,6 +252,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
 			return
 		}
+		req.Sanitize(s.sanitizer)
 
 		u := &models.UserProfile{
 			Email:         req.Email,
@@ -330,14 +323,6 @@ func (s *ProfilesServer) handleProfile() http.HandlerFunc {
 }
 
 func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
-	type request struct {
-		Email         string   `json:"email"`
-		Password      string   `json:"password"`
-		Nickname      string   `json:"nickname"`
-		Name          string   `json:"first_name"`
-		Surname       string   `json:"second_name"`
-		FavoriteGenre []string `json:"favorite_genre"`
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("starting handleUpdateProfile")
 		w.Header().Set("Content-Type", "application/json")
@@ -363,12 +348,13 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Не удалось найти пользователя"))
 			return
 		}
-		req := &request{}
+		req := &models.ProfileRequest{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			s.logger.Error(err)
 			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
 			return
 		}
+		req.Sanitize(s.sanitizer)
 		flagPassword := false
 		if req.Email != "" {
 			userForUpdates.Email = req.Email

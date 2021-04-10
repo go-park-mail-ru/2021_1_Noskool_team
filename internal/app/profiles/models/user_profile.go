@@ -40,7 +40,6 @@ func (u *UserProfile) Validate(withPassword bool) error {
 		validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
 		validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
 	)
-
 }
 
 // BeforeCreate ...
