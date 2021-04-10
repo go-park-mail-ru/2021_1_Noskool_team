@@ -14,6 +14,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks"
 	trackHttp "2021_1_Noskool_team/internal/app/tracks/delivery/http"
 	"github.com/gorilla/mux"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -45,6 +46,8 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 			http.StripPrefix(
 				"/api/v1/data/", http.FileServer(http.Dir(config.MediaFolder))))
 
+	sanitizer := bluemonday.UGCPolicy()
+
 	musicRouter := handler.router.PathPrefix("/api/v1/musician/").Subrouter()
 	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
 	albumsRouter := handler.router.PathPrefix("/api/v1/album/").Subrouter()
@@ -53,7 +56,7 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.musicianHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
 	handler.tracksHandler = trackHttp.NewTracksHandler(tracksRouter, config, tracksUsecase)
 	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase)
-	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase)
+	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase, sanitizer)
 	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
 
 	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {

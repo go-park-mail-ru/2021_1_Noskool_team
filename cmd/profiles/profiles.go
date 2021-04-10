@@ -8,6 +8,7 @@ import (
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
 	"github.com/BurntSushi/toml"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
 	"log"
 	"time"
@@ -37,8 +38,9 @@ func main() {
 	}
 	profRep := postgresDB.NewProfileRepository(profDBCon)
 	profUsecase := usecase.NewProfilesUsecase(profRep)
+	sanitizer := bluemonday.UGCPolicy()
 
-	s := profiles.New(config, profUsecase)
+	s := profiles.New(config, profUsecase, sanitizer)
 
 	if err := s.Start(); err != nil {
 		log.Fatal(err)
