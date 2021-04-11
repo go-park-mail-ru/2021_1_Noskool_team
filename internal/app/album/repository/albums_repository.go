@@ -33,27 +33,6 @@ func (albumsRep *AlbumsRepository) GetAlbumByID(albumID int) (*models.Album, err
 	return album, nil
 }
 
-func (albumRep *AlbumsRepository) SearchAlbums(searchQuery string) ([]*models.Album, error) {
-	query := `SELECT album_id, tittle, picture, release_date FROM albums 
-			WHERE tittle LIKE '%' || $1 || '%'`
-	rows, err := albumRep.con.Query(query, searchQuery)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	albumsByQuery := make([]*models.Album, 0)
-
-	for rows.Next() {
-		album := &models.Album{}
-		err := rows.Scan(&album.AlbumID, &album.Tittle, &album.Picture, &album.ReleaseDate)
-		if err != nil {
-			return nil, err
-		}
-		albumsByQuery = append(albumsByQuery, album)
-	}
-	return albumsByQuery, nil
-}
-
 func (albumRep *AlbumsRepository) GetAlbumsByMusicianID(musicianID int) (*[]models.Album, error) {
 	query := `select album_id, tittle, picture, release_date from albums 
 	left join Musicians_to_Albums as m_a on m_a.album_id = albums.album_id 
@@ -98,4 +77,25 @@ func (albumRep *AlbumsRepository) GetAlbumsByTrackID(trackID int) (*[]models.Alb
 		albumsByQuery = append(albumsByQuery, album)
 	}
 	return &albumsByQuery, nil
+}
+
+func (albumRep *AlbumsRepository) SearchAlbums(searchQuery string) ([]*models.Album, error) {
+	query := `SELECT album_id, tittle, picture, release_date FROM albums 
+			WHERE tittle LIKE '%' || $1 || '%'`
+	rows, err := albumRep.con.Query(query, searchQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	albumsByQuery := make([]*models.Album, 0)
+
+	for rows.Next() {
+		album := &models.Album{}
+		err := rows.Scan(&album.AlbumID, &album.Tittle, &album.Picture, &album.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		albumsByQuery = append(albumsByQuery, album)
+	}
+	return albumsByQuery, nil
 }

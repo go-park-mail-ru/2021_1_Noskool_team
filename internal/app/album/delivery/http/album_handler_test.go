@@ -6,13 +6,14 @@ import (
 	"2021_1_Noskool_team/internal/app/album/models"
 	"encoding/json"
 	"errors"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -38,7 +39,7 @@ func TestGetAlbumByIDHandler(t *testing.T) {
 
 	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
 
-	handler.GetAlbumByIDHandler(w, r)
+	handler.GetAlbumByID(w, r)
 
 	expected := http.StatusOK
 	if w.Code != expected {
@@ -66,7 +67,7 @@ func TestGetAlbumByIDHandlerFailed(t *testing.T) {
 
 	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
 
-	handler.GetAlbumByIDHandler(w, r)
+	handler.GetAlbumByID(w, r)
 
 	expected := http.StatusInternalServerError
 	if w.Code != expected {
