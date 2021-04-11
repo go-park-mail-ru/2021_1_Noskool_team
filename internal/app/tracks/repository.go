@@ -21,4 +21,8 @@ type Repository interface {
 	AddTrackToMediateka(userID, trackID int) error
 	DeleteTrackFromMediateka(userID, trackID int) error
 	SearchTracks(searchQuery string) ([]*models.Track, error)
+	GetTop20Tracks() ([]*models.Track, error)
+	GetBillbordTopCharts() ([]*models.Track, error)
+	GetHistory(userID int) ([]*models.Track, error)
+	AddToHistory(userID, trackID int) error
 }

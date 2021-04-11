@@ -22,7 +22,7 @@ func NewTracksRepository(con *sql.DB) tracks.Repository {
 func (trackRep *TracksRepository) GetTrackByID(trackID int) (*models.Track, error) {
 	track := &models.Track{}
 	err := trackRep.con.QueryRow(
-		"SELECT * FROM tracks where track_id = $1", trackID,
+		"SELECT track_id, tittle, text, audio, picture, release_date FROM tracks where track_id = $1", trackID,
 	).Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
 		&track.ReleaseDate)
 
@@ -271,4 +271,85 @@ func (trackRep *TracksRepository) SearchTracks(searchQuery string) ([]*models.Tr
 		tracksByQuery = append(tracksByQuery, track)
 	}
 	return tracksByQuery, nil
+}
+
+func (trackRep *TracksRepository) GetTop20Tracks() ([]*models.Track, error) {
+	query := `select track_id, tittle, text, audio, picture, release_date from tracks
+			order by rating desc
+			limit 20`
+
+	rows, err := trackRep.con.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, nil
+}
+
+func (trackRep *TracksRepository) GetBillbordTopCharts() ([]*models.Track, error) {
+	query := `select track_id, tittle, text, audio, picture, release_date from tracks
+			order by amount_of_listens desc
+			limit 20`
+
+	rows, err := trackRep.con.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, nil
+}
+
+func (trackRep *TracksRepository) GetHistory(userID int) ([]*models.Track, error) {
+	query := `select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date
+			from history as h
+			left join tracks as t on t.track_id = h.track_id
+			where h.user_id = $1
+			order by creation_date desc`
+
+	rows, err := trackRep.con.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, nil
+}
+
+func (trackRep *TracksRepository) AddToHistory(userID, trackID int) error {
+	query := `insert into history (user_id, track_id) values ($1, $2)`
+
+	_, err := trackRep.con.Exec(query, userID, trackID)
+	return err
 }

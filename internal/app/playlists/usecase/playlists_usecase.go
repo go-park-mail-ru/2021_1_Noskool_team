@@ -67,3 +67,8 @@ func (usecase *PlaylistUsecase) UploadAudio(playlistID int, audioPath string) er
 	err := usecase.playlistRep.UploadPicture(playlistID, audioPath)
 	return err
 }
+
+func (usecase *PlaylistUsecase) GetPlaylists() ([]*models.Playlist, error) {
+	playlists, err := usecase.playlistRep.GetPlaylists()
+	return playlists, err
+}

@@ -43,14 +43,20 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.Use(middleware.ContentTypeJson)
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
+	handler.router.HandleFunc("/top",
+		handler.GetTop20Tracks).Methods(http.MethodGet)
+	handler.router.HandleFunc("/billbord",
+		handler.GetBillbordTopCharts).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
-		middleware.CheckCSRFMiddleware(handler.GetTrackByIDHandler))
+		handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/mediateka",
 		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
 		authMiddleware.CheckSessionMiddleware(handler.GetFavoriteTracks)).Methods(http.MethodGet)
-	handler.router.HandleFunc("/{track_tittle}",
-		handler.GetTracksByTittle).Methods(http.MethodGet)
+	handler.router.HandleFunc("/history",
+		authMiddleware.CheckSessionMiddleware(handler.GetHistory)).Methods(http.MethodGet)
+	handler.router.HandleFunc("/{track_id:[0-9]+}/history",
+		authMiddleware.CheckSessionMiddleware(handler.AddToHistory)).Methods(http.MethodPost)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
 		authMiddleware.CheckSessionMiddleware(handler.GetTracksByMusicinID)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
@@ -358,6 +364,91 @@ func (handler *TracksHandler) AddDeleteTrackToMediateka(w http.ResponseWriter, r
 	}
 	addOrDelete := r.URL.Query().Get("type")
 	err = handler.tracksUsecase.AddDeleteTrackToMediateka(userID, trackID, addOrDelete)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetTop20Tracks(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetTop20Tracks()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetBillbordTopCharts()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetHistory(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	tracks, err := handler.tracksUsecase.GetHistory(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) AddToHistory(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	err = handler.tracksUsecase.AddToHistory(userID, trackID)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)

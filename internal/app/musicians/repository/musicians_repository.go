@@ -20,7 +20,7 @@ func NewMusicRepository(con *sql.DB) musicians.Repository {
 }
 
 func (musicRep *MusicianRepository) GetMusiciansByGenre(genre string) (*[]models.Musician, error) {
-	query := `select musicians.* from musicians
+	query := `select musicians.musician_id, musicians.name, musicians.description, musicians.picture from musicians 
 		left join musicians_to_genres as m_g on m_g.musician_id = musicians.musician_id
 		left join genres on genres.genre_id = m_g.genre_id 
 		where genres.title = $1`
@@ -51,7 +51,7 @@ func (musicRep *MusicianRepository) GetMusiciansByGenre(genre string) (*[]models
 func (musicRep *MusicianRepository) GetMusicianByID(musicianID int) (*models.Musician, error) {
 	musician := &models.Musician{}
 	err := musicRep.con.QueryRow(
-		"SELECT * FROM musicians where musician_id = $1", musicianID).Scan(
+		"SELECT musician_id, name, description, picture FROM musicians where musician_id = $1", musicianID).Scan(
 		&musician.MusicianID,
 		&musician.Name,
 		&musician.Description,
@@ -64,7 +64,7 @@ func (musicRep *MusicianRepository) GetMusicianByID(musicianID int) (*models.Mus
 }
 
 func (musicRep *MusicianRepository) GetMusicianByTrackID(trackID int) (*[]models.Musician, error) {
-	query := `select musicians.* from musicians
+	query := `select musicians.musician_id, musicians.name, musicians.description, musicians.picture from musicians 
 		left join Musicians_to_Tracks as m_t on m_t.musician_id = musicians.musician_id
 		left join Tracks on Tracks.track_id = m_t.track_id 
 		where Tracks.track_id = $1`
@@ -93,7 +93,7 @@ func (musicRep *MusicianRepository) GetMusicianByTrackID(trackID int) (*[]models
 }
 
 func (musicRep *MusicianRepository) GetMusicianByAlbumID(albumID int) (*[]models.Musician, error) {
-	query := `select musicians.* from musicians
+	query := `select musicians.musician_id, musicians.name, musicians.description, musicians.picture from musicians 
 		left join Musicians_to_Albums as m_a on m_a.musician_id = musicians.musician_id
 		left join Albums on Albums.album_id = m_a.album_id 
 		where Albums.album_id = $1`
@@ -122,11 +122,36 @@ func (musicRep *MusicianRepository) GetMusicianByAlbumID(albumID int) (*[]models
 }
 
 func (musicRep *MusicianRepository) GetMusicianByPlaylistID(playlistID int) (*[]models.Musician, error) {
-	query := `select musicians.* from musicians
+	query := `select musicians.musician_id, musicians.name, musicians.description, musicians.picture from musicians 
 		left join Musicians_to_Playlist as m_p on m_p.musician_id = musicians.musician_id
 		left join playlists on playlists.playlist_id = m_p.playlist_id  
 		where playlists.playlist_id = $1`
 	musiciansRows, err := musicRep.con.Query(query, playlistID)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	defer musiciansRows.Close()
+	musicians := make([]models.Musician, 0)
+
+	for musiciansRows.Next() {
+		musician := models.Musician{}
+		err = musiciansRows.Scan(
+			&musician.MusicianID,
+			&musician.Name,
+			&musician.Description,
+			&musician.Picture)
+		if err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		musicians = append(musicians, musician)
+	}
+	return &musicians, nil
+}
+
+func (musicRep *MusicianRepository) GetMusiciansTop3() (*[]models.Musician, error) {
+	musiciansRows, err := musicRep.con.Query("select musician_id, name, description, picture from musicians order by rating limit 3")
 	if err != nil {
 		logrus.Error(err)
 		return nil, err

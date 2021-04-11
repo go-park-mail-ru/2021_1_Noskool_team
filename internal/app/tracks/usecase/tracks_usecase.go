@@ -89,3 +89,23 @@ func (usecase *TracksUsecase) SearchTracks(searchQuery string) ([]*models.Track,
 	tracks, err := usecase.trackRep.SearchTracks(searchQuery)
 	return tracks, err
 }
+
+func (usecase *TracksUsecase) GetTop20Tracks() ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetTop20Tracks()
+	return tracks, err
+}
+
+func (usecase *TracksUsecase) GetBillbordTopCharts() ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetTop20Tracks()
+	return tracks, err
+}
+
+func (usecase *TracksUsecase) GetHistory(userID int) ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetHistory(userID)
+	return tracks, err
+}
+
+func (usecase *TracksUsecase) AddToHistory(userID, trackID int) error {
+	err := usecase.trackRep.AddToHistory(userID, trackID)
+	return err
+}
