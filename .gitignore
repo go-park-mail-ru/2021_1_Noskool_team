@@ -6,4 +6,5 @@ configs/config.toml
 test.go
 static/img/tracks/*.png
 static/audio/*.mp3
+static/audio/*.ogg
 static/img/playlists/*.png
