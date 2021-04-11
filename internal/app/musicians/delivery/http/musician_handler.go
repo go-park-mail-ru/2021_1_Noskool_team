@@ -44,11 +44,11 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	// /api/v1/musicians/
 	middleware.ContentTypeJson(handler.router)
-	handler.router.HandleFunc("/api/v1/musicians/{genre}", handler.GetMusiciansByGenres)
+	handler.router.HandleFunc("/api/v1/musicians/bygenre/{genre}", handler.GetMusiciansByGenre)
 	handler.router.HandleFunc("/api/v1/musicians/{musician_id:[0-9]+}", handler.GetMusicianByID)
-	handler.router.HandleFunc("/api/v1/musicians/{track_id:[0-9]+}", handler.GetMusicianByTrackID)
-	handler.router.HandleFunc("/api/v1/musicians/{album_id:[0-9]+}", handler.GetMusicianByAlbumID)
-	handler.router.HandleFunc("/api/v1/musicians/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID)
+	handler.router.HandleFunc("/api/v1/musicians/bytrack/{track_id:[0-9]+}", handler.GetMusicianByTrackID)
+	handler.router.HandleFunc("/api/v1/musicians/byalbum/{album_id:[0-9]+}", handler.GetMusicianByAlbumID)
+	handler.router.HandleFunc("/api/v1/musicians/byplaylist/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID)
 
 	return handler
 }
@@ -67,7 +67,7 @@ func (handler *MusiciansHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	handler.router.ServeHTTP(w, r)
 }
 
-func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *http.Request) {
+func (handler *MusiciansHandler) GetMusiciansByGenre(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	genre, ok := vars["genre"]
