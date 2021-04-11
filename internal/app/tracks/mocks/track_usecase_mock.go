@@ -77,6 +77,21 @@ func (mr *MockUsecaseMockRecorder) DeleteTrackFromFavorites(trackID, userID inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackFromFavorites", reflect.TypeOf((*MockUsecase)(nil).DeleteTrackFromFavorites), trackID, userID)
 }
 
+// GetBillbordTopCharts mocks base method.
+func (m *MockUsecase) GetBillbordTopCharts() ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBillbordTopCharts")
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBillbordTopCharts indicates an expected call of GetBillbordTopCharts.
+func (mr *MockUsecaseMockRecorder) GetBillbordTopCharts() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBillbordTopCharts", reflect.TypeOf((*MockUsecase)(nil).GetBillbordTopCharts))
+}
+
 // GetFavoriteTracks mocks base method.
 func (m *MockUsecase) GetFavoriteTracks(userID int, pagination *models0.Pagination) ([]*models.Track, error) {
 	m.ctrl.T.Helper()
@@ -90,6 +105,21 @@ func (m *MockUsecase) GetFavoriteTracks(userID int, pagination *models0.Paginati
 func (mr *MockUsecaseMockRecorder) GetFavoriteTracks(userID, pagination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteTracks), userID, pagination)
+}
+
+// GetTop20Tracks mocks base method.
+func (m *MockUsecase) GetTop20Tracks() ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTop20Tracks")
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTop20Tracks indicates an expected call of GetTop20Tracks.
+func (mr *MockUsecaseMockRecorder) GetTop20Tracks() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTop20Tracks", reflect.TypeOf((*MockUsecase)(nil).GetTop20Tracks))
 }
 
 // GetTrackByID mocks base method.

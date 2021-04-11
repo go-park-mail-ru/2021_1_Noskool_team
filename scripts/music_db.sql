@@ -35,12 +35,14 @@ CREATE TABLE IF NOT EXISTS albums
 
 CREATE TABLE IF NOT EXISTS tracks
 (
-    track_id     serial PRIMARY KEY,
-    tittle       varchar(100),
-    text         text,
-    audio        bytea,
-    picture      varchar(100),
-    release_date date
+    track_id          serial PRIMARY KEY,
+    tittle            varchar(100),
+    text              text,
+    rating            int default 0,
+    amount_of_listens int default 0,
+    audio             bytea,
+    picture           varchar(100),
+    release_date      date
 );
 
 -- ///

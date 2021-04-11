@@ -43,14 +43,16 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.Use(middleware.ContentTypeJson)
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
+	handler.router.HandleFunc("/top",
+		handler.GetTop20Tracks).Methods(http.MethodGet)
+	handler.router.HandleFunc("/billbord",
+		handler.GetBillbordTopCharts).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
 		middleware.CheckCSRFMiddleware(handler.GetTrackByIDHandler))
 	handler.router.HandleFunc("/mediateka",
 		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
 		authMiddleware.CheckSessionMiddleware(handler.GetFavoriteTracks)).Methods(http.MethodGet)
-	handler.router.HandleFunc("/{track_tittle}",
-		handler.GetTracksByTittle).Methods(http.MethodGet)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
 		authMiddleware.CheckSessionMiddleware(handler.GetTracksByMusicinID)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
@@ -364,4 +366,24 @@ func (handler *TracksHandler) AddDeleteTrackToMediateka(w http.ResponseWriter, r
 		return
 	}
 	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetTop20Tracks(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetTop20Tracks()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetBillbordTopCharts()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
