@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians/models"
 )
 
+// mockgen -destination=mocks/repository_mock.go -source=repository.go
 type Repository interface {
 	SearchMusicians(searchQuery string) ([]*models.Musician, error)
 	GetMusiciansByGenre(genre string) (*[]models.Musician, error)

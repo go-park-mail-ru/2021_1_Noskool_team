@@ -76,7 +76,7 @@ func (handler *MusiciansHandler) GetMusiciansByGenres(w http.ResponseWriter, r *
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	musicians, err := handler.musicianUsecase.GetMusiciansByGenres(genre)
+	musicians, err := handler.musicianUsecase.GetMusiciansByGenre(genre)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
 		w.Write(response.FailedResponse(w, 500))

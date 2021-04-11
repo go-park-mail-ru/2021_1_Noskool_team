@@ -3,10 +3,11 @@ package repository
 import (
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"fmt"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -41,7 +42,7 @@ var (
 	}
 )
 
-func TestGetMusiciansByGenres(t *testing.T) {
+func TestGetMusiciansByGenre(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("cant create mock '%s'", err)
@@ -50,9 +51,7 @@ func TestGetMusiciansByGenres(t *testing.T) {
 
 	defer db.Close()
 
-	rows := sqlmock.NewRows([]string{
-		"musician_id", "name", "description", "picture",
-	})
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
 	for _, musician := range expectedMusician {
 		rows.AddRow(musician.MusicianID, musician.Name,
 			musician.Description, musician.Picture)
@@ -61,7 +60,7 @@ func TestGetMusiciansByGenres(t *testing.T) {
 
 	mock.ExpectQuery(query).WithArgs("rok").WillReturnRows(rows)
 
-	musicians, err := musiciansRep.GetMusiciansByGenres("rok")
+	musicians, err := musiciansRep.GetMusiciansByGenre("rok")
 
 	fmt.Println(musicians)
 	assert.NoError(t, err)
@@ -86,9 +85,7 @@ func TestGetMusicianByID(t *testing.T) {
 		Picture:     "picture",
 	}
 
-	rows := sqlmock.NewRows([]string{
-		"musician_id", "name", "description", "picture",
-	})
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
 	rows.AddRow(expectedMusician.MusicianID, expectedMusician.Name,
 		expectedMusician.Description, expectedMusician.Picture)
 	query := "SELECT"
@@ -113,15 +110,13 @@ func TestSearchMusicians(t *testing.T) {
 
 	defer db.Close()
 
-	rows := sqlmock.NewRows([]string{
-		"musician_id", "name", "description", "picture",
-	})
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
 	for _, musician := range expectedMusicianPointers[:1] {
 		rows.AddRow(musician.MusicianID, musician.Name,
 			musician.Description, musician.Picture)
 	}
 	query := "SELECT musician_id, name, description, picture FROM " +
-		"musicians\n\t\t\tWHERE musicians.name LIKE"
+		"musicians WHERE musicians.name LIKE"
 
 	mock.ExpectQuery(query).WithArgs("J").WillReturnRows(rows)
 
@@ -130,6 +125,87 @@ func TestSearchMusicians(t *testing.T) {
 	fmt.Println(musicians)
 	assert.NoError(t, err)
 	if !reflect.DeepEqual(expectedMusicianPointers[:1], musicians) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetMusicianByTrackID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	musiciansRep := NewMusicRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
+	for _, musician := range expectedMusician {
+		rows.AddRow(musician.MusicianID, musician.Name,
+			musician.Description, musician.Picture)
+	}
+	query := "select"
+
+	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
+
+	musicians, err := musiciansRep.GetMusicianByTrackID(1)
+
+	fmt.Println(musicians)
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(expectedMusician, *musicians) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetMusicianByAlbumID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	musiciansRep := NewMusicRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
+	for _, musician := range expectedMusician {
+		rows.AddRow(musician.MusicianID, musician.Name,
+			musician.Description, musician.Picture)
+	}
+	query := "select"
+
+	mock.ExpectQuery(query).WithArgs(2).WillReturnRows(rows)
+
+	musicians, err := musiciansRep.GetMusicianByAlbumID(2)
+
+	fmt.Println(musicians)
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(expectedMusician, *musicians) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetMusicianByPlaylistID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	musiciansRep := NewMusicRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
+	for _, musician := range expectedMusician {
+		rows.AddRow(musician.MusicianID, musician.Name,
+			musician.Description, musician.Picture)
+	}
+	query := "select"
+
+	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
+
+	musicians, err := musiciansRep.GetMusicianByPlaylistID(1)
+
+	fmt.Println(musicians)
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(expectedMusician, *musicians) {
 		t.Fatalf("Not equal")
 	}
 }

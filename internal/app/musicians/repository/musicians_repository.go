@@ -30,17 +30,15 @@ func (musicRep *MusicianRepository) GetMusiciansByGenre(genre string) (*[]models
 		return nil, err
 	}
 	defer musiciansRows.Close()
-	musicians := make([]models.Musician, 0)
 
+	musicians := make([]models.Musician, 0)
 	for musiciansRows.Next() {
 		musician := models.Musician{}
 		err = musiciansRows.Scan(
 			&musician.MusicianID,
 			&musician.Name,
 			&musician.Description,
-			&musician.Picture,
-			&musician.Genre,
-		)
+			&musician.Picture)
 		if err != nil {
 			logrus.Error(err)
 			return nil, err
@@ -57,8 +55,7 @@ func (musicRep *MusicianRepository) GetMusicianByID(musicianID int) (*models.Mus
 		&musician.MusicianID,
 		&musician.Name,
 		&musician.Description,
-		&musician.Picture,
-		&musician.Genre)
+		&musician.Picture)
 	if err != nil {
 		logrus.Error(err)
 		return nil, err
@@ -85,9 +82,7 @@ func (musicRep *MusicianRepository) GetMusicianByTrackID(trackID int) (*[]models
 			&musician.MusicianID,
 			&musician.Name,
 			&musician.Description,
-			&musician.Picture,
-			&musician.Genre,
-		)
+			&musician.Picture)
 		if err != nil {
 			logrus.Error(err)
 			return nil, err
@@ -116,9 +111,7 @@ func (musicRep *MusicianRepository) GetMusicianByAlbumID(albumID int) (*[]models
 			&musician.MusicianID,
 			&musician.Name,
 			&musician.Description,
-			&musician.Picture,
-			&musician.Genre,
-		)
+			&musician.Picture)
 		if err != nil {
 			logrus.Error(err)
 			return nil, err
@@ -147,9 +140,7 @@ func (musicRep *MusicianRepository) GetMusicianByPlaylistID(playlistID int) (*[]
 			&musician.MusicianID,
 			&musician.Name,
 			&musician.Description,
-			&musician.Picture,
-			&musician.Genre,
-		)
+			&musician.Picture)
 		if err != nil {
 			logrus.Error(err)
 			return nil, err
