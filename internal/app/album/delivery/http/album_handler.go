@@ -3,14 +3,16 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"net/http"
-	"strconv"
 )
 
 type AlbumsHandler struct {
@@ -38,11 +40,10 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logrus.Error(err)
 	}
 
-	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByIDHandler).Methods("GET")
-
-	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main of albums"))
-	})
+	middleware.ContentTypeJson(handler.router)
+	handler.router.HandleFunc("/api/v1/album/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET")
+	handler.router.HandleFunc("/api/v1/album/bymusician/{musician_id:[0-9]+}", handler.GetAlbumByMusicianID).Methods("GET")
+	handler.router.HandleFunc("/api/v1/album/bytrack/{track_id:[0-9]+}", handler.GetAlbumByTrackID).Methods("GET")
 
 	return handler
 }
@@ -61,7 +62,7 @@ func ConfigLogger(handler *AlbumsHandler, config *configs.Config) error {
 	return nil
 }
 
-func (handler *AlbumsHandler) GetAlbumByIDHandler(w http.ResponseWriter, r *http.Request) {
+func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	albumID, _ := strconv.Atoi(mux.Vars(r)["album_id"])
 
