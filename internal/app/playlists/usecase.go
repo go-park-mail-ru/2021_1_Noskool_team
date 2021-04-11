@@ -10,4 +10,5 @@ type Usecase interface {
 	GetMediateka(userID int) ([]*models.Playlist, error)
 	GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error)
 	UploadAudio(playlistID int, audioPath string) error
+	GetPlaylists() ([]*models.Playlist, error)
 }

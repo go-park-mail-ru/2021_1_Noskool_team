@@ -177,3 +177,26 @@ func (playlistRep *PlaylistRepository) UploadPicture(playlistID int, audioPath s
 	}
 	return nil
 }
+
+func (playlistRep *PlaylistRepository) GetPlaylists() ([]*models.Playlist, error) {
+	query := `select playlist_id, tittle, description, picture, release_date, user_id
+			from playlists
+			order by playlist_id;`
+	rows, err := playlistRep.con.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	playlists := make([]*models.Playlist, 0)
+
+	for rows.Next() {
+		playlist := &models.Playlist{}
+		err = rows.Scan(&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
+			&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID)
+		if err != nil {
+			return nil, err
+		}
+		playlists = append(playlists, playlist)
+	}
+	return playlists, nil
+}
