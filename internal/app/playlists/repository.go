@@ -15,4 +15,5 @@ type Repository interface {
 	SearchPlaylists(searchQuery string) ([]*models.Playlist, error)
 	GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error)
 	UploadPicture(playlistID int, audioPath string) error
+	GetPlaylists() ([]*models.Playlist, error)
 }

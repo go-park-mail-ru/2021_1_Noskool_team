@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS musicians
     picture     varchar(100)
 );
 
-CREATE TABLE if not exists Musicians_to_Genres
+CREATE TABLE IF NOT EXISTS Musicians_to_Genres
 (
     genre_id    INTEGER NOT NULL,
     musician_id INTEGER NOT NULL,
@@ -35,12 +35,14 @@ CREATE TABLE IF NOT EXISTS albums
 
 CREATE TABLE IF NOT EXISTS tracks
 (
-    track_id     serial PRIMARY KEY,
-    tittle       varchar(100),
-    text         text,
-    audio        bytea,
-    picture      varchar(100),
-    release_date date
+    track_id          serial PRIMARY KEY,
+    tittle            varchar(100),
+    text              text,
+    rating            int default 0,
+    amount_of_listens int default 0,
+    audio             bytea,
+    picture           varchar(100),
+    release_date      date
 );
 
 -- ///
@@ -55,7 +57,7 @@ CREATE TABLE IF NOT EXISTS playlists
     release_date date
 );
 
-CREATE TABLE if not exists playlists_to_genres
+CREATE TABLE IF NOT EXISTS playlists_to_genres
 (
     playlist_id INTEGER NOT NULL,
     genre_id    INTEGER NOT NULL,
@@ -63,14 +65,14 @@ CREATE TABLE if not exists playlists_to_genres
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
 );
 
-CREATE TABLE if not exists playlists_to_user
+CREATE TABLE IF NOT EXISTS playlists_to_user
 (
     user_id     INTEGER NOT NULL,
     playlist_id INTEGER NOT NULL,
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
 );
 
-CREATE TABLE if not exists Tracks_to_Playlist
+CREATE TABLE IF NOT EXISTS Tracks_to_Playlist
 (
     track_id    INTEGER NOT NULL,
     playlist_id INTEGER NOT NULL,
@@ -78,9 +80,18 @@ CREATE TABLE if not exists Tracks_to_Playlist
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
 );
 
+
+CREATE TABLE IF NOT EXISTS Musicians_to_Playlist
+(
+    musician_id INTEGER NOT NULL,
+    playlist_id INTEGER NOT NULL,
+    FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE,
+    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
+);
+
 -- ///
 
-CREATE TABLE if not exists Musicians_to_Tracks
+CREATE TABLE IF NOT EXISTS Musicians_to_Tracks
 (
     track_id    INTEGER NOT NULL,
     musician_id INTEGER NOT NULL,
@@ -88,7 +99,7 @@ CREATE TABLE if not exists Musicians_to_Tracks
     FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE
 );
 
-CREATE TABLE if not exists Tracks_to_Genres
+CREATE TABLE IF NOT EXISTS Tracks_to_Genres
 (
     track_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
@@ -96,7 +107,7 @@ CREATE TABLE if not exists Tracks_to_Genres
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
 );
 
-CREATE TABLE if not exists Tracks_to_Albums
+CREATE TABLE IF NOT EXISTS Tracks_to_Albums
 (
     track_id INTEGER NOT NULL,
     album_id INTEGER NOT NULL,
@@ -104,7 +115,7 @@ CREATE TABLE if not exists Tracks_to_Albums
     FOREIGN KEY (album_id) REFERENCES Albums (album_id) on delete CASCADE
 );
 
-CREATE TABLE if not exists Musicians_to_Albums
+CREATE TABLE IF NOT EXISTS Musicians_to_Albums
 (
     musician_id INTEGER NOT NULL,
     album_id    INTEGER NOT NULL,
@@ -112,7 +123,7 @@ CREATE TABLE if not exists Musicians_to_Albums
     FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE
 );
 
-CREATE TABLE if not exists Albums_to_Genres
+CREATE TABLE IF NOT EXISTS Albums_to_Genres
 (
     genre_id INTEGER NOT NULL,
     album_id INTEGER NOT NULL,
@@ -177,11 +188,25 @@ values (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 2), (7, 2), (8, 2), (9, 2), (
 insert into musicians_to_albums (musician_id, album_id)
 values (1, 1), (2, 2), (3, 3);
 
-
-CREATE TABLE if not exists tracks_to_user
+CREATE TABLE IF NOT EXISTS tracks_to_user
 (
     user_id  INTEGER NOT NULL,
     track_id INTEGER NOT NULL,
     favorite bool default false,
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
+
+
+INSERT INTO genres (title)
+VALUES ('classical'),
+       ('jazz'),
+       ('rap'),
+       ('electronic'),
+       ('rock'),
+       ('disco'),
+       ('fusion'),
+       ('pop'),
+       ('country'),
+       ('blues'),
+       ('reggae'),
+       ('indie');

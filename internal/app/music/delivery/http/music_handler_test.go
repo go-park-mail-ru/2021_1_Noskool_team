@@ -4,18 +4,19 @@ import (
 	"2021_1_Noskool_team/configs"
 	mock_album "2021_1_Noskool_team/internal/app/album/mocks"
 	mock_musicians "2021_1_Noskool_team/internal/app/musicians/mocks"
-	mock_playlists "2021_1_Noskool_team/internal/app/playlists/mocks"
 	"2021_1_Noskool_team/internal/app/musicians/models"
+	mock_playlists "2021_1_Noskool_team/internal/app/playlists/mocks"
 	mock_search "2021_1_Noskool_team/internal/app/search/mocks"
 	mock_tracks "2021_1_Noskool_team/internal/app/tracks/mocks"
 	"encoding/json"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -54,7 +55,7 @@ func TestFinalHandler(t *testing.T) {
 	handler := NewFinalHandler(configs.NewConfig(), mockTracksUsecase, mockMusiciansUsecase,
 		mockAlbumUsecase, mockPlaylistsUsecase, mockSearchUsecase)
 
-	handler.musicianHandler.GetMusicByIDHandler(w, r)
+	handler.musicianHandler.GetMusicianByID(w, r)
 
 	expected := http.StatusOK
 	if w.Code != expected {

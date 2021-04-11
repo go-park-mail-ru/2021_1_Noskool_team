@@ -19,4 +19,6 @@ type Usecase interface {
 	GetTracksByGenreID(genreID int) ([]*models.Track, error)
 	AddDeleteTrackToMediateka(userID, trackID int, operationType string) error
 	SearchTracks(searchQuery string) ([]*models.Track, error)
+	GetTop20Tracks() ([]*models.Track, error)
+	GetBillbordTopCharts() ([]*models.Track, error)
 }
