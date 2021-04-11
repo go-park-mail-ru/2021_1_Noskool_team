@@ -8,7 +8,8 @@ type Repository interface {
 	SearchMusicians(searchQuery string) ([]*models.Musician, error)
 	GetMusiciansByGenres(genre string) (*[]models.Musician, error)
 	GetMusicianByID(musicianID int) (*models.Musician, error)
-	GetMusicianByTrackID(musicianID int) (*[]models.Musician, error)
-	GetMusicianByAlbumID(musicianID int) (*[]models.Musician, error)
-	GetMusicianByPlaylistID(musicianID int) (*[]models.Musician, error)
+
+	GetMusicianByTrackID(trackID int) (*[]models.Musician, error)
+	GetMusicianByAlbumID(albumID int) (*[]models.Musician, error)
+	GetMusicianByPlaylistID(playlistID int) (*[]models.Musician, error)
 }

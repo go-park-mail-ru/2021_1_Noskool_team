@@ -78,6 +78,15 @@ CREATE TABLE IF NOT EXISTS Tracks_to_Playlist
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
 );
 
+
+CREATE TABLE IF NOT EXISTS Musicians_to_Playlist
+(
+    musician_id INTEGER NOT NULL,
+    playlist_id INTEGER NOT NULL,
+    FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE,
+    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
+);
+
 -- ///
 
 CREATE TABLE IF NOT EXISTS Musicians_to_Tracks
@@ -147,27 +156,6 @@ CREATE TABLE IF NOT EXISTS tracks_to_user
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
 
-
-acceptableMusicGenres := []string{
-			"classical",
-			"jazz",
-			"rap",
-			"electronic",
-			"rock",
-			"disco",
-			"fusion",
-			"pop",
-			"country",
-			"blues",
-			"reggae",
-			"indie",
-		}
-
-CREATE TABLE IF NOT EXISTS genres
-(
-    genre_id serial PRIMARY KEY,
-    title    varchar(30) NOT NULL
-);
 
 INSERT INTO genres (title)
 VALUES ('classical'),
