@@ -131,3 +131,26 @@ func TestGetMusicianByPlaylistID(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, expectedMusician, musician)
 }
+
+func TestGetMusiciansTop3(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mockMusicians.NewMockRepository(ctrl)
+	mockUsecase := NewMusicsUsecase(mockRepo)
+
+	expectedMusician := &[]models.Musician{
+		{
+			MusicianID:  1,
+			Name:        "Пасош",
+			Description: "Российская рок-группа из Москвы",
+			Picture:     "picture of Пасош",
+		},
+	}
+
+	mockRepo.EXPECT().GetMusiciansTop3().Return(expectedMusician, nil)
+
+	musician, err := mockUsecase.GetMusiciansTop3()
+	assert.Equal(t, err, nil)
+	assert.Equal(t, expectedMusician, musician)
+}

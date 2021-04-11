@@ -209,3 +209,30 @@ func TestGetMusicianByPlaylistID(t *testing.T) {
 		t.Fatalf("Not equal")
 	}
 }
+
+func TestGetMusiciansTop3(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	musiciansRep := NewMusicRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"musician_id", "name", "description", "picture"})
+	for _, musician := range expectedMusician {
+		rows.AddRow(musician.MusicianID, musician.Name,
+			musician.Description, musician.Picture)
+	}
+	query := "select"
+
+	mock.ExpectQuery(query).WithArgs().WillReturnRows(rows)
+
+	musicians, err := musiciansRep.GetMusiciansTop3()
+
+	fmt.Println(musicians)
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(expectedMusician, *musicians) {
+		t.Fatalf("Not equal")
+	}
+}
