@@ -6,35 +6,34 @@ package mock_album
 
 import (
 	models "2021_1_Noskool_team/internal/app/album/models"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
-// MockUsecase is a mock of Usecase interface.
+// MockUsecase is a mock of Usecase interface
 type MockUsecase struct {
 	ctrl     *gomock.Controller
 	recorder *MockUsecaseMockRecorder
 }
 
-// MockUsecaseMockRecorder is the mock recorder for MockUsecase.
+// MockUsecaseMockRecorder is the mock recorder for MockUsecase
 type MockUsecaseMockRecorder struct {
 	mock *MockUsecase
 }
 
-// NewMockUsecase creates a new mock instance.
+// NewMockUsecase creates a new mock instance
 func NewMockUsecase(ctrl *gomock.Controller) *MockUsecase {
 	mock := &MockUsecase{ctrl: ctrl}
 	mock.recorder = &MockUsecaseMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use.
+// EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// GetAlbumByID mocks base method.
+// GetAlbumByID mocks base method
 func (m *MockUsecase) GetAlbumByID(albumID int) (*models.Album, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAlbumByID", albumID)
@@ -43,8 +42,53 @@ func (m *MockUsecase) GetAlbumByID(albumID int) (*models.Album, error) {
 	return ret0, ret1
 }
 
-// GetAlbumByID indicates an expected call of GetAlbumByID.
+// GetAlbumByID indicates an expected call of GetAlbumByID
 func (mr *MockUsecaseMockRecorder) GetAlbumByID(albumID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumByID", reflect.TypeOf((*MockUsecase)(nil).GetAlbumByID), albumID)
+}
+
+// GetAlbumsByMusicianID mocks base method
+func (m *MockUsecase) GetAlbumsByMusicianID(musicianID int) (*[]models.Album, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAlbumsByMusicianID", musicianID)
+	ret0, _ := ret[0].(*[]models.Album)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAlbumsByMusicianID indicates an expected call of GetAlbumsByMusicianID
+func (mr *MockUsecaseMockRecorder) GetAlbumsByMusicianID(musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumsByMusicianID", reflect.TypeOf((*MockUsecase)(nil).GetAlbumsByMusicianID), musicianID)
+}
+
+// GetAlbumsByTrackID mocks base method
+func (m *MockUsecase) GetAlbumsByTrackID(trackID int) (*[]models.Album, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAlbumsByTrackID", trackID)
+	ret0, _ := ret[0].(*[]models.Album)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAlbumsByTrackID indicates an expected call of GetAlbumsByTrackID
+func (mr *MockUsecaseMockRecorder) GetAlbumsByTrackID(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumsByTrackID", reflect.TypeOf((*MockUsecase)(nil).GetAlbumsByTrackID), trackID)
+}
+
+// SearchAlbums mocks base method
+func (m *MockUsecase) SearchAlbums(searchQuery string) ([]*models.Album, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchAlbums", searchQuery)
+	ret0, _ := ret[0].([]*models.Album)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchAlbums indicates an expected call of SearchAlbums
+func (mr *MockUsecaseMockRecorder) SearchAlbums(searchQuery interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchAlbums", reflect.TypeOf((*MockUsecase)(nil).SearchAlbums), searchQuery)
 }
