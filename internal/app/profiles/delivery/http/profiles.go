@@ -122,7 +122,6 @@ func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Reques
 		Name:     "csrf",
 		Value:    csrfToken,
 		Path:     "/",
-		HttpOnly: true,
 		Expires:  time.Now().Add(30 * time.Minute),
 	}
 	http.SetCookie(w, csrfCookie)
