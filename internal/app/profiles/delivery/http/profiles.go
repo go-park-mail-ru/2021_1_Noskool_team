@@ -95,7 +95,7 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.HandleFunc("/api/v1/profile/csrf",
 		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile",
-		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleProfile()))).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(s.handleProfile())).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/update",
 		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleUpdateProfile()))).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
@@ -119,10 +119,10 @@ func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Reques
 	b := session.ID + session.Hash
 	csrfToken := utility.CreateCSRFToken(b)
 	csrfCookie := &http.Cookie{
-		Name:     "csrf",
-		Value:    csrfToken,
-		Path:     "/",
-		Expires:  time.Now().Add(30 * time.Minute),
+		Name:    "csrf",
+		Value:   csrfToken,
+		Path:    "/",
+		Expires: time.Now().Add(30 * time.Minute),
 	}
 	http.SetCookie(w, csrfCookie)
 	w.Header().Set("X-Csrf-Token", csrfToken)
