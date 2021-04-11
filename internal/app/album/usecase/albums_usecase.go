@@ -39,7 +39,7 @@ func (usecase *AlbumsUsecase) GetAlbumsByTrackID(trackID int) (*[]models.Album, 
 	return album, nil
 }
 
-func (usecase *AlbumsUsecase) SearchAlbums(searchQuery string) (*[]models.Album, error) {
+func (usecase *AlbumsUsecase) SearchAlbums(searchQuery string) ([]*models.Album, error) {
 	album, err := usecase.albumsRep.SearchAlbums(searchQuery)
 	if err != nil {
 		return nil, err

@@ -24,6 +24,20 @@ var (
 			ReleaseDate: "date2",
 		},
 	}
+	expectedAlbumspointers = []*models.Album{
+		{
+			AlbumID:     1,
+			Tittle:      "albumalbum1",
+			Picture:     "picturepicture1",
+			ReleaseDate: "datedate1",
+		},
+		{
+			AlbumID:     2,
+			Tittle:      "albumalbum2",
+			Picture:     "picturepicture2",
+			ReleaseDate: "datedate2",
+		},
+	}
 )
 
 func TestGetAlbumByID(t *testing.T) {
@@ -69,7 +83,7 @@ func TestSearchAlbums(t *testing.T) {
 		"album_id", "tittle", "picture", "release_date",
 	})
 
-	for _, row := range *expectedAlbums {
+	for _, row := range expectedAlbumspointers {
 		rows.AddRow(row.AlbumID, row.Tittle,
 			row.Picture, row.ReleaseDate)
 	}
@@ -79,7 +93,7 @@ func TestSearchAlbums(t *testing.T) {
 
 	album, err := albumsRep.SearchAlbums("album")
 	assert.NoError(t, err)
-	if !reflect.DeepEqual(expectedAlbums, album) {
+	if !reflect.DeepEqual(expectedAlbumspointers, album) {
 		t.Fatalf("Not equal")
 	}
 }

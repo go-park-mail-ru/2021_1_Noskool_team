@@ -80,7 +80,7 @@ func TestSearchAlbums(t *testing.T) {
 	mockRepo := mockalbums.NewMockRepository(ctrl)
 	mockUsecase := NewAlbumcUsecase(mockRepo)
 
-	expectedAlbum := &[]models.Album{
+	expectedAlbum := []*models.Album{
 		{
 			AlbumID:     1,
 			Tittle:      "Some album",
