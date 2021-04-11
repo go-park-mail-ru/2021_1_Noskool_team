@@ -79,10 +79,10 @@ func (mr *MockRepositoryMockRecorder) GetAlbumsByTrackID(trackID interface{}) *g
 }
 
 // SearchAlbums mocks base method
-func (m *MockRepository) SearchAlbums(searchQuery string) ([]*models.Album, error) {
+func (m *MockRepository) SearchAlbums(searchQuery string) (*[]models.Album, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchAlbums", searchQuery)
-	ret0, _ := ret[0].([]*models.Album)
+	ret0, _ := ret[0].(*[]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
