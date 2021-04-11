@@ -310,3 +310,57 @@ func TestGetMusicianByPlaylistIDFailed(t *testing.T) {
 		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
 	}
 }
+
+func TestGetMusiciansTop3(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockMusiciansUsecase := mock_musicians.NewMockUsecase(ctrl)
+
+	mockMusiciansUsecase.EXPECT().GetMusiciansTop3().Times(1).Return(&testMusicians, nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/v1/musicians/poular", nil)
+
+	MusicHandler := NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
+
+	handler := http.HandlerFunc(MusicHandler.GetMusiciansTop3)
+	handler.ServeHTTP(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testMusicians)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+}
+
+func TestGetMusiciansTop3Failed(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockMusiciansUsecase := mock_musicians.NewMockUsecase(ctrl)
+
+	mockMusiciansUsecase.EXPECT().GetMusiciansTop3().Times(1).
+		Return(&testMusicians, errors.New("new err"))
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/v1/musicians/poular", nil)
+
+	MusicHandler := NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
+
+	handler := http.HandlerFunc(MusicHandler.GetMusiciansTop3)
+	handler.ServeHTTP(w, r)
+
+	expected := http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	if !reflect.DeepEqual("{\"status\":\"failed\"}", w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
+	}
+}
