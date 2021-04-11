@@ -35,6 +35,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddToHistory mocks base method.
+func (m *MockRepository) AddToHistory(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddToHistory", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddToHistory indicates an expected call of AddToHistory.
+func (mr *MockRepositoryMockRecorder) AddToHistory(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToHistory", reflect.TypeOf((*MockRepository)(nil).AddToHistory), userID, trackID)
+}
+
 // AddTrackToFavorites mocks base method.
 func (m *MockRepository) AddTrackToFavorites(userID, trackID int) error {
 	m.ctrl.T.Helper()
@@ -134,6 +148,21 @@ func (m *MockRepository) GetFavoriteTracks(userID int, pagination *models0.Pagin
 func (mr *MockRepositoryMockRecorder) GetFavoriteTracks(userID, pagination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockRepository)(nil).GetFavoriteTracks), userID, pagination)
+}
+
+// GetHistory mocks base method.
+func (m *MockRepository) GetHistory(userID int) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHistory", userID)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHistory indicates an expected call of GetHistory.
+func (mr *MockRepositoryMockRecorder) GetHistory(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistory", reflect.TypeOf((*MockRepository)(nil).GetHistory), userID)
 }
 
 // GetTop20Tracks mocks base method.

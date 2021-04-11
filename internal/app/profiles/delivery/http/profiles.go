@@ -91,13 +91,13 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.HandleFunc("/api/v1/registrate",
 		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/logout",
-		middleware.CheckCSRFMiddleware(authMiddleware.CheckSessionMiddleware(s.handleLogout()))).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleLogout()))).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/csrf",
-		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodPost)
+		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile",
-		middleware.CheckCSRFMiddleware(authMiddleware.CheckSessionMiddleware(s.handleProfile()))).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleProfile()))).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/v1/profile/update",
-		middleware.CheckCSRFMiddleware(authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile()))).Methods(http.MethodPost, http.MethodOptions)
+		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleUpdateProfile()))).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleUpdateAvatar()))).Methods(http.MethodPost, http.MethodOptions)
 

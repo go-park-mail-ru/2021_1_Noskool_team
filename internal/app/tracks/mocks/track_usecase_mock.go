@@ -49,6 +49,20 @@ func (mr *MockUsecaseMockRecorder) AddDeleteTrackToMediateka(userID, trackID, op
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddDeleteTrackToMediateka", reflect.TypeOf((*MockUsecase)(nil).AddDeleteTrackToMediateka), userID, trackID, operationType)
 }
 
+// AddToHistory mocks base method.
+func (m *MockUsecase) AddToHistory(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddToHistory", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddToHistory indicates an expected call of AddToHistory.
+func (mr *MockUsecaseMockRecorder) AddToHistory(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddToHistory", reflect.TypeOf((*MockUsecase)(nil).AddToHistory), userID, trackID)
+}
+
 // AddTrackToFavorites mocks base method.
 func (m *MockUsecase) AddTrackToFavorites(userID, trackID int) error {
 	m.ctrl.T.Helper()
@@ -105,6 +119,21 @@ func (m *MockUsecase) GetFavoriteTracks(userID int, pagination *models0.Paginati
 func (mr *MockUsecaseMockRecorder) GetFavoriteTracks(userID, pagination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockUsecase)(nil).GetFavoriteTracks), userID, pagination)
+}
+
+// GetHistory mocks base method.
+func (m *MockUsecase) GetHistory(userID int) ([]*models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHistory", userID)
+	ret0, _ := ret[0].([]*models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHistory indicates an expected call of GetHistory.
+func (mr *MockUsecaseMockRecorder) GetHistory(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistory", reflect.TypeOf((*MockUsecase)(nil).GetHistory), userID)
 }
 
 // GetTop20Tracks mocks base method.

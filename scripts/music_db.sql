@@ -132,6 +132,14 @@ CREATE TABLE IF NOT EXISTS Albums_to_Genres
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
 );
 
+CREATE TABLE if not exists history
+(
+    user_id       INTEGER NOT NULL,
+    track_id      INTEGER NOT NULL,
+    creation_date timestamp default now(),
+    FOREIGN KEY (track_id) REFERENCES Tracks (track_id) on delete CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS Profiles
 (
     profiles_id        bigserial not null primary key,

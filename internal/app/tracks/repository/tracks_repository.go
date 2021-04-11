@@ -320,3 +320,36 @@ func (trackRep *TracksRepository) GetBillbordTopCharts() ([]*models.Track, error
 	}
 	return tracks, nil
 }
+
+func (trackRep *TracksRepository) GetHistory(userID int) ([]*models.Track, error) {
+	query := `select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date
+			from history as h
+			left join tracks as t on t.track_id = h.track_id
+			where h.user_id = $1
+			order by creation_date desc`
+
+	rows, err := trackRep.con.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, nil
+}
+
+func (trackRep *TracksRepository) AddToHistory(userID, trackID int) error {
+	query := `insert into history (user_id, track_id) values ($1, $2)`
+
+	_, err := trackRep.con.Exec(query, userID, trackID)
+	return err
+}
