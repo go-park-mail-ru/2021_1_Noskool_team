@@ -48,7 +48,7 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/billbord",
 		handler.GetBillbordTopCharts).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
-		middleware.CheckCSRFMiddleware(handler.GetTrackByIDHandler))
+		handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/mediateka",
 		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/favorites",
