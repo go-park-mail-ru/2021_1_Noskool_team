@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS musicians
     musician_id serial PRIMARY KEY,
     name        citext NOT NULL,
     description text,
-    picture     varchar(100)
+    picture     varchar(100),
+    rating      int default 0
 );
 
 CREATE TABLE IF NOT EXISTS Musicians_to_Genres
