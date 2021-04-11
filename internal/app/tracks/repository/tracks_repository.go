@@ -22,7 +22,7 @@ func NewTracksRepository(con *sql.DB) tracks.Repository {
 func (trackRep *TracksRepository) GetTrackByID(trackID int) (*models.Track, error) {
 	track := &models.Track{}
 	err := trackRep.con.QueryRow(
-		"SELECT * FROM tracks where track_id = $1", trackID,
+		"SELECT track_id, tittle, text, audio, picture, release_date FROM tracks where track_id = $1", trackID,
 	).Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
 		&track.ReleaseDate)
 
