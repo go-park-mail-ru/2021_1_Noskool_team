@@ -6,65 +6,34 @@ package mock_musicians
 
 import (
 	models "2021_1_Noskool_team/internal/app/musicians/models"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
-// MockRepository is a mock of Repository interface.
+// MockRepository is a mock of Repository interface
 type MockRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockRepositoryMockRecorder
 }
 
-// MockRepositoryMockRecorder is the mock recorder for MockRepository.
+// MockRepositoryMockRecorder is the mock recorder for MockRepository
 type MockRepositoryMockRecorder struct {
 	mock *MockRepository
 }
 
-// NewMockRepository creates a new mock instance.
+// NewMockRepository creates a new mock instance
 func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 	mock := &MockRepository{ctrl: ctrl}
 	mock.recorder = &MockRepositoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use.
+// EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetMusicianByID mocks base method.
-func (m *MockRepository) GetMusicianByID(musicianID int) (*models.Musician, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMusicianByID", musicianID)
-	ret0, _ := ret[0].(*models.Musician)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetMusicianByID indicates an expected call of GetMusicianByID.
-func (mr *MockRepositoryMockRecorder) GetMusicianByID(musicianID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByID), musicianID)
-}
-
-// GetMusiciansByGenres mocks base method.
-func (m *MockRepository) GetMusiciansByGenres(genre string) (*[]models.Musician, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMusiciansByGenres", genre)
-	ret0, _ := ret[0].(*[]models.Musician)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetMusiciansByGenres indicates an expected call of GetMusiciansByGenres.
-func (mr *MockRepositoryMockRecorder) GetMusiciansByGenres(genre interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansByGenres", reflect.TypeOf((*MockRepository)(nil).GetMusiciansByGenres), genre)
-}
-
-// SearchMusicians mocks base method.
+// SearchMusicians mocks base method
 func (m *MockRepository) SearchMusicians(searchQuery string) ([]*models.Musician, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchMusicians", searchQuery)
@@ -73,8 +42,83 @@ func (m *MockRepository) SearchMusicians(searchQuery string) ([]*models.Musician
 	return ret0, ret1
 }
 
-// SearchMusicians indicates an expected call of SearchMusicians.
+// SearchMusicians indicates an expected call of SearchMusicians
 func (mr *MockRepositoryMockRecorder) SearchMusicians(searchQuery interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchMusicians", reflect.TypeOf((*MockRepository)(nil).SearchMusicians), searchQuery)
+}
+
+// GetMusiciansByGenre mocks base method
+func (m *MockRepository) GetMusiciansByGenre(genre string) (*[]models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusiciansByGenre", genre)
+	ret0, _ := ret[0].(*[]models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusiciansByGenre indicates an expected call of GetMusiciansByGenre
+func (mr *MockRepositoryMockRecorder) GetMusiciansByGenre(genre interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansByGenre", reflect.TypeOf((*MockRepository)(nil).GetMusiciansByGenre), genre)
+}
+
+// GetMusicianByID mocks base method
+func (m *MockRepository) GetMusicianByID(musicianID int) (*models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusicianByID", musicianID)
+	ret0, _ := ret[0].(*models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusicianByID indicates an expected call of GetMusicianByID
+func (mr *MockRepositoryMockRecorder) GetMusicianByID(musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByID), musicianID)
+}
+
+// GetMusicianByTrackID mocks base method
+func (m *MockRepository) GetMusicianByTrackID(trackID int) (*[]models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusicianByTrackID", trackID)
+	ret0, _ := ret[0].(*[]models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusicianByTrackID indicates an expected call of GetMusicianByTrackID
+func (mr *MockRepositoryMockRecorder) GetMusicianByTrackID(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByTrackID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByTrackID), trackID)
+}
+
+// GetMusicianByAlbumID mocks base method
+func (m *MockRepository) GetMusicianByAlbumID(albumID int) (*[]models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusicianByAlbumID", albumID)
+	ret0, _ := ret[0].(*[]models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusicianByAlbumID indicates an expected call of GetMusicianByAlbumID
+func (mr *MockRepositoryMockRecorder) GetMusicianByAlbumID(albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByAlbumID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByAlbumID), albumID)
+}
+
+// GetMusicianByPlaylistID mocks base method
+func (m *MockRepository) GetMusicianByPlaylistID(playlistID int) (*[]models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusicianByPlaylistID", playlistID)
+	ret0, _ := ret[0].(*[]models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusicianByPlaylistID indicates an expected call of GetMusicianByPlaylistID
+func (mr *MockRepositoryMockRecorder) GetMusicianByPlaylistID(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByPlaylistID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByPlaylistID), playlistID)
 }
