@@ -96,7 +96,7 @@ func (usecase *TracksUsecase) GetTop20Tracks() ([]*models.Track, error) {
 }
 
 func (usecase *TracksUsecase) GetBillbordTopCharts() ([]*models.Track, error) {
-	tracks, err := usecase.trackRep.GetTop20Tracks()
+	tracks, err := usecase.trackRep.GetBillbordTopCharts()
 	return tracks, err
 }
 

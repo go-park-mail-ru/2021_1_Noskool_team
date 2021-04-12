@@ -253,6 +253,29 @@ func TestGetMusicianByAlbumIDFailed(t *testing.T) {
 	if !reflect.DeepEqual("{\"status\":\"failed\"}", w.Body.String()) {
 		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
 	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/v1/musicians/byalbum/", nil)
+	MusicHandler = NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
+	handler = http.HandlerFunc(MusicHandler.GetMusicianByAlbumID)
+	handler.ServeHTTP(w, r)
+
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/v1/musicians/byalbum/", nil)
+	r = mux.SetURLVars(r, map[string]string{"album_id": "error id"})
+	MusicHandler = NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
+	handler = http.HandlerFunc(MusicHandler.GetMusicianByAlbumID)
+	handler.ServeHTTP(w, r)
+
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
 }
 
 func TestGetMusicianByPlaylistID(t *testing.T) {
@@ -308,6 +331,29 @@ func TestGetMusicianByPlaylistIDFailed(t *testing.T) {
 
 	if !reflect.DeepEqual("{\"status\":\"failed\"}", w.Body.String()) {
 		t.Errorf("expected: %v\n got: %v", "{\"status\":\"failed\"}", w.Body.String())
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/v1/musicians/byplaylist/", nil)
+	MusicHandler = NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
+	handler = http.HandlerFunc(MusicHandler.GetMusicianByPlaylistID)
+	handler.ServeHTTP(w, r)
+
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/v1/musicians/byplaylist/", nil)
+	MusicHandler = NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": "error id"})
+	handler = http.HandlerFunc(MusicHandler.GetMusicianByPlaylistID)
+	handler.ServeHTTP(w, r)
+
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 }
 
