@@ -3,14 +3,15 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/response"
-	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"net/http"
-	"strconv"
 )
 
 type AlbumsHandler struct {
@@ -38,11 +39,10 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logrus.Error(err)
 	}
 
-	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByIDHandler).Methods("GET")
-
-	handler.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main of albums"))
-	})
+	middleware.ContentTypeJson(handler.router)
+	handler.router.HandleFunc("/api/v1/album/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET")
+	handler.router.HandleFunc("/api/v1/album/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET")
+	handler.router.HandleFunc("/api/v1/album/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET")
 
 	return handler
 }
@@ -56,26 +56,78 @@ func ConfigLogger(handler *AlbumsHandler, config *configs.Config) error {
 	if err != nil {
 		return err
 	}
-
 	handler.logger.SetLevel(level)
 	return nil
 }
 
-func (handler *AlbumsHandler) GetAlbumByIDHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	albumID, _ := strconv.Atoi(mux.Vars(r)["album_id"])
-
-	track, err := handler.albumsUsecase.GetAlbumByID(albumID)
+func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	albumID, ok := vars["album_id"]
+	if !ok {
+		handler.logger.Errorf("Error get album_id from query string")
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	albumIDint, err := strconv.Atoi(albumID)
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	album, err := handler.albumsUsecase.GetAlbumByID(albumIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumByID: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	resp, err := json.Marshal(track)
+	response.SendCorrectResponse(w, album, 200)
+}
+
+func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	musicianID, ok := vars["musician_id"]
+	if !ok {
+		handler.logger.Errorf("Error get album_id from query string")
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	musicianIDint, err := strconv.Atoi(musicianID)
 	if err != nil {
-		handler.logger.Errorf("Error in marshalling: %v", err)
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	album, err := handler.albumsUsecase.GetAlbumsByMusicianID(musicianIDint)
+	if err != nil {
+		handler.logger.Errorf("Error in GetAlbumsByMusicianID: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	w.Write(resp)
+	response.SendCorrectResponse(w, album, 200)
+}
+
+func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	trackID, ok := vars["track_id"]
+	if !ok {
+		handler.logger.Errorf("Error get album_id from query string")
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	trackIDint, err := strconv.Atoi(trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		w.Write(response.FailedResponse(w, 400))
+		return
+	}
+	album, err := handler.albumsUsecase.GetAlbumsByTrackID(trackIDint)
+	if err != nil {
+		handler.logger.Errorf("Error in GetAlbumByTrackID: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	response.SendCorrectResponse(w, album, 200)
 }
