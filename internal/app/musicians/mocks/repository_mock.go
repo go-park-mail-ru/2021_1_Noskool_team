@@ -123,17 +123,17 @@ func (mr *MockRepositoryMockRecorder) GetMusicianByPlaylistID(playlistID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByPlaylistID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByPlaylistID), playlistID)
 }
 
-// GetMusiciansTop3 mocks base method
-func (m *MockRepository) GetMusiciansTop3() (*[]models.Musician, error) {
+// GetMusiciansTop4 mocks base method
+func (m *MockRepository) GetMusiciansTop4() (*[]models.Musician, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMusiciansTop3")
+	ret := m.ctrl.Call(m, "GetMusiciansTop4")
 	ret0, _ := ret[0].(*[]models.Musician)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetMusiciansTop3 indicates an expected call of GetMusiciansTop3
-func (mr *MockRepositoryMockRecorder) GetMusiciansTop3() *gomock.Call {
+// GetMusiciansTop4 indicates an expected call of GetMusiciansTop4
+func (mr *MockRepositoryMockRecorder) GetMusiciansTop4() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansTop3", reflect.TypeOf((*MockRepository)(nil).GetMusiciansTop3))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansTop4", reflect.TypeOf((*MockRepository)(nil).GetMusiciansTop4))
 }

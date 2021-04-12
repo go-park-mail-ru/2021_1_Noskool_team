@@ -148,9 +148,9 @@ func TestGetMusiciansTop3(t *testing.T) {
 		},
 	}
 
-	mockRepo.EXPECT().GetMusiciansTop3().Return(expectedMusician, nil)
+	mockRepo.EXPECT().GetMusiciansTop4().Return(expectedMusician, nil)
 
-	musician, err := mockUsecase.GetMusiciansTop3()
+	musician, err := mockUsecase.GetMusiciansTop4()
 	assert.Equal(t, err, nil)
 	assert.Equal(t, expectedMusician, musician)
 }

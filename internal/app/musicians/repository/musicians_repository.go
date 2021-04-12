@@ -150,8 +150,8 @@ func (musicRep *MusicianRepository) GetMusicianByPlaylistID(playlistID int) (*[]
 	return &musicians, nil
 }
 
-func (musicRep *MusicianRepository) GetMusiciansTop3() (*[]models.Musician, error) {
-	musiciansRows, err := musicRep.con.Query("select musician_id, name, description, picture from musicians order by rating limit 3")
+func (musicRep *MusicianRepository) GetMusiciansTop4() (*[]models.Musician, error) {
+	musiciansRows, err := musicRep.con.Query("select musician_id, name, description, picture from musicians order by rating limit 4")
 	if err != nil {
 		logrus.Error(err)
 		return nil, err
