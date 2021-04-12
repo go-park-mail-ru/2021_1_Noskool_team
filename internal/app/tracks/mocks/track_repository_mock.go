@@ -5,8 +5,10 @@
 package mock_tracks
 
 import (
-	models "2021_1_Noskool_team/internal/app/tracks/models"
-	models0 "2021_1_Noskool_team/internal/models"
+	models "2021_1_Noskool_team/internal/app/album/models"
+	models0 "2021_1_Noskool_team/internal/app/musicians/models"
+	models1 "2021_1_Noskool_team/internal/app/tracks/models"
+	models2 "2021_1_Noskool_team/internal/models"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -92,10 +94,10 @@ func (mr *MockRepositoryMockRecorder) CheckTrackInMediateka(userID, trackID inte
 }
 
 // CreateTrack mocks base method.
-func (m *MockRepository) CreateTrack(arg0 *models.Track) (*models.Track, error) {
+func (m *MockRepository) CreateTrack(arg0 *models1.Track) (*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTrack", arg0)
-	ret0, _ := ret[0].(*models.Track)
+	ret0, _ := ret[0].(*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -134,11 +136,25 @@ func (mr *MockRepositoryMockRecorder) DeleteTrackFromMediateka(userID, trackID i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackFromMediateka", reflect.TypeOf((*MockRepository)(nil).DeleteTrackFromMediateka), userID, trackID)
 }
 
+// GetAlbumsByTrackID mocks base method.
+func (m *MockRepository) GetAlbumsByTrackID(trackID int) []*models.Album {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAlbumsByTrackID", trackID)
+	ret0, _ := ret[0].([]*models.Album)
+	return ret0
+}
+
+// GetAlbumsByTrackID indicates an expected call of GetAlbumsByTrackID.
+func (mr *MockRepositoryMockRecorder) GetAlbumsByTrackID(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAlbumsByTrackID", reflect.TypeOf((*MockRepository)(nil).GetAlbumsByTrackID), trackID)
+}
+
 // GetBillbordTopCharts mocks base method.
-func (m *MockRepository) GetBillbordTopCharts() ([]*models.Track, error) {
+func (m *MockRepository) GetBillbordTopCharts() ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBillbordTopCharts")
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -150,10 +166,10 @@ func (mr *MockRepositoryMockRecorder) GetBillbordTopCharts() *gomock.Call {
 }
 
 // GetFavoriteTracks mocks base method.
-func (m *MockRepository) GetFavoriteTracks(userID int, pagination *models0.Pagination) ([]*models.Track, error) {
+func (m *MockRepository) GetFavoriteTracks(userID int, pagination *models2.Pagination) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetFavoriteTracks", userID, pagination)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -164,11 +180,25 @@ func (mr *MockRepositoryMockRecorder) GetFavoriteTracks(userID, pagination inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFavoriteTracks", reflect.TypeOf((*MockRepository)(nil).GetFavoriteTracks), userID, pagination)
 }
 
+// GetGenreByTrackID mocks base method.
+func (m *MockRepository) GetGenreByTrackID(trackID int) []*models2.Genre {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGenreByTrackID", trackID)
+	ret0, _ := ret[0].([]*models2.Genre)
+	return ret0
+}
+
+// GetGenreByTrackID indicates an expected call of GetGenreByTrackID.
+func (mr *MockRepositoryMockRecorder) GetGenreByTrackID(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGenreByTrackID", reflect.TypeOf((*MockRepository)(nil).GetGenreByTrackID), trackID)
+}
+
 // GetHistory mocks base method.
-func (m *MockRepository) GetHistory(userID int) ([]*models.Track, error) {
+func (m *MockRepository) GetHistory(userID int) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetHistory", userID)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -179,11 +209,39 @@ func (mr *MockRepositoryMockRecorder) GetHistory(userID interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistory", reflect.TypeOf((*MockRepository)(nil).GetHistory), userID)
 }
 
+// GetMusicianByTrackID mocks base method.
+func (m *MockRepository) GetMusicianByTrackID(trackID int) []*models0.Musician {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusicianByTrackID", trackID)
+	ret0, _ := ret[0].([]*models0.Musician)
+	return ret0
+}
+
+// GetMusicianByTrackID indicates an expected call of GetMusicianByTrackID.
+func (mr *MockRepositoryMockRecorder) GetMusicianByTrackID(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusicianByTrackID", reflect.TypeOf((*MockRepository)(nil).GetMusicianByTrackID), trackID)
+}
+
+// GetMusiciansGenresAndAlbums mocks base method.
+func (m *MockRepository) GetMusiciansGenresAndAlbums(tracks []*models1.Track) []*models1.Track {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusiciansGenresAndAlbums", tracks)
+	ret0, _ := ret[0].([]*models1.Track)
+	return ret0
+}
+
+// GetMusiciansGenresAndAlbums indicates an expected call of GetMusiciansGenresAndAlbums.
+func (mr *MockRepositoryMockRecorder) GetMusiciansGenresAndAlbums(tracks interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansGenresAndAlbums", reflect.TypeOf((*MockRepository)(nil).GetMusiciansGenresAndAlbums), tracks)
+}
+
 // GetTop20Tracks mocks base method.
-func (m *MockRepository) GetTop20Tracks() ([]*models.Track, error) {
+func (m *MockRepository) GetTop20Tracks() ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTop20Tracks")
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -195,10 +253,10 @@ func (mr *MockRepositoryMockRecorder) GetTop20Tracks() *gomock.Call {
 }
 
 // GetTrackByID mocks base method.
-func (m *MockRepository) GetTrackByID(trackID int) (*models.Track, error) {
+func (m *MockRepository) GetTrackByID(trackID int) (*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTrackByID", trackID)
-	ret0, _ := ret[0].(*models.Track)
+	ret0, _ := ret[0].(*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -210,10 +268,10 @@ func (mr *MockRepositoryMockRecorder) GetTrackByID(trackID interface{}) *gomock.
 }
 
 // GetTrackByMusicianID mocks base method.
-func (m *MockRepository) GetTrackByMusicianID(musicianID int) ([]*models.Track, error) {
+func (m *MockRepository) GetTrackByMusicianID(musicianID int) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTrackByMusicianID", musicianID)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -225,10 +283,10 @@ func (mr *MockRepositoryMockRecorder) GetTrackByMusicianID(musicianID interface{
 }
 
 // GetTracksByAlbumID mocks base method.
-func (m *MockRepository) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
+func (m *MockRepository) GetTracksByAlbumID(albumID int) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTracksByAlbumID", albumID)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -240,10 +298,10 @@ func (mr *MockRepositoryMockRecorder) GetTracksByAlbumID(albumID interface{}) *g
 }
 
 // GetTracksByGenreID mocks base method.
-func (m *MockRepository) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
+func (m *MockRepository) GetTracksByGenreID(genreID int) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTracksByGenreID", genreID)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -255,10 +313,10 @@ func (mr *MockRepositoryMockRecorder) GetTracksByGenreID(genreID interface{}) *g
 }
 
 // GetTracksByTittle mocks base method.
-func (m *MockRepository) GetTracksByTittle(trackTittle string) ([]*models.Track, error) {
+func (m *MockRepository) GetTracksByTittle(trackTittle string) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTracksByTittle", trackTittle)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -270,10 +328,10 @@ func (mr *MockRepositoryMockRecorder) GetTracksByTittle(trackTittle interface{})
 }
 
 // GetTracksByUserID mocks base method.
-func (m *MockRepository) GetTracksByUserID(userID int) ([]*models.Track, error) {
+func (m *MockRepository) GetTracksByUserID(userID int) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTracksByUserID", userID)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -285,10 +343,10 @@ func (mr *MockRepositoryMockRecorder) GetTracksByUserID(userID interface{}) *gom
 }
 
 // SearchTracks mocks base method.
-func (m *MockRepository) SearchTracks(searchQuery string) ([]*models.Track, error) {
+func (m *MockRepository) SearchTracks(searchQuery string) ([]*models1.Track, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchTracks", searchQuery)
-	ret0, _ := ret[0].([]*models.Track)
+	ret0, _ := ret[0].([]*models1.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
