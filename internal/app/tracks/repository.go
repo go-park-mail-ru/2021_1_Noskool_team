@@ -25,4 +25,5 @@ type Repository interface {
 	GetBillbordTopCharts() ([]*models.Track, error)
 	GetHistory(userID int) ([]*models.Track, error)
 	AddToHistory(userID, trackID int) error
+	CheckTrackInMediateka(userID, trackID int) error
 }

@@ -54,7 +54,14 @@ func (usecase *TracksUsecase) GetFavoriteTracks(userID int,
 }
 
 func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
-	err := usecase.trackRep.AddTrackToFavorites(userID, trackID)
+	err := usecase.trackRep.CheckTrackInMediateka(userID, trackID)
+	if err != nil {
+		err = usecase.trackRep.AddTrackToMediateka(userID, trackID)
+		if err != nil {
+			return err
+		}
+	}
+	err = usecase.trackRep.AddTrackToFavorites(userID, trackID)
 	return err
 }
 

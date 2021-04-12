@@ -77,6 +77,20 @@ func (mr *MockRepositoryMockRecorder) AddTrackToMediateka(userID, trackID interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToMediateka", reflect.TypeOf((*MockRepository)(nil).AddTrackToMediateka), userID, trackID)
 }
 
+// CheckTrackInMediateka mocks base method.
+func (m *MockRepository) CheckTrackInMediateka(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckTrackInMediateka", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckTrackInMediateka indicates an expected call of CheckTrackInMediateka.
+func (mr *MockRepositoryMockRecorder) CheckTrackInMediateka(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckTrackInMediateka", reflect.TypeOf((*MockRepository)(nil).CheckTrackInMediateka), userID, trackID)
+}
+
 // CreateTrack mocks base method.
 func (m *MockRepository) CreateTrack(arg0 *models.Track) (*models.Track, error) {
 	m.ctrl.T.Helper()

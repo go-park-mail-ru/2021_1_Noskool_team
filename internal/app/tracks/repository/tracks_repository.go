@@ -353,3 +353,11 @@ func (trackRep *TracksRepository) AddToHistory(userID, trackID int) error {
 	_, err := trackRep.con.Exec(query, userID, trackID)
 	return err
 }
+
+func (trackRep *TracksRepository) CheckTrackInMediateka(userID, trackID int) error {
+	query := `select track_id from tracks_to_user
+	where track_id = $1 and user_id = 22`
+
+	_, err := trackRep.con.Exec(query, userID, trackID)
+	return err
+}
