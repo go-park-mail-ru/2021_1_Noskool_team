@@ -1,6 +1,8 @@
 package repository
 
 import (
+	albumsModels "2021_1_Noskool_team/internal/app/album/models"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/app/tracks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
@@ -360,4 +362,82 @@ func (trackRep *TracksRepository) CheckTrackInMediateka(userID, trackID int) err
 
 	_, err := trackRep.con.Exec(query, userID, trackID)
 	return err
+}
+
+func (trackRep *TracksRepository) GetMusiciansGenresAndAlbums(tracks []*models.Track) []*models.Track {
+	for _, track := range tracks {
+		track.Musicians = trackRep.GetMusicianByTrackID(track.TrackID)
+		track.Albums = trackRep.GetAlbumsByTrackID(track.TrackID)
+		track.Genres = trackRep.GetGenreByTrackID(track.TrackID)
+	}
+	return tracks
+}
+
+func (trackRep *TracksRepository) GetMusicianByTrackID(trackID int) []*musiciansModels.Musician {
+	queryGetMusicians := `select mus.musician_id, mus.name, mus.description, mus.picture from musicians as mus
+						left join musicians_to_tracks mtt on mus.musician_id = mtt.musician_id
+						where mtt.track_id = $1`
+
+	rows, err := trackRep.con.Query(queryGetMusicians, trackID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	musicians := make([]*musiciansModels.Musician, 0)
+
+	for rows.Next() {
+		musician := &musiciansModels.Musician{}
+		err := rows.Scan(&musician.MusicianID, &musician.Name, &musician.Description,
+			&musician.Picture)
+		if err != nil {
+			return nil
+		}
+		musicians = append(musicians, musician)
+	}
+	return musicians
+}
+
+func (trackRep *TracksRepository) GetAlbumsByTrackID(trackID int) []*albumsModels.Album {
+	queryGetAlbums := `select a.album_id, a.tittle, a.picture, a.release_date from albums as a
+						left join tracks_to_albums tta on a.album_id = tta.album_id
+						where tta.track_id = $1`
+
+	rows, err := trackRep.con.Query(queryGetAlbums, trackID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	albums := make([]*albumsModels.Album, 0)
+
+	for rows.Next() {
+		album := &albumsModels.Album{}
+		err := rows.Scan(&album.AlbumID, &album.Tittle, &album.Picture, &album.ReleaseDate)
+		if err != nil {
+			return nil
+		}
+		albums = append(albums, album)
+	}
+	return albums
+}
+
+func (trackRep *TracksRepository) GetGenreByTrackID(trackID int) []*commonModels.Genre {
+	queryGetGenre := `select g.genre_id, g.title from genres as g
+					left join tracks_to_genres ttg on g.genre_id = ttg.genre_id
+					where ttg.track_id = $1`
+	rows, err := trackRep.con.Query(queryGetGenre, trackID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	genres := make([]*commonModels.Genre, 0)
+
+	for rows.Next() {
+		genre := &commonModels.Genre{}
+		err := rows.Scan(&genre.GenreID, &genre.Title)
+		if err != nil {
+			return nil
+		}
+		genres = append(genres, genre)
+	}
+	return genres
 }
