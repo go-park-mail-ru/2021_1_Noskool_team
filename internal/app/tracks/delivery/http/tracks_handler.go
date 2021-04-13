@@ -56,7 +56,7 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/history",
 		authMiddleware.CheckSessionMiddleware(handler.GetHistory)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/history",
-		authMiddleware.CheckSessionMiddleware(handler.AddToHistory)).Methods(http.MethodPost,  http.MethodOptions)
+		authMiddleware.CheckSessionMiddleware(handler.AddToHistory)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
 		authMiddleware.CheckSessionMiddleware(handler.GetTracksByMusicinID)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",

@@ -5,7 +5,10 @@ import (
 	"2021_1_Noskool_team/internal/app/album"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	"2021_1_Noskool_team/internal/microservices/auth/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"net/http"
 	"strconv"
 
@@ -39,10 +42,18 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logrus.Error(err)
 	}
 
+	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 	middleware.ContentTypeJson(handler.router)
-	handler.router.HandleFunc("/api/v1/album/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET")
-	handler.router.HandleFunc("/api/v1/album/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET")
-	handler.router.HandleFunc("/api/v1/album/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET")
+	handler.router.HandleFunc("/favorites",
+		authmiddlware.CheckSessionMiddleware(handler.GetFavoriteAlbums)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET")
+	handler.router.HandleFunc("/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET")
+	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET")
+	handler.router.HandleFunc("/{album_id:[0-9]+}/favorites",
+		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToFavorites)).Methods("POST", http.MethodOptions)
+	handler.router.HandleFunc("/{album_id:[0-9]+}/mediateka",
+		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToFavorites)).Methods("POST", http.MethodOptions)
+
 
 	return handler
 }
@@ -130,4 +141,117 @@ func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.
 		return
 	}
 	response.SendCorrectResponse(w, album, 200)
+}
+
+func (handler *AlbumsHandler) AddDeleteAlbumToMediateka(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["album_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	addOrDelete := r.URL.Query().Get("type")
+	if addOrDelete == "add" {
+		err = handler.albumsUsecase.AddAlbumToMediateka(userID, trackID)
+	} else if addOrDelete == "delete" {
+		err = handler.albumsUsecase.DeleteAlbumFromMediateka(userID, trackID)
+	}
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *AlbumsHandler) AddDeleteAlbumToFavorites(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["album_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	addOrDelete := r.URL.Query().Get("type")
+	if addOrDelete == "add" {
+		err = handler.albumsUsecase.AddAlbumToFavorites(userID, trackID)
+	} else if addOrDelete == "delete" {
+		err = handler.albumsUsecase.DelteAlbumFromFavorites(userID, trackID)
+	}
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	pagination := utility.ParsePagination(r)
+	tracks, err := handler.albumsUsecase.GetFavoriteAlbums(userID, pagination)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }

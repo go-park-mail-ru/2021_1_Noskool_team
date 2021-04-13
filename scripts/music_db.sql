@@ -58,6 +58,14 @@ CREATE TABLE IF NOT EXISTS playlists
     release_date date
 );
 
+CREATE TABLE IF NOT EXISTS album_to_user
+(
+    user_id     INTEGER NOT NULL,
+    album_id INTEGER NOT NULL,
+    favorite bool default false,
+    FOREIGN KEY (album_id) REFERENCES albums (album_id) on delete CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS playlists_to_genres
 (
     playlist_id INTEGER NOT NULL,
