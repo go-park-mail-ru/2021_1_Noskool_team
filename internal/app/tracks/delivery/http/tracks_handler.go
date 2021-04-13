@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/tracks"
+	tracksModels "2021_1_Noskool_team/internal/app/tracks/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
@@ -48,7 +49,7 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	handler.router.HandleFunc("/toptrack",
 		handler.GetTopTrack).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/billbord",
-		handler.GetBillbordTopCharts).Methods(http.MethodGet, http.MethodOptions)
+		authMiddleware.CheckSessionMiddleware(handler.GetBillbordTopCharts)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
 		handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/mediateka",
@@ -108,6 +109,7 @@ func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+
 	response.SendCorrectResponse(w, track, http.StatusOK)
 }
 
@@ -222,6 +224,8 @@ func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+	handler.CheckTracksFavoriteAndMediateka(userID, tracks)
+
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
 
@@ -251,6 +255,8 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+	handler.CheckTracksFavoriteAndMediateka(userID, tracks)
+
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
 
@@ -381,6 +387,7 @@ func (handler *TracksHandler) GetTop20Tracks(w http.ResponseWriter, r *http.Requ
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
 
@@ -400,6 +407,13 @@ func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *htt
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
+	}
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if ok {
+		userID, err := strconv.Atoi(session.ID)
+		if err == nil {
+			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
+		}
 	}
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
 }
@@ -467,4 +481,15 @@ func (handler *TracksHandler) AddToHistory(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *TracksHandler) CheckTracksFavoriteAndMediateka(userID int, tracks []*tracksModels.Track) {
+	for _, track := range tracks {
+		handler.CheckTrackFlags(userID, track)
+	}
+}
+
+func (handler *TracksHandler) CheckTrackFlags(userID int, track *tracksModels.Track) {
+	track.InMediateka = handler.tracksUsecase.CheckTrackInMediateka(userID, track.TrackID)
+	track.InFavorite = handler.tracksUsecase.CheckTrackInFavorite(userID, track.TrackID)
 }

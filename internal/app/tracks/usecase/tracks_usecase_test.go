@@ -106,6 +106,7 @@ func TestGetTrackByMusicianID(t *testing.T) {
 	mockRepo.
 		EXPECT().GetTrackByMusicianID(gomock.Eq(1)).
 		Return(expectedTrack, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(expectedTrack).Return(expectedTrack)
 
 	track, err := mockUsecase.GetTrackByMusicianID(1)
 	assert.Equal(t, err, nil)
@@ -142,6 +143,7 @@ func TestGetTracksByUserID(t *testing.T) {
 
 	mockRepo.EXPECT().GetTracksByUserID(gomock.Eq(1)).
 		Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(tracksForTests).Return(tracksForTests)
 	track, err := mockUsecase.GetTracksByUserID(1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, tracksForTests, track)
@@ -156,6 +158,7 @@ func TestGetTracksByAlbumID(t *testing.T) {
 
 	mockRepo.EXPECT().GetTracksByAlbumID(gomock.Eq(1)).
 		Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(tracksForTests).Return(tracksForTests)
 	track, err := mockUsecase.GetTracksByAlbumID(1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, tracksForTests, track)
@@ -170,6 +173,7 @@ func TestGetTracksByGenreID(t *testing.T) {
 
 	mockRepo.EXPECT().GetTracksByGenreID(gomock.Eq(1)).
 		Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(tracksForTests).Return(tracksForTests)
 	track, err := mockUsecase.GetTracksByGenreID(1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, tracksForTests, track)
@@ -184,6 +188,7 @@ func TestGetTop20Tracks(t *testing.T) {
 
 	mockRepo.EXPECT().GetTop20Tracks().
 		Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(tracksForTests).Return(tracksForTests)
 	track, err := mockUsecase.GetTop20Tracks()
 	assert.Equal(t, err, nil)
 	assert.Equal(t, tracksForTests, track)
@@ -196,8 +201,8 @@ func TestGetBillbordTopCharts(t *testing.T) {
 	mockRepo := mocktracks.NewMockRepository(ctrl)
 	mockUsecase := NewTracksUsecase(mockRepo)
 
-	mockRepo.EXPECT().GetBillbordTopCharts().
-		Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetBillbordTopCharts().Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(tracksForTests).Return(tracksForTests)
 	track, err := mockUsecase.GetBillbordTopCharts()
 	assert.Equal(t, err, nil)
 	assert.Equal(t, tracksForTests, track)
@@ -212,6 +217,7 @@ func TestGetHistory(t *testing.T) {
 
 	mockRepo.EXPECT().GetHistory(1).
 		Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(tracksForTests).Return(tracksForTests)
 	track, err := mockUsecase.GetHistory(1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, tracksForTests, track)
