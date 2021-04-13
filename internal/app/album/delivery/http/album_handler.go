@@ -45,14 +45,15 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 	middleware.ContentTypeJson(handler.router)
 	handler.router.HandleFunc("/favorites",
-		authmiddlware.CheckSessionMiddleware(handler.GetFavoriteAlbums)).Methods(http.MethodGet, http.MethodOptions)
-	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET")
-	handler.router.HandleFunc("/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET")
-	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET")
+		authmiddlware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(handler.GetFavoriteAlbums))).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/{album_id:[0-9]+}/favorites",
 		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToFavorites)).Methods("POST", http.MethodOptions)
 	handler.router.HandleFunc("/{album_id:[0-9]+}/mediateka",
-		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToFavorites)).Methods("POST", http.MethodOptions)
+		authmiddlware.CheckSessionMiddleware(
+			middleware.CheckCSRFMiddleware(handler.AddDeleteAlbumToFavorites))).Methods("POST", http.MethodOptions)
 
 	return handler
 }

@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS album_to_user
     user_id  INTEGER NOT NULL,
     album_id INTEGER NOT NULL,
     favorite bool default false,
+    UNIQUE (user_id, album_id),
     FOREIGN KEY (album_id) REFERENCES albums (album_id) on delete CASCADE
 );
 
@@ -287,6 +288,7 @@ CREATE TABLE IF NOT EXISTS tracks_to_user
     user_id  INTEGER NOT NULL,
     track_id INTEGER NOT NULL,
     favorite bool default false,
+    UNIQUE (user_id, track_id),
     FOREIGN KEY (track_id) REFERENCES tracks (track_id) on delete CASCADE
 );
 
