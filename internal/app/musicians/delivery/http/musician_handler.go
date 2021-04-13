@@ -44,12 +44,12 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	// /api/v1/musicians/
 	middleware.ContentTypeJson(handler.router)
-	handler.router.HandleFunc("/api/v1/musicians/popular", handler.GetMusiciansTop4)
-	handler.router.HandleFunc("/api/v1/musicians/bygenre/{genre}", handler.GetMusiciansByGenre)
-	handler.router.HandleFunc("/api/v1/musicians/{musician_id:[0-9]+}", handler.GetMusicianByID)
-	handler.router.HandleFunc("/api/v1/musicians/bytrack/{track_id:[0-9]+}", handler.GetMusicianByTrackID)
-	handler.router.HandleFunc("/api/v1/musicians/byalbum/{album_id:[0-9]+}", handler.GetMusicianByAlbumID)
-	handler.router.HandleFunc("/api/v1/musicians/byplaylist/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID)
+	handler.router.HandleFunc("/popular", handler.GetMusiciansTop4).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/bygenre/{genre}", handler.GetMusiciansByGenre).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicianByID).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetMusicianByTrackID).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/byalbum/{album_id:[0-9]+}", handler.GetMusicianByAlbumID).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/byplaylist/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID).Methods("GET", http.MethodOptions)
 
 	return handler
 }
