@@ -403,6 +403,21 @@ func TestAddDeleteTrackToMediateka(t *testing.T) {
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
+
+	mockTracksUsecase.EXPECT().AddDeleteTrackToMediateka(1, 1,
+		"add").Return(errors.New("no content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r.URL.RawQuery = "type=add"
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.AddDeleteTrackToMediateka(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
 }
 
 func TestGetFavoriteTracks(t *testing.T) {
@@ -451,6 +466,23 @@ func TestGetFavoriteTracks(t *testing.T) {
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
+
+	mockTracksUsecase.EXPECT().GetFavoriteTracks(1, &models0.Pagination{
+		Limit:  10,
+		Offset: 0,
+	}).Return(nil, errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r.URL.RawQuery = "limit=10&offset=0"
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.GetFavoriteTracks(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
 }
 
 func TestGetMediatekaForUser(t *testing.T) {
@@ -491,6 +523,227 @@ func TestGetMediatekaForUser(t *testing.T) {
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.GetMediatekaForUser(w, r)
 	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	mockTracksUsecase.EXPECT().GetTracksByUserID(1).Return(nil, errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/mediateka", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+
+	handler.GetMediatekaForUser(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestGetHistory(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetHistory(1).Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/history", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetHistory(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetHistory(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "not correct id"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetHistory(w, r)
+	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	mockTracksUsecase.EXPECT().GetHistory(1).Return(nil, errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetHistory(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestAddToHistory(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().AddToHistory(1, 1).Return(nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddToHistory(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddToHistory(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+		models2.Result{ID: "not correct id"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddToHistory(w, r)
+	expected = http.StatusInternalServerError
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddToHistory(w, r)
+	expected = http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	mockTracksUsecase.EXPECT().AddToHistory(1, 1).Return(errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
+	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.AddToHistory(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestGetTop20Tracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetTop20Tracks().Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTop20Tracks(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecase.EXPECT().GetTop20Tracks().Return(nil, errors.New("not content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTop20Tracks(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestGetBillbordTopCharts(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetBillbordTopCharts().Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/billbord", nil)
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetBillbordTopCharts(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecase.EXPECT().GetBillbordTopCharts().Return(nil, errors.New("not content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/billbord", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetBillbordTopCharts(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestUploadTrackAudioHandler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	//mockTracksUsecase.EXPECT().UploadAudio(1, "some path").Return(nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/vi/track/billbord", nil)
+	r.Header.Set("Content-Type", "multipart/form-data")
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.UploadTrackAudioHandler(w, r)
+	expected := http.StatusBadRequest
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestUploadTrackPictureHandlerr(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	//mockTracksUsecase.EXPECT().UploadAudio(1, "some path").Return(nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/vi/track/billbord", nil)
+	r.Header.Set("Content-Type", "multipart/form-data")
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.UploadTrackPictureHandler(w, r)
+	expected := http.StatusBadRequest
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}

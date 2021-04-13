@@ -13,5 +13,5 @@ type Repository interface {
 	GetMusicianByTrackID(trackID int) (*[]models.Musician, error)
 	GetMusicianByAlbumID(albumID int) (*[]models.Musician, error)
 	GetMusicianByPlaylistID(playlistID int) (*[]models.Musician, error)
-	GetMusiciansTop3() (*[]models.Musician, error)
+	GetMusiciansTop4() (*[]models.Musician, error)
 }

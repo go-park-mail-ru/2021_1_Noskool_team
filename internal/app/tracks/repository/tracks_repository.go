@@ -441,3 +441,27 @@ func (trackRep *TracksRepository) GetGenreByTrackID(trackID int) []*commonModels
 	}
 	return genres
 }
+
+func (trackRep *TracksRepository) GetTopTrack() ([]*models.Track, error) {
+	query := `select track_id, tittle, text, audio, picture, release_date from tracks
+			order by rating desc
+			limit 1`
+
+	rows, err := trackRep.con.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	tracks := make([]*models.Track, 0)
+
+	for rows.Next() {
+		track := &models.Track{}
+		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
+			&track.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		tracks = append(tracks, track)
+	}
+	return tracks, nil
+}

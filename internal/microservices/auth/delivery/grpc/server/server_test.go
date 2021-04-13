@@ -5,10 +5,11 @@ import (
 	mock_auth "2021_1_Noskool_team/internal/microservices/auth/mocks"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	"context"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
-	"testing"
 )
 
 func TestSessionServer(t *testing.T) {

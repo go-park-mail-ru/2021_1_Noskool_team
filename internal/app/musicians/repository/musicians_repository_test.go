@@ -228,7 +228,7 @@ func TestGetMusiciansTop3(t *testing.T) {
 
 	mock.ExpectQuery(query).WithArgs().WillReturnRows(rows)
 
-	musicians, err := musiciansRep.GetMusiciansTop3()
+	musicians, err := musiciansRep.GetMusiciansTop4()
 
 	fmt.Println(musicians)
 	assert.NoError(t, err)

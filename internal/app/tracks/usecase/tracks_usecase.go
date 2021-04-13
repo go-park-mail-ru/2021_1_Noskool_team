@@ -117,7 +117,7 @@ func (usecase *TracksUsecase) GetTop20Tracks() ([]*models.Track, error) {
 }
 
 func (usecase *TracksUsecase) GetBillbordTopCharts() ([]*models.Track, error) {
-	tracks, err := usecase.trackRep.GetTop20Tracks()
+	tracks, err := usecase.trackRep.GetBillbordTopCharts()
 	return tracks, err
 }
 
@@ -129,4 +129,9 @@ func (usecase *TracksUsecase) GetHistory(userID int) ([]*models.Track, error) {
 func (usecase *TracksUsecase) AddToHistory(userID, trackID int) error {
 	err := usecase.trackRep.AddToHistory(userID, trackID)
 	return err
+}
+
+func (usecase *TracksUsecase) GetTopTrack() ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetTopTrack()
+	return tracks, err
 }

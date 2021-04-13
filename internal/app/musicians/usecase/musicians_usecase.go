@@ -57,8 +57,8 @@ func (usecase *MusicUsecase) GetMusicianByPlaylistID(playlistID int) (*[]models.
 	return mus, nil
 }
 
-func (usecase *MusicUsecase) GetMusiciansTop3() (*[]models.Musician, error) {
-	mus, err := usecase.musicRepo.GetMusiciansTop3()
+func (usecase *MusicUsecase) GetMusiciansTop4() (*[]models.Musician, error) {
+	mus, err := usecase.musicRepo.GetMusiciansTop4()
 	if err != nil {
 		return nil, err
 	}

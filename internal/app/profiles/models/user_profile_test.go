@@ -2,7 +2,8 @@ package models
 
 import (
 "fmt"
-"testing"
+	"github.com/microcosm-cc/bluemonday"
+	"testing"
 
 "github.com/stretchr/testify/assert"
 )
@@ -72,4 +73,29 @@ func TestValidate(t *testing.T) {
 
 		assert.NotEqual(t, testCase.want, resErr)
 	}
+}
+
+func TestRequestLoginSanitize(t *testing.T) {
+	req := &RequestLogin{Password: "<a onblur=\"alert(secret)\" href=\"http://www.google.com\">Google</a>"}
+	sanitize := bluemonday.UGCPolicy()
+
+	req.Sanitize(sanitize)
+	assert.Equal(t, req.Password, "<a href=\"http://www.google.com\" rel=\"nofollow\">Google</a>")
+}
+
+func TestProfileRequestSanitize(t *testing.T) {
+	xssString := "<a onblur=\"alert(secret)\" href=\"http://www.google.com\">Google</a>"
+	req := &ProfileRequest{
+		Email:         xssString,
+		Password:      "",
+		Nickname:      "",
+		Name:          "",
+		Surname:       "",
+		FavoriteGenre: []string{xssString},
+	}
+	sanitize := bluemonday.UGCPolicy()
+	req.Sanitize(sanitize)
+
+	assert.Equal(t, req.Email, "<a href=\"http://www.google.com\" rel=\"nofollow\">Google</a>")
+	assert.Equal(t, req.FavoriteGenre[0], "<a href=\"http://www.google.com\" rel=\"nofollow\">Google</a>")
 }
