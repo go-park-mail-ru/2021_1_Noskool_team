@@ -21,6 +21,9 @@ func (corsMiddlware *CORSMiddleware) CORS(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Headers", "*, X-Csrf-Token")
 		w.Header().Set("Access-Control-Allow-Origin", corsMiddlware.config.FrontendURL)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Vary", "Origin")
+		w.Header().Set("Vary", "Access-Control-Request-Method")
+		w.Header().Set("Vary", "Access-Control-Request-Headers")
 		w.Header().Set("Access-Control-Max-Age", "600")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		if r.Method == "OPTIONS" {
