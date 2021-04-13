@@ -51,7 +51,7 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	handler.router.HandleFunc("/",
 		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/top",
-		handler.GetPlaylists).Methods(http.MethodGet)
+		handler.GetPlaylists).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
