@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"2021_1_Noskool_team/configs"
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ func NewCORSMiddleware(config *configs.Config) *CORSMiddleware {
 }
 func (corsMiddlware *CORSMiddleware) CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("URL: %s, METHOD: %s", r.RequestURI, r.Method)
+		logrus.Info("URL: %s, METHOD: %s", r.RequestURI, r.Method)
 		w.Header().Set("Access-Control-Allow-Headers", "*, X-Csrf-Token")
 		w.Header().Set("Access-Control-Allow-Origin", corsMiddlware.config.FrontendURL)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")

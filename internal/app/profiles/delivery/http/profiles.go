@@ -125,7 +125,7 @@ func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Reques
 		Expires: time.Now().Add(30 * time.Minute),
 	}
 	http.SetCookie(w, csrfCookie)
-	w.Header().Set("X-Csrf-Token", csrfToken)
+	w.Header().Set("csrf", csrfToken)
 }
 
 func (s *ProfilesServer) HandleAuth(w http.ResponseWriter, r *http.Request) {
