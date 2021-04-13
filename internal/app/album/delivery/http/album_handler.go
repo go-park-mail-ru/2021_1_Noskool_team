@@ -54,7 +54,6 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 	handler.router.HandleFunc("/{album_id:[0-9]+}/mediateka",
 		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToFavorites)).Methods("POST", http.MethodOptions)
 
-
 	return handler
 }
 

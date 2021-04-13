@@ -161,30 +161,30 @@ CREATE TABLE IF NOT EXISTS Profiles
 );
 
 insert into tracks (track_id, tittle, text, audio, picture, release_date)
-VALUES (1, 'Do I Wanna Know?', 'text', '/api/v1/data/audio/Do_I_Wanna_Know.ogg', '/api/v1/data/img/tracks/AM.jpeg', '2013-03-03'),
-       (2, 'R U Mine', 'some text', '/api/v1/data/audio/R_U_Mine.ogg', '/api/v1/data/img/tracks/AM.jpeg', '2013-03-03'),
-       (3, 'One For The Road', 'some text', '/api/v1/data/audio/One_For_The_Road.ogg', '/api/v1/data/img/tracks/AM.jpeg', '2013-03-03'),
-       (4, 'Arabella', 'some text', '/api/v1/data/audio/Arabella.ogg', '/api/v1/data/img/tracks/AM.jpeg', '2013-03-03'),
-       (5, 'I Want It All', 'some text', '/api/v1/data/audio/I_Want_It_All.ogg', '/api/v1/data/img/tracks/AM.jpeg', '2013-03-03'),
-       (6, 'Pretty Boy', 'some text', '/api/v1/data/audio/Joji_feat._Lil_Yachty_Pretty_Boy.ogg', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
-       (7, 'Tick Tock', 'some text', '/api/v1/data/audio/Joji_-_Tick_Tock.ogg', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
-       (8, 'Daylight', 'some text', '/api/v1/data/audio/Joji__Diplo_-_Daylight.ogg', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
-       (9, 'Upgrade', 'some text', '/api/v1/data/audio/Joji_-_Upgrade.ogg', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
-       (10, 'Mr. Hollywood', 'some text', '/api/v1/data/audio/Joji_-_Mr._Hollywood.ogg', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
-       (11, 'Run', 'some text', '/api/v1/data/audio/Joji_-_Run.ogg', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
-       (12, 'Flowers', 'some text', '/api/v1/data/audio/Flowers.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-10-01'),
-       (13, 'Scary Love', 'some text', '/api/v1/data/audio/Scary_Love.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-10-01'),
-       (14, 'Nervous', 'some text', '/api/v1/data/audio/Nervous.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-10-01'),
-       (15, 'Void', 'some text', '/api/v1/data/audio/Void.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-10-01'),
-       (16, 'Softcore', 'some text', '/api/v1/data/audio/Softcore.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-10-01'),
-       (17, 'Blue', 'some text', '/api/v1/data/audio/Blue.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-10-01'),
-       (18, 'Smells Like Teen Spirit', 'some text', '/api/v1/data/audio/Smells_Like_Teen_Spirit.ogg', '/api/v1/data/img/tracks/smels_like.jpg', '1991-10-01');
+VALUES (1, 'Do I Wanna Know?', 'text', '/api/v1/data/audio/Do_I_Wanna_Know.ogg', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
+       (2, 'R U Mine', 'some text', '/api/v1/data/audio/R_U_Mine.ogg', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
+       (3, 'One For The Road', 'some text', '/api/v1/data/audio/One_For_The_Road.ogg', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
+       (4, 'Arabella', 'some text', '/api/v1/data/audio/Arabella.ogg', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
+       (5, 'I Want It All', 'some text', '/api/v1/data/audio/I_Want_It_All.ogg', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
+       (6, 'Pretty Boy', 'some text', '/api/v1/data/audio/Joji_feat._Lil_Yachty_Pretty_Boy.ogg', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (7, 'Tick Tock', 'some text', '/api/v1/data/audio/Joji_-_Tick_Tock.ogg', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (8, 'Daylight', 'some text', '/api/v1/data/audio/Joji__Diplo_-_Daylight.ogg', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (9, 'Upgrade', 'some text', '/api/v1/data/audio/Joji_-_Upgrade.ogg', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (10, 'Mr. Hollywood', 'some text', '/api/v1/data/audio/Joji_-_Mr._Hollywood.ogg', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (11, 'Run', 'some text', '/api/v1/data/audio/Joji_-_Run.ogg', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (12, 'Flowers', 'some text', '/api/v1/data/audio/Flowers.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01'),
+       (13, 'Scary Love', 'some text', '/api/v1/data/audio/Scary_Love.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01'),
+       (14, 'Nervous', 'some text', '/api/v1/data/audio/Nervous.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01'),
+       (15, 'Void', 'some text', '/api/v1/data/audio/Void.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01'),
+       (16, 'Softcore', 'some text', '/api/v1/data/audio/Softcore.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01'),
+       (17, 'Blue', 'some text', '/api/v1/data/audio/Blue.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01'),
+       (18, 'Smells Like Teen Spirit', 'some text', '/api/v1/data/audio/Smells_Like_Teen_Spirit.ogg', '/api/v1/data/img/tracks/smels_like.webp', '1991-10-01');
 
 
 
 insert into albums (album_id, tittle, picture, release_date)
-values (1, 'AM', '/api/v1/data/img/tracks/AM.jpeg', '2013-03-03'),
-       (2, 'Nectar', '/api/v1/data/img/tracks/Nectar.png', '2018-10-01'),
+values (1, 'AM', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
+       (2, 'Nectar', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
        (3, 'The Neighbourhood', '/api/v1/data/img/tracks/The_Neighbourhood.jpg', '2018-06-01');
 
 insert into tracks_to_albums (track_id, album_id)
@@ -192,11 +192,11 @@ values (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 2), (7, 2), (8, 2), (9, 2),
        (10, 2), (11, 2), (12, 3), (13, 3), (14, 3), (15, 3), (16, 3), (17, 3);
 
 insert into musicians (musician_id, name, description, picture)
-values (1, 'Arctic Monkeys', 'british alternaitve group', '/api/v1/data/img/musicians/arctics_monkeys.jpeg'),
+values (1, 'Arctic Monkeys', 'british alternaitve group', '/api/v1/data/img/musicians/arctics_monkeys.webp'),
        (2, 'Joji', 'Джордж Кусуноки Миллер, более известный по сценическому псевдониму Joji',
-        '/api/v1/data/img/musicians/joji.jpeg'),
-       (3, 'The Neighbourhood', 'alternative group', '/api/v1/data/img/musicians/the_neighbourhood.jpeg'),
-       (4, 'Nirvana', 'grange', '/api/v1/data/img/musicians/Nirvana.jpeg');
+        '/api/v1/data/img/musicians/joji.webp'),
+       (3, 'The Neighbourhood', 'alternative group', '/api/v1/data/img/musicians/the_neighbourhood.webp'),
+       (4, 'Nirvana', 'grange', '/api/v1/data/img/musicians/Nirvana.webp');
 
 insert into musicians_to_tracks (track_id, musician_id)
 values (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2),
