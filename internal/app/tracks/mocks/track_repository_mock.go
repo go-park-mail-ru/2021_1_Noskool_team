@@ -79,6 +79,20 @@ func (mr *MockRepositoryMockRecorder) AddTrackToMediateka(userID, trackID interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToMediateka", reflect.TypeOf((*MockRepository)(nil).AddTrackToMediateka), userID, trackID)
 }
 
+// CheckTrackInFavorite mocks base method.
+func (m *MockRepository) CheckTrackInFavorite(userID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckTrackInFavorite", userID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckTrackInFavorite indicates an expected call of CheckTrackInFavorite.
+func (mr *MockRepositoryMockRecorder) CheckTrackInFavorite(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckTrackInFavorite", reflect.TypeOf((*MockRepository)(nil).CheckTrackInFavorite), userID, trackID)
+}
+
 // CheckTrackInMediateka mocks base method.
 func (m *MockRepository) CheckTrackInMediateka(userID, trackID int) error {
 	m.ctrl.T.Helper()

@@ -27,10 +27,11 @@ type Repository interface {
 	GetBillbordTopCharts() ([]*models.Track, error)
 	GetHistory(userID int) ([]*models.Track, error)
 	AddToHistory(userID, trackID int) error
-	CheckTrackInMediateka(userID, trackID int) error
 	GetMusiciansGenresAndAlbums(tracks []*models.Track) []*models.Track
 	GetMusicianByTrackID(trackID int) []*musiciansModels.Musician
 	GetAlbumsByTrackID(trackID int) []*albumsModels.Album
 	GetGenreByTrackID(trackID int) []*commonModels.Genre
 	GetTopTrack() ([]*models.Track, error)
+	CheckTrackInMediateka(userID, trackID int) error
+	CheckTrackInFavorite(userID, trackID int) error
 }
