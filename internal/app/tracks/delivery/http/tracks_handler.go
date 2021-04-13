@@ -45,6 +45,8 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 
 	handler.router.HandleFunc("/top",
 		handler.GetTop20Tracks).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/toptrack",
+		handler.GetTopTrack).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/billbord",
 		handler.GetBillbordTopCharts).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
@@ -374,6 +376,16 @@ func (handler *TracksHandler) AddDeleteTrackToMediateka(w http.ResponseWriter, r
 
 func (handler *TracksHandler) GetTop20Tracks(w http.ResponseWriter, r *http.Request) {
 	tracks, err := handler.tracksUsecase.GetTop20Tracks()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+func (handler *TracksHandler) GetTopTrack(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetTopTrack()
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)

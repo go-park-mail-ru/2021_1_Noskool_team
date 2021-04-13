@@ -264,6 +264,8 @@ func TestAddTrackToFavorites(t *testing.T) {
 	mockRepo := mocktracks.NewMockRepository(ctrl)
 	mockUsecase := NewTracksUsecase(mockRepo)
 
+	mockRepo.EXPECT().CheckTrackInMediateka(1, 2).
+		Return(nil)
 	mockRepo.EXPECT().AddTrackToFavorites(1, 2).
 		Return(nil)
 	err := mockUsecase.AddTrackToFavorites(1, 2)

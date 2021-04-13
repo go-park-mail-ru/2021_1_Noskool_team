@@ -32,4 +32,5 @@ type Repository interface {
 	GetMusicianByTrackID(trackID int) []*musiciansModels.Musician
 	GetAlbumsByTrackID(trackID int) []*albumsModels.Album
 	GetGenreByTrackID(trackID int) []*commonModels.Genre
+	GetTopTrack() ([]*models.Track, error)
 }

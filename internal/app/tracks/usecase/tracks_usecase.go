@@ -130,3 +130,8 @@ func (usecase *TracksUsecase) AddToHistory(userID, trackID int) error {
 	err := usecase.trackRep.AddToHistory(userID, trackID)
 	return err
 }
+
+func (usecase *TracksUsecase) GetTopTrack() ([]*models.Track, error) {
+	tracks, err := usecase.trackRep.GetTopTrack()
+	return tracks, err
+}

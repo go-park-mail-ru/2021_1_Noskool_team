@@ -252,6 +252,21 @@ func (mr *MockRepositoryMockRecorder) GetTop20Tracks() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTop20Tracks", reflect.TypeOf((*MockRepository)(nil).GetTop20Tracks))
 }
 
+// GetTopTrack mocks base method.
+func (m *MockRepository) GetTopTrack() ([]*models1.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTopTrack")
+	ret0, _ := ret[0].([]*models1.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTopTrack indicates an expected call of GetTopTrack.
+func (mr *MockRepositoryMockRecorder) GetTopTrack() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopTrack", reflect.TypeOf((*MockRepository)(nil).GetTopTrack))
+}
+
 // GetTrackByID mocks base method.
 func (m *MockRepository) GetTrackByID(trackID int) (*models1.Track, error) {
 	m.ctrl.T.Helper()
