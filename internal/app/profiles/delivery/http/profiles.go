@@ -270,6 +270,21 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		}
 		s.logger.Info("result of registration: ", u)
 		u.Sanitize()
+		session, err := s.sessionsClient.Create(context.Background(), strconv.Itoa(u.ProfileID))
+		s.logger.Info("Result: = " + session.Status)
+		if err != nil {
+			s.logger.Errorf("Error in creating session: %v", err)
+			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Ошибка авторизации"))
+			return
+		}
+		cookie := http.Cookie{
+			Name:     "session_id",
+			Value:    session.Hash,
+			Expires:  time.Now().Add(10000 * time.Hour),
+			Secure:   false,
+			HttpOnly: true,
+		}
+		http.SetCookie(w, &cookie)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }

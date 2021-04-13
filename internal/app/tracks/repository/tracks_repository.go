@@ -442,7 +442,6 @@ func (trackRep *TracksRepository) GetGenreByTrackID(trackID int) []*commonModels
 	return genres
 }
 
-
 func (trackRep *TracksRepository) GetTopTrack() ([]*models.Track, error) {
 	query := `select track_id, tittle, text, audio, picture, release_date from tracks
 			order by rating desc
