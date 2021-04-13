@@ -27,6 +27,9 @@ func TestGetTrackByID(t *testing.T) {
 	mockRepo.
 		EXPECT().GetTrackByID(gomock.Eq(expectedTrack.TrackID)).
 		Return(expectedTrack, nil)
+	mockRepo.EXPECT().GetMusicianByTrackID(gomock.Eq(expectedTrack.TrackID))
+	mockRepo.EXPECT().GetGenreByTrackID(gomock.Eq(expectedTrack.TrackID))
+	mockRepo.EXPECT().GetAlbumsByTrackID(gomock.Eq(expectedTrack.TrackID))
 
 	track, err := mockUsecase.GetTrackByID(expectedTrack.TrackID)
 	assert.Equal(t, err, nil)

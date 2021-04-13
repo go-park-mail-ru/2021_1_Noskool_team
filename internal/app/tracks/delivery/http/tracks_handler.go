@@ -44,33 +44,33 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
 	handler.router.HandleFunc("/top",
-		handler.GetTop20Tracks).Methods(http.MethodGet)
+		handler.GetTop20Tracks).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/billbord",
-		handler.GetBillbordTopCharts).Methods(http.MethodGet)
+		handler.GetBillbordTopCharts).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
 		handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/mediateka",
-		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/favorites",
-		authMiddleware.CheckSessionMiddleware(handler.GetFavoriteTracks)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(handler.GetFavoriteTracks)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/history",
-		authMiddleware.CheckSessionMiddleware(handler.GetHistory)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(handler.GetHistory)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/history",
-		authMiddleware.CheckSessionMiddleware(handler.AddToHistory)).Methods(http.MethodPost)
+		authMiddleware.CheckSessionMiddleware(handler.AddToHistory)).Methods(http.MethodPost,  http.MethodOptions)
 	handler.router.HandleFunc("/musician/{musician_id:[0-9]+}",
-		authMiddleware.CheckSessionMiddleware(handler.GetTracksByMusicinID)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(handler.GetTracksByMusicinID)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/picture",
-		handler.UploadTrackPictureHandler).Methods(http.MethodPost)
+		handler.UploadTrackPictureHandler).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/audio",
-		handler.UploadTrackAudioHandler).Methods(http.MethodPost)
+		handler.UploadTrackAudioHandler).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/favorite",
-		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToFavorite)).Methods(http.MethodPost)
+		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToFavorite)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}/mediateka",
-		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToMediateka)).Methods(http.MethodPost)
+		authMiddleware.CheckSessionMiddleware(handler.AddDeleteTrackToMediateka)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/album/{album_id:[0-9]+}",
-		handler.GetTracksByAlbumIDHandler).Methods(http.MethodGet)
+		handler.GetTracksByAlbumIDHandler).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
-		handler.GetTracksByGenreIDHandler).Methods(http.MethodGet)
+		handler.GetTracksByGenreIDHandler).Methods(http.MethodGet, http.MethodOptions)
 
 	return handler
 }

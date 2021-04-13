@@ -1,6 +1,8 @@
 package tracks
 
 import (
+	albumsModels "2021_1_Noskool_team/internal/app/album/models"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 )
@@ -26,4 +28,8 @@ type Repository interface {
 	GetHistory(userID int) ([]*models.Track, error)
 	AddToHistory(userID, trackID int) error
 	CheckTrackInMediateka(userID, trackID int) error
+	GetMusiciansGenresAndAlbums(tracks []*models.Track) []*models.Track
+	GetMusicianByTrackID(trackID int) []*musiciansModels.Musician
+	GetAlbumsByTrackID(trackID int) []*albumsModels.Album
+	GetGenreByTrackID(trackID int) []*commonModels.Genre
 }

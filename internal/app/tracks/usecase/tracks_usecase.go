@@ -20,6 +20,13 @@ func NewTracksUsecase(trackRep tracks.Repository) *TracksUsecase {
 
 func (usecase *TracksUsecase) GetTrackByID(trackID int) (*models.Track, error) {
 	track, err := usecase.trackRep.GetTrackByID(trackID)
+	if err != nil {
+		return nil, err
+	}
+	track.Musicians = usecase.trackRep.GetMusicianByTrackID(track.TrackID)
+	track.Genres = usecase.trackRep.GetGenreByTrackID(track.TrackID)
+	track.Albums = usecase.trackRep.GetAlbumsByTrackID(track.TrackID)
+
 	return track, err
 }
 
@@ -44,12 +51,19 @@ func (usecase *TracksUsecase) UploadAudio(trackID int, audioPath string) error {
 
 func (usecase *TracksUsecase) GetTracksByUserID(userID int) ([]*models.Track, error) {
 	tracks, err := usecase.trackRep.GetTracksByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
 	return tracks, err
 }
 
 func (usecase *TracksUsecase) GetFavoriteTracks(userID int,
 	pagination *commonModels.Pagination) ([]*models.Track, error) {
 	tracks, err := usecase.trackRep.GetFavoriteTracks(userID, pagination)
+	if err != nil {
+		return nil, err
+	}
+	tracks = usecase.trackRep.GetMusiciansGenresAndAlbums(tracks)
 	return tracks, err
 }
 
