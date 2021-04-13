@@ -24,4 +24,6 @@ type Usecase interface {
 	GetHistory(userID int) ([]*models.Track, error)
 	AddToHistory(userID, trackID int) error
 	GetTopTrack() ([]*models.Track, error)
+	CheckTrackInMediateka(userID, trackID int) bool
+	CheckTrackInFavorite(userID, trackID int) bool
 }

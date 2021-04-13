@@ -429,6 +429,8 @@ func TestGetFavoriteTracks(t *testing.T) {
 		Limit:  10,
 		Offset: 0,
 	}).Return(testTreks, nil)
+	mockTracksUsecase.EXPECT().CheckTrackInMediateka(gomock.Any(), gomock.Any()).AnyTimes()
+	mockTracksUsecase.EXPECT().CheckTrackInFavorite(gomock.Any(), gomock.Any()).AnyTimes()
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
@@ -491,6 +493,8 @@ func TestGetMediatekaForUser(t *testing.T) {
 
 	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
 	mockTracksUsecase.EXPECT().GetTracksByUserID(1).Return(testTreks, nil)
+	mockTracksUsecase.EXPECT().CheckTrackInMediateka(gomock.Any(), gomock.Any()).AnyTimes()
+	mockTracksUsecase.EXPECT().CheckTrackInFavorite(gomock.Any(), gomock.Any()).AnyTimes()
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/mediateka", nil)
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))

@@ -13,6 +13,9 @@ type Track struct {
 	Audio       string                      `json:"audio"`
 	Picture     string                      `json:"picture"`
 	ReleaseDate string                      `json:"release_date"`
+	Duration    string                      `json:"duration"`
+	InMediateka bool                        `json:"in_mediateka"`
+	InFavorite  bool                        `json:"in_favorite"`
 	Genres      []*models.Genre             `json:"genres"`
 	Musicians   []*musiciansModels.Musician `json:"musicians"`
 	Albums      []*albumsModels.Album       `json:"album"`

@@ -77,6 +77,34 @@ func (mr *MockUsecaseMockRecorder) AddTrackToFavorites(userID, trackID interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToFavorites", reflect.TypeOf((*MockUsecase)(nil).AddTrackToFavorites), userID, trackID)
 }
 
+// CheckTrackInFavorite mocks base method.
+func (m *MockUsecase) CheckTrackInFavorite(userID, trackID int) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckTrackInFavorite", userID, trackID)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// CheckTrackInFavorite indicates an expected call of CheckTrackInFavorite.
+func (mr *MockUsecaseMockRecorder) CheckTrackInFavorite(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckTrackInFavorite", reflect.TypeOf((*MockUsecase)(nil).CheckTrackInFavorite), userID, trackID)
+}
+
+// CheckTrackInMediateka mocks base method.
+func (m *MockUsecase) CheckTrackInMediateka(userID, trackID int) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckTrackInMediateka", userID, trackID)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// CheckTrackInMediateka indicates an expected call of CheckTrackInMediateka.
+func (mr *MockUsecaseMockRecorder) CheckTrackInMediateka(userID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckTrackInMediateka", reflect.TypeOf((*MockUsecase)(nil).CheckTrackInMediateka), userID, trackID)
+}
+
 // DeleteTrackFromFavorites mocks base method.
 func (m *MockUsecase) DeleteTrackFromFavorites(trackID, userID int) error {
 	m.ctrl.T.Helper()
