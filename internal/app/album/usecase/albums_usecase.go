@@ -3,6 +3,7 @@ package usecase
 import (
 	"2021_1_Noskool_team/internal/app/album"
 	"2021_1_Noskool_team/internal/app/album/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 )
 
 type AlbumsUsecase struct {
@@ -45,4 +46,37 @@ func (usecase *AlbumsUsecase) SearchAlbums(searchQuery string) ([]*models.Album,
 		return nil, err
 	}
 	return album, nil
+}
+
+func (usecase *AlbumsUsecase) AddAlbumToFavorites(userID, albumID int) error {
+	err := usecase.albumsRep.CheckAlbumInMediateka(userID, albumID)
+	if err != nil {
+		err = usecase.albumsRep.AddAlbumToMediateka(userID, albumID)
+		if err != nil {
+			return err
+		}
+	}
+	err = usecase.albumsRep.AddAlbumToFavorites(userID, albumID)
+	return err
+}
+
+func (usecase *AlbumsUsecase) DelteAlbumFromFavorites(userID, albumID int) error {
+	err := usecase.albumsRep.DelteAlbumFromFavorites(userID, albumID)
+	return err
+}
+
+func (usecase *AlbumsUsecase) AddAlbumToMediateka(userID, albumID int) error {
+	err := usecase.albumsRep.AddAlbumToMediateka(userID, albumID)
+	return err
+}
+
+func (usecase *AlbumsUsecase) DeleteAlbumFromMediateka(userID, albumID int) error {
+	err := usecase.albumsRep.DeleteAlbumFromMediateka(userID, albumID)
+	return err
+}
+
+func (usecase *AlbumsUsecase) GetFavoriteAlbums(userID int,
+	pagination *commonModels.Pagination) ([]*models.Album, error) {
+	albums, err := usecase.albumsRep.GetFavoriteAlbums(userID, pagination)
+	return albums, err
 }
