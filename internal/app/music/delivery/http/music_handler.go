@@ -48,6 +48,8 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 
 	sanitizer := bluemonday.UGCPolicy()
 
+	handler.router.Use(middleware.LoggingMiddleware)
+
 	musicRouter := handler.router.PathPrefix("/api/v1/musician/").Subrouter()
 	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
 	albumsRouter := handler.router.PathPrefix("/api/v1/album/").Subrouter()
@@ -62,7 +64,6 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main main page"))
 	})
-	handler.router.Use(middleware.LoggingMiddleware)
 
 	CORSMiddleware := middleware.NewCORSMiddleware(config)
 	handler.router.Use(CORSMiddleware.CORS)

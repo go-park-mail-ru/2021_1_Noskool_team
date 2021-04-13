@@ -83,6 +83,8 @@ func (s *ProfilesServer) configureRouter() {
 			http.StripPrefix(
 				"/api/v1/data/", http.FileServer(http.Dir(mediaFolder))))
 
+	s.router.Use(middleware.LoggingMiddleware)
+
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
@@ -91,17 +93,15 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.HandleFunc("/api/v1/registrate",
 		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/logout",
-		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/csrf",
-		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodGet, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile",
-		authMiddleware.CheckSessionMiddleware(s.handleProfile())).Methods(http.MethodGet)
+		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleProfile()))).Methods(http.MethodGet, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/update",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
-
-	s.router.Use(middleware.LoggingMiddleware)
 	s.router.Use(middleware.PanicMiddleware)
 	s.router.Use(middleware.ContentTypeJson)
 }
