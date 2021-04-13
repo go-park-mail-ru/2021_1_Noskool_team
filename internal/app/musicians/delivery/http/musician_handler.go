@@ -44,7 +44,10 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	// /api/v1/musicians/
 	middleware.ContentTypeJson(handler.router)
-	handler.router.HandleFunc("/popular", handler.GetMusiciansTop4).Methods("GET", http.MethodOptions)
+
+	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
+
+	handler.router.HandleFunc("/popular", authmiddlware.CheckSessionMiddleware(handler.GetMusiciansTop4)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bygenre/{genre}", handler.GetMusiciansByGenre).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicianByID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetMusicianByTrackID).Methods("GET", http.MethodOptions)
