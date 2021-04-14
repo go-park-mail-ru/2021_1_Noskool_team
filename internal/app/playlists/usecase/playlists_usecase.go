@@ -70,5 +70,10 @@ func (usecase *PlaylistUsecase) UploadAudio(playlistID int, audioPath string) er
 
 func (usecase *PlaylistUsecase) GetPlaylists() ([]*models.Playlist, error) {
 	playlists, err := usecase.playlistRep.GetPlaylists()
+
+	for _, playlist := range playlists {
+		tracks, _ := usecase.playlistRep.GetTracksByPlaylistID(playlist.PlaylistID)
+		playlist.Tracks = tracks
+	}
 	return playlists, err
 }
