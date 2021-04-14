@@ -181,7 +181,7 @@ func (playlistRep *PlaylistRepository) UploadPicture(playlistID int, audioPath s
 func (playlistRep *PlaylistRepository) GetPlaylists() ([]*models.Playlist, error) {
 	query := `select playlist_id, tittle, description, picture, release_date, user_id
 			from playlists
-			order by playlist_id;`
+			order by playlist_id`
 	rows, err := playlistRep.con.Query(query)
 	if err != nil {
 		return nil, err

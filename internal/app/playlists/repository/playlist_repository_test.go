@@ -288,3 +288,29 @@ func TestDeletePlaylistFromUser(t *testing.T) {
 
 	assert.NoError(t, err)
 }
+
+func TestGetPlaylistsa(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	playlistRep := NewPlaylistRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"playlist_id", "tittle", "description", "picture", "release_date", "user_id",
+	})
+	for _, row := range playlistsForTest {
+		rows.AddRow(row.PlaylistID, row.Tittle, row.Description,
+			row.Picture, row.ReleaseDate, row.UserID)
+	}
+	query := "select playlist_id, tittle, description, picture, release_date, " +
+		"user_id\n\t\t\tfrom playlists\n\t\t\torder by playlist_id"
+
+	mock.ExpectQuery(query).WithArgs().WillReturnRows(rows)
+	playlists, err := playlistRep.GetPlaylists()
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(playlistsForTest, playlists) {
+		t.Fatalf("Not equal")
+	}
+}
