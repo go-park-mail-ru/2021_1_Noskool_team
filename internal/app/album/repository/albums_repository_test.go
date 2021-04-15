@@ -2,6 +2,7 @@ package repository
 
 import (
 	"2021_1_Noskool_team/internal/app/album/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"reflect"
 	"testing"
 
@@ -148,6 +149,102 @@ func TestGetAlbumsByTrackID(t *testing.T) {
 	album, err := albumsRep.GetAlbumsByTrackID(1)
 	assert.NoError(t, err)
 	if !reflect.DeepEqual(expectedAlbums, album) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestAddAlbumToFavorites(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewAlbumsRepository(db)
+	defer db.Close()
+	query := "UPDATE album_to_user SET favorite = true"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+
+	err = tracRep.AddAlbumToFavorites(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestDelteAlbumFromFavorites(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewAlbumsRepository(db)
+	defer db.Close()
+	query := "UPDATE album_to_user SET favorite = false"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+
+	err = tracRep.DelteAlbumFromFavorites(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestAddAlbumToMediateka(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewAlbumsRepository(db)
+	defer db.Close()
+	query := "INSERT INTO album_to_user"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+
+	err = tracRep.AddAlbumToMediateka(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestDeleteAlbumFromMediatekaa(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewAlbumsRepository(db)
+	defer db.Close()
+	query := "DELETE FROM album_to_user\n\t\t\tWHERE user_id ="
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+
+	err = tracRep.DeleteAlbumFromMediateka(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestGetFavoriteAlbums(t *testing.T) {
+	dbCon, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	albumsRep := NewAlbumsRepository(dbCon)
+
+	defer dbCon.Close()
+	rows := sqlmock.NewRows([]string{
+		"album_id", "tittle", "picture", "release_date",
+	})
+	for _, row := range expectedAlbumspointers {
+		rows.AddRow(row.AlbumID, row.Tittle, row.Picture, row.ReleaseDate)
+	}
+	query := "SELECT a.album_id, a.tittle, a.picture, a.release_date from " +
+		"albums as a\n\t\t\tleft join album_to_user atu on a.album_id = " +
+		"atu.album_id\n\t\t\twhere atu.user_id ="
+	pagination := &commonModels.Pagination{
+		Limit:  1,
+		Offset: 2,
+	}
+
+	mock.ExpectQuery(query).WithArgs(1, pagination.Limit,
+		pagination.Offset).WillReturnRows(rows)
+
+	album, err := albumsRep.GetFavoriteAlbums(1, pagination)
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(expectedAlbumspointers, album) {
 		t.Fatalf("Not equal")
 	}
 }

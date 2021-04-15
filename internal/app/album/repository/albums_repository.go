@@ -163,7 +163,7 @@ func (albumRep *AlbumsRepository) GetFavoriteAlbums(userID int,
 
 func (albumRep *AlbumsRepository) CheckAlbumInMediateka(userID, albumID int) error {
 	query := `select album_id from album_to_user
-	where album_id = $1 and user_id = 22`
+	where album_id = $1 and user_id = $2`
 
 	_, err := albumRep.con.Exec(query, userID, albumID)
 	return err
