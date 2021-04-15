@@ -5,15 +5,18 @@ import (
 	mock_album "2021_1_Noskool_team/internal/app/album/mocks"
 	mock_musicians "2021_1_Noskool_team/internal/app/musicians/mocks"
 	"2021_1_Noskool_team/internal/app/musicians/models"
+	mock_playlists "2021_1_Noskool_team/internal/app/playlists/mocks"
+	mock_search "2021_1_Noskool_team/internal/app/search/mocks"
 	mock_tracks "2021_1_Noskool_team/internal/app/tracks/mocks"
 	"encoding/json"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -40,6 +43,8 @@ func TestFinalHandler(t *testing.T) {
 	mockMusiciansUsecase := mock_musicians.NewMockUsecase(ctrl)
 	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockSearchUsecase := mock_search.NewMockUsecase(ctrl)
+	mockPlaylistsUsecase := mock_playlists.NewMockUsecase(ctrl)
 
 	mockMusiciansUsecase.EXPECT().GetMusicianByID(testMusicians[0].MusicianID).Times(1).Return(&testMusicians[0], nil)
 
@@ -47,9 +52,10 @@ func TestFinalHandler(t *testing.T) {
 	r := httptest.NewRequest("GET", "/api/vi/musician/", nil)
 	r = mux.SetURLVars(r, map[string]string{"musician_id": strconv.Itoa(testMusicians[0].MusicianID)})
 
-	handler := NewFinalHandler(configs.NewConfig(), mockTracksUsecase, mockMusiciansUsecase, mockAlbumUsecase)
+	handler := NewFinalHandler(configs.NewConfig(), mockTracksUsecase, mockMusiciansUsecase,
+		mockAlbumUsecase, mockPlaylistsUsecase, mockSearchUsecase)
 
-	handler.musicianHandler.GetMusicByIDHandler(w, r)
+	handler.musicianHandler.GetMusicianByID(w, r)
 
 	expected := http.StatusOK
 	if w.Code != expected {

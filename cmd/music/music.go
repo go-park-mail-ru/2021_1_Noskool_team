@@ -7,6 +7,9 @@ import (
 	musicHttp "2021_1_Noskool_team/internal/app/music/delivery/http"
 	musiciansRepository "2021_1_Noskool_team/internal/app/musicians/repository"
 	musicianUsecase "2021_1_Noskool_team/internal/app/musicians/usecase"
+	searchUsecase "2021_1_Noskool_team/internal/app/search/usecase"
+	playlistRepository "2021_1_Noskool_team/internal/app/playlists/repository"
+	playlistUsecase "2021_1_Noskool_team/internal/app/playlists/usecase"
 	trackRepository "2021_1_Noskool_team/internal/app/tracks/repository"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
 	"2021_1_Noskool_team/internal/pkg/server"
@@ -51,7 +54,16 @@ func main() {
 	albumRep := albumRepository.NewAlbumsRepository(albumDBCon)
 
 	albumsUse := albumUsecase.NewAlbumcUsecase(albumRep)
-	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase, albumsUse)
+	playlistDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
+	if err != nil {
+		logrus.Error(err)
+	}
+	playlistRep := playlistRepository.NewPlaylistRepository(playlistDBCon)
+	playlistUse := playlistUsecase.NewPlaylistUsecase(playlistRep)
+
+	searhUse := searchUsecase.NewSearchUsecase(trackRep, albumRep, musicianskRep, playlistRep)
+	handler := musicHttp.NewFinalHandler(config, trackUse, musUsecase,
+		albumsUse, playlistUse, searhUse)
 	fmt.Println("Нормально запустились")
 	err = server.Start(config, handler)
 	if err != nil {

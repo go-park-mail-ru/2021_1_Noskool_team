@@ -19,8 +19,8 @@ func TestCreatePostgresConnectionFailed(t *testing.T) {
 func TestCreatePostgresConnection(t *testing.T) {
 	config := configs.NewConfig()
 	con, err := CreatePostgresConnection(config.MusicPostgresBD)
-	defer con.Close()
-	if err != nil {
+	if err == nil {
+		defer con.Close()
 		t.Error(err)
 	}
 }

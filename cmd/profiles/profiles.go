@@ -3,11 +3,15 @@ package main
 import (
 	"2021_1_Noskool_team/configs"
 	profiles "2021_1_Noskool_team/internal/app/profiles/delivery/http"
+	"2021_1_Noskool_team/internal/app/profiles/repository/postgresDB"
+	"2021_1_Noskool_team/internal/app/profiles/usecase"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
+	"github.com/BurntSushi/toml"
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/sirupsen/logrus"
 	"log"
 	"time"
-
-	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -25,10 +29,18 @@ func main() {
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
 	}
 
-	s := profiles.New(config)
+	profDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
+	if err != nil {
+		logrus.Error(err)
+	}
+	profRep := postgresDB.NewProfileRepository(profDBCon)
+	profUsecase := usecase.NewProfilesUsecase(profRep)
+	sanitizer := bluemonday.UGCPolicy()
+
+	s := profiles.New(config, profUsecase, sanitizer)
 
 	if err := s.Start(); err != nil {
 		log.Fatal(err)
