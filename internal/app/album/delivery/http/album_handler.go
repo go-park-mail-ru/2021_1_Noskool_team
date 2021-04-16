@@ -3,7 +3,12 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	albumModels "2021_1_Noskool_team/internal/app/album/models"
 	"2021_1_Noskool_team/internal/app/middleware"
+	"2021_1_Noskool_team/internal/app/musicians"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
+	"2021_1_Noskool_team/internal/app/tracks"
+	models0 "2021_1_Noskool_team/internal/app/tracks/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
@@ -20,11 +25,14 @@ import (
 type AlbumsHandler struct {
 	router         *mux.Router
 	albumsUsecase  album.Usecase
+	tracksUsecase  tracks.Usecase
+	musUsecase     musicians.Usecase
 	logger         *logrus.Logger
 	sessionsClient client.AuthCheckerClient
 }
 
-func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Usecase) *AlbumsHandler {
+func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Usecase,
+	tracksUsecase tracks.Usecase, musUsecase musicians.Usecase) *AlbumsHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		logrus.Error(err)
@@ -33,6 +41,8 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 	handler := &AlbumsHandler{
 		router:         r,
 		albumsUsecase:  usecase,
+		tracksUsecase:  tracksUsecase,
+		musUsecase:     musUsecase,
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
@@ -87,12 +97,15 @@ func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	album, err := handler.albumsUsecase.GetAlbumByID(albumIDint)
+	albumWithTracks := ConvertAlumToFullAlbum(album)
+	albumWithTracks.Tracks, _ = handler.tracksUsecase.GetTracksByAlbumID(albumWithTracks.AlbumID)
+	albumWithTracks.Musician, _ = handler.musUsecase.GetMusicianByAlbumID(albumWithTracks.AlbumID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumByID: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200)
+	response.SendCorrectResponse(w, albumWithTracks, 200)
 }
 
 func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *http.Request) {
@@ -254,4 +267,24 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 		return
 	}
 	response.SendCorrectResponse(w, tracks, http.StatusOK)
+}
+
+type AlbumWithExtraInform struct {
+	AlbumID     int                         `json:"album_id"`
+	Tittle      string                      `json:"tittle"`
+	Picture     string                      `json:"picture"`
+	ReleaseDate string                      `json:"release_date"`
+	Musician    *[]musiciansModels.Musician `json:"musician"`
+	Tracks      []*models0.Track            `json:"tracks"`
+}
+
+func ConvertAlumToFullAlbum(album *albumModels.Album) *AlbumWithExtraInform {
+	return &AlbumWithExtraInform{
+		AlbumID:     album.AlbumID,
+		Tittle:      album.Tittle,
+		Picture:     album.Picture,
+		ReleaseDate: album.ReleaseDate,
+		Musician:    nil,
+		Tracks:      nil,
+	}
 }
