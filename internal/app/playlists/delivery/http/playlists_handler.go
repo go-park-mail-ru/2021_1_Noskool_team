@@ -51,6 +51,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	handler.router.HandleFunc("/",
 		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/top",
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylists)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/top/notauth",
 		handler.GetPlaylists).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
@@ -80,6 +82,16 @@ func ConfigLogger(handler *PlaylistsHandler, config *configs.Config) error {
 }
 
 func (handler *PlaylistsHandler) GetPlaylists(w http.ResponseWriter, r *http.Request) {
+	playlists, err := handler.playlistsUsecase.GetPlaylists()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, playlists, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) GetPlaylistsNotAuth(w http.ResponseWriter, r *http.Request) {
 	playlists, err := handler.playlistsUsecase.GetPlaylists()
 	if err != nil {
 		handler.logger.Error(err)
