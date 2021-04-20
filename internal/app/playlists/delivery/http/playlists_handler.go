@@ -1,4 +1,4 @@
- package http
+package http
 
 import (
 	"2021_1_Noskool_team/configs"
@@ -62,6 +62,10 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/picture",
 		handler.UploadPlaylistPictureHandler).Methods(http.MethodPost)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
+		authMiddlware.CheckSessionMiddleware(handler.AddTrackToPlaylist)).Methods(http.MethodPost)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
+		authMiddlware.CheckSessionMiddleware(handler.DeleteTrackFromPlaylist)).Methods(http.MethodDelete)
 
 	return handler
 }
@@ -310,5 +314,69 @@ func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWri
 		return
 	}
 
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) AddTrackToPlaylist(w http.ResponseWriter, r *http.Request) {
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct playlist id",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct track id",
+		})
+		return
+	}
+
+	err = handler.playlistsUsecase.AddTrackToPlaylist(playlistID, trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant delete track %d from playlist  %d", trackID, playlistID),
+		})
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) DeleteTrackFromPlaylist(w http.ResponseWriter, r *http.Request) {
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct playlist id",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct track id",
+		})
+		return
+	}
+
+	err = handler.playlistsUsecase.DeleteTrackFromPlaylist(playlistID, trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant delete track %d from playlist  %d", trackID, playlistID),
+		})
+		return
+	}
 	response.SendEmptyBody(w, http.StatusOK)
 }

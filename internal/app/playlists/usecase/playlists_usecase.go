@@ -77,3 +77,13 @@ func (usecase *PlaylistUsecase) GetPlaylists() ([]*models.Playlist, error) {
 	}
 	return playlists, err
 }
+
+func (usecase *PlaylistUsecase) AddTrackToPlaylist(playlistID, trackID int) error {
+	err := usecase.playlistRep.AddTrackToPlaylist(playlistID, trackID)
+	return err
+}
+
+func (usecase *PlaylistUsecase) DeleteTrackFromPlaylist(playlistID, trackID int) error {
+	err := usecase.playlistRep.DeleteTrackFromPlaylist(playlistID, trackID)
+	return err
+}

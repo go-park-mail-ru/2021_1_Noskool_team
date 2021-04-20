@@ -200,3 +200,18 @@ func (playlistRep *PlaylistRepository) GetPlaylists() ([]*models.Playlist, error
 	}
 	return playlists, nil
 }
+
+func (playlistRep *PlaylistRepository) AddTrackToPlaylist(playlistID, trackID int) error {
+	query := `INSERT INTO tracks_to_playlist (track_id, playlist_id) VALUES ($1, $2)`
+
+	_, err := playlistRep.con.Exec(query, trackID, playlistID)
+	return err
+}
+
+func (playlistRep *PlaylistRepository) DeleteTrackFromPlaylist(playlistID, trackID int) error {
+	query := `DELETE FROM tracks_to_playlist
+			WHERE track_id = $1 AND playlist_id = $2`
+
+	_, err := playlistRep.con.Exec(query, trackID, playlistID)
+	return err
+}

@@ -11,7 +11,6 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
 	"log"
-	"time"
 )
 
 var (
@@ -23,7 +22,7 @@ func init() {
 }
 
 func main() {
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()

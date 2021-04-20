@@ -11,4 +11,6 @@ type Usecase interface {
 	GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error)
 	UploadAudio(playlistID int, audioPath string) error
 	GetPlaylists() ([]*models.Playlist, error)
+	AddTrackToPlaylist(playlistID, trackID int) error
+	DeleteTrackFromPlaylist(playlistID, trackID int) error
 }

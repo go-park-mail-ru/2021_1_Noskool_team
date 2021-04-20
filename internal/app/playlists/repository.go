@@ -16,4 +16,6 @@ type Repository interface {
 	GetPlaylistsByGenreID(genreID int) ([]*models.Playlist, error)
 	UploadPicture(playlistID int, audioPath string) error
 	GetPlaylists() ([]*models.Playlist, error)
+	AddTrackToPlaylist(playlistID, trackID int) error
+	DeleteTrackFromPlaylist(playlistID, trackID int) error
 }
