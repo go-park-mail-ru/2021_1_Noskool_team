@@ -169,7 +169,7 @@ func TestAddPlaylistToMediateka(t *testing.T) {
 	playlistRep := NewPlaylistRepository(db)
 
 	defer db.Close()
-	query := "INSERT INTO playlists_to_user"
+	query := "INSERT"
 	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
 		sqlmock.NewResult(1, 1))
 	err = playlistRep.AddPlaylistToMediateka(1, 2)
@@ -192,9 +192,8 @@ func TestGetMediateka(t *testing.T) {
 		rows.AddRow(row.PlaylistID, row.Tittle, row.Description,
 			row.Picture, row.ReleaseDate, row.UserID)
 	}
-	query := "select p.playlist_id, p.tittle, p.description, p.picture,\n       " +
-		"p.release_date, p.user_id from playlists_to_user " +
-		"as p_u\n\t\t\tleft join playlists p on p_u.playlist_id = p.playlist_id"
+	query := "select p.playlist_id, p.tittle, p.description, p.picture," +
+		"\n       \t\tp.release_date, p.user_id from  playlists p \n\t\t\twhere p.user_id ="
 
 	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
 	playlists, err := playlistRep.GetMediateka(1)
@@ -281,7 +280,7 @@ func TestDeletePlaylistFromUser(t *testing.T) {
 	playlistRep := NewPlaylistRepository(db)
 
 	defer db.Close()
-	query := "DELETE FROM playlists_to_user where playlist_id ="
+	query := "DELETE FROM playlists where playlist_id ="
 	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
 		sqlmock.NewResult(1, 1))
 	err = playlistRep.DeletePlaylistFromUser(2, 1)

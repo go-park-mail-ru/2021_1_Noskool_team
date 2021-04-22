@@ -76,13 +76,6 @@ CREATE TABLE IF NOT EXISTS playlists_to_genres
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS playlists_to_user
-(
-    user_id     INTEGER NOT NULL,
-    playlist_id INTEGER NOT NULL,
-    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS Tracks_to_Playlist
 (
     track_id    INTEGER NOT NULL,
