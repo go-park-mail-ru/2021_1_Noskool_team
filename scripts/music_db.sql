@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS tracks
     text              text,
     rating            int default 0,
     amount_of_listens int default 0,
-    duration          text,
     audio             bytea,
     picture           varchar(100),
-    release_date      date
+    release_date      date,
+    duration          text
 );
 
 -- ///
@@ -286,12 +286,18 @@ values (1, 1),
        (7, 7);
 
 
-insert into playlists (playlist_id, user_id, tittle, description, picture, release_date) VALUES
-(1, 0, 'Alternative', 'Alternative music', '/api/v1/data/img/playlists/alternative.webp', '2021-06-01'),
-(2, 0, 'For Good Mood', 'favorite music', '/api/v1/data/img/playlists/happy.webp', '2021-07-01');
+insert into playlists (playlist_id, user_id, tittle, description, picture, release_date)
+VALUES (1, 0, 'Alternative', 'Alternative music', '/api/v1/data/img/playlists/alternative.webp', '2021-06-01'),
+       (2, 0, 'For Good Mood', 'favorite music', '/api/v1/data/img/playlists/happy.webp', '2021-07-01');
 
-insert into tracks_to_playlist(track_id, playlist_id) VALUES
-(1, 1), (11, 1), (15, 1), (18, 1), (22, 2), (7, 2), (20, 2);
+insert into tracks_to_playlist(track_id, playlist_id)
+VALUES (1, 1),
+       (11, 1),
+       (15, 1),
+       (18, 1),
+       (22, 2),
+       (7, 2),
+       (20, 2);
 
 CREATE TABLE IF NOT EXISTS tracks_to_user
 (
