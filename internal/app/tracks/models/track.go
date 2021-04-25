@@ -4,7 +4,6 @@ import (
 	albumsModels "2021_1_Noskool_team/internal/app/album/models"
 	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/models"
-	"encoding/json"
 	"errors"
 )
 
@@ -27,6 +26,17 @@ type Track struct {
 //easyjson:json
 type Tracks []*Track
 
+func MarshalTracks(data interface{}) ([]byte, error) {
+	track, ok := data.([]*Track)
+	if !ok {
+		return nil, errors.New("cant convernt interface{} to track")
+	}
+	var tracks Tracks
+	tracks = track
+	body, err := tracks.MarshalJSON()
+	return body, err
+}
+
 func MarshalTrack(data interface{}) ([]byte, error) {
 	track, ok := data.(*Track)
 	if !ok {
@@ -36,7 +46,14 @@ func MarshalTrack(data interface{}) ([]byte, error) {
 	return body, err
 }
 
-func MarshalTracks(data interface{}) ([]byte, error) {
-	body, err := json.Marshal(data)
-	return body, err
-}
+//func MarshalTracks(data interface{}) ([]byte, error) {
+//	track, ok := data.([]*Track)
+//	if !ok {
+//		return nil, errors.New("cant convernt interface{} to track")
+//	}
+//	//body, err := json.Marshal(data)
+//	var tracks Tracks
+//	tracks = track
+//	body, err := tracks.MarshalJSON()
+//	return body, err
+//}
