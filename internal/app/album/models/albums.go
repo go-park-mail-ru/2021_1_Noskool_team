@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"errors"
+)
+
 //easyjson:json
 type Album struct {
 	AlbumID     int    `json:"album_id"`
@@ -10,3 +15,18 @@ type Album struct {
 
 //easyjson:json
 type Albums []*Album
+
+func MarshalAlbum(data interface{}) ([]byte, error) {
+	album, ok := data.(*Album)
+	if !ok {
+		return nil, errors.New("cant convernt interface{} to album")
+	}
+	body, err := album.MarshalJSON()
+	return body, err
+}
+
+func MarshalAlbums(data interface{}) ([]byte, error) {
+	body, err := json.Marshal(data)
+	return body, err
+}
+

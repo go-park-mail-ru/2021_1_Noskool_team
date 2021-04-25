@@ -14,6 +14,7 @@ import (
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -105,7 +106,7 @@ func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Reques
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, albumWithTracks, 200)
+	response.SendCorrectResponse(w, albumWithTracks, 200, MarshalAlbumWithExtraInform)
 }
 
 func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +130,7 @@ func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *ht
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200)
+	response.SendCorrectResponse(w, album, 200, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.Request) {
@@ -153,7 +154,7 @@ func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200)
+	response.SendCorrectResponse(w, album, 200, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) AddDeleteAlbumToMediateka(w http.ResponseWriter, r *http.Request) {
@@ -266,9 +267,10 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, albumModels.MarshalAlbums)
 }
 
+//easyjson:json
 type AlbumWithExtraInform struct {
 	AlbumID     int                         `json:"album_id"`
 	Tittle      string                      `json:"tittle"`
@@ -287,4 +289,13 @@ func ConvertAlumToFullAlbum(album *albumModels.Album) *AlbumWithExtraInform {
 		Musician:    nil,
 		Tracks:      nil,
 	}
+}
+
+func MarshalAlbumWithExtraInform(data interface{}) ([]byte, error) {
+	album, ok := data.(*AlbumWithExtraInform)
+	if !ok {
+		return nil, errors.New("cant convernt interface{} to album")
+	}
+	body, err := album.MarshalJSON()
+	return body, err
 }

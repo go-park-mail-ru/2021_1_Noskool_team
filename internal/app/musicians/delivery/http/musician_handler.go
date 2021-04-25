@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"net/http"
@@ -86,7 +87,7 @@ func (handler *MusiciansHandler) GetMusiciansByGenre(w http.ResponseWriter, r *h
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +111,7 @@ func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musician, 200)
+	response.SendCorrectResponse(w, musician, 200, musiciansModels.MarshalMusician)
 }
 
 func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +135,7 @@ func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusicianByAlbumID(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +159,7 @@ func (handler *MusiciansHandler) GetMusicianByAlbumID(w http.ResponseWriter, r *
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusicianByPlaylistID(w http.ResponseWriter, r *http.Request) {
@@ -182,7 +183,7 @@ func (handler *MusiciansHandler) GetMusicianByPlaylistID(w http.ResponseWriter, 
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusiciansTop4(w http.ResponseWriter, r *http.Request) {
@@ -193,5 +194,5 @@ func (handler *MusiciansHandler) GetMusiciansTop4(w http.ResponseWriter, r *http
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }

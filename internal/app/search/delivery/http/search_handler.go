@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/search"
+	"2021_1_Noskool_team/internal/app/search/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -54,5 +55,5 @@ func (handler *SearchHandler) SearchContent(w http.ResponseWriter, r *http.Reque
 
 	fmt.Println(searchQuery)
 	search := handler.searchUsecase.SearchContent(searchQuery)
-	response.SendCorrectResponse(w, search, http.StatusOK)
+	response.SendCorrectResponse(w, search, http.StatusOK, models.MarshalSearch)
 }
