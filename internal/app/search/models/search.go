@@ -7,6 +7,7 @@ import (
 	trackModels "2021_1_Noskool_team/internal/app/tracks/models"
 )
 
+//easyjson:json
 type Search struct {
 	Tracks    []*trackModels.Track        `json:"tracks"`
 	Albums    []*albumsModels.Album       `json:"albums"`

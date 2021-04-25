@@ -2,11 +2,13 @@ package models
 
 import "github.com/microcosm-cc/bluemonday"
 
+//easyjson:json
 type RequestLogin struct {
 	Login    string `json:"nickname"`
 	Password string `json:"password"`
 }
 
+//easyjson:json
 type ProfileRequest struct {
 	Email         string   `json:"email"`
 	Password      string   `json:"password"`

@@ -6,6 +6,7 @@ import (
 	"2021_1_Noskool_team/internal/models"
 )
 
+//easyjson:json
 type Track struct {
 	TrackID     int                         `json:"track_id"`
 	Tittle      string                      `json:"tittle"`
@@ -20,3 +21,5 @@ type Track struct {
 	Musicians   []*musiciansModels.Musician `json:"musicians"`
 	Albums      []*albumsModels.Album       `json:"album"`
 }
+
+type Tracks []*Track
