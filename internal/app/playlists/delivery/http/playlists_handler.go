@@ -4,7 +4,6 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/playlists"
-	"2021_1_Noskool_team/internal/app/playlists/models"
 	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
@@ -110,7 +109,7 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	playlist := &models.Playlist{}
+	playlist := &playlistModels.Playlist{}
 	err = playlist.UnmarshalJSON(body)
 	if err != nil {
 		handler.logger.Error(err)
