@@ -45,15 +45,3 @@ func MarshalTrack(data interface{}) ([]byte, error) {
 	body, err := track.MarshalJSON()
 	return body, err
 }
-
-//func MarshalTracks(data interface{}) ([]byte, error) {
-//	track, ok := data.([]*Track)
-//	if !ok {
-//		return nil, errors.New("cant convernt interface{} to track")
-//	}
-//	//body, err := json.Marshal(data)
-//	var tracks Tracks
-//	tracks = track
-//	body, err := tracks.MarshalJSON()
-//	return body, err
-//}

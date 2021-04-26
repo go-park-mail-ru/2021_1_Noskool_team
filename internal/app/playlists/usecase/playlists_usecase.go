@@ -3,6 +3,7 @@ package usecase
 import (
 	"2021_1_Noskool_team/internal/app/playlists"
 	"2021_1_Noskool_team/internal/app/playlists/models"
+	"fmt"
 )
 
 type PlaylistUsecase struct {
@@ -70,8 +71,8 @@ func (usecase *PlaylistUsecase) UploadAudio(playlistID int, audioPath string) er
 
 func (usecase *PlaylistUsecase) GetPlaylists() ([]*models.Playlist, error) {
 	playlists, err := usecase.playlistRep.GetPlaylists()
-
 	for _, playlist := range playlists {
+		fmt.Println(*playlist)
 		tracks, _ := usecase.playlistRep.GetTracksByPlaylistID(playlist.PlaylistID)
 		playlist.Tracks = tracks
 	}

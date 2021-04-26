@@ -5,9 +5,9 @@ import (
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/playlists"
 	"2021_1_Noskool_team/internal/app/playlists/models"
+	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
-	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
@@ -52,6 +52,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	handler.router.HandleFunc("/",
 		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
 	handler.router.HandleFunc("/top",
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylists)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/top/notauth",
 		handler.GetPlaylists).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
