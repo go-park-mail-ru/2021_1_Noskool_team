@@ -312,7 +312,7 @@ func TestGetPlaylistsa(t *testing.T) {
 			row.Picture, row.ReleaseDate, row.UserID)
 	}
 	query := "select playlist_id, tittle, description, picture, release_date, " +
-		"user_id\n\t\t\tfrom playlists\n\t\t\torder by playlist_id"
+		"user_id\n\t\t\tfrom playlists\n\t\t\torder by rating"
 
 	mock.ExpectQuery(query).WithArgs().WillReturnRows(rows)
 	playlists, err := playlistRep.GetPlaylists()

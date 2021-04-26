@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS playlists
     tittle       varchar(100),
     description  text,
     picture      varchar(100),
-    release_date date
+    release_date date,
+    rating       int default 0
 );
 
 CREATE TABLE IF NOT EXISTS album_to_user

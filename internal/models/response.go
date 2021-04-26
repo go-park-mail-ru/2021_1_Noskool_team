@@ -1,6 +1,11 @@
 package models
 
+//easyjson:json
 type Response struct {
-	Error HTTPError   `json:"error"`
-	Body  interface{} `json:"body"`
+	Body interface{} `json:"body"`
+}
+
+func test() {
+	r := Response{}
+	r.MarshalJSON()
 }

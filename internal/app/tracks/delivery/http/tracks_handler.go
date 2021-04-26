@@ -116,7 +116,7 @@ func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	response.SendCorrectResponse(w, track, http.StatusOK)
+	response.SendCorrectResponse(w, track, http.StatusOK, tracksModels.MarshalTrack)
 }
 
 func (handler *TracksHandler) UploadTrackPictureHandler(w http.ResponseWriter, r *http.Request) {
@@ -181,7 +181,7 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, track, http.StatusOK)
+	response.SendCorrectResponse(w, track, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTracksByMusicinID(w http.ResponseWriter, r *http.Request) {
@@ -201,7 +201,7 @@ func (handler *TracksHandler) GetTracksByMusicinID(w http.ResponseWriter, r *htt
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, track, http.StatusOK)
+	response.SendCorrectResponse(w, track, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
@@ -232,7 +232,7 @@ func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http
 	}
 	handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.Request) {
@@ -263,7 +263,7 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 	}
 	handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) AddDeleteTrackToFavorite(w http.ResponseWriter, r *http.Request) {
@@ -325,7 +325,7 @@ func (handler *TracksHandler) GetTracksByAlbumIDHandler(w http.ResponseWriter, r
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTracksByGenreIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -345,7 +345,7 @@ func (handler *TracksHandler) GetTracksByGenreIDHandler(w http.ResponseWriter, r
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) AddDeleteTrackToMediateka(w http.ResponseWriter, r *http.Request) {
@@ -401,7 +401,7 @@ func (handler *TracksHandler) GetTop20Tracks(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTop20TracksNotAuth(w http.ResponseWriter, r *http.Request) {
@@ -412,7 +412,7 @@ func (handler *TracksHandler) GetTop20TracksNotAuth(w http.ResponseWriter, r *ht
 		return
 	}
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTopTrack(w http.ResponseWriter, r *http.Request) {
@@ -430,7 +430,7 @@ func (handler *TracksHandler) GetTopTrack(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTopTrackNotAuth(w http.ResponseWriter, r *http.Request) {
@@ -440,7 +440,7 @@ func (handler *TracksHandler) GetTopTrackNotAuth(w http.ResponseWriter, r *http.
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *http.Request) {
@@ -457,7 +457,7 @@ func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *htt
 			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 		}
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetBillbordTopChartsNotAuth(w http.ResponseWriter, r *http.Request) {
@@ -474,7 +474,7 @@ func (handler *TracksHandler) GetBillbordTopChartsNotAuth(w http.ResponseWriter,
 			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 		}
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetHistory(w http.ResponseWriter, r *http.Request) {
@@ -502,7 +502,7 @@ func (handler *TracksHandler) GetHistory(w http.ResponseWriter, r *http.Request)
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) AddToHistory(w http.ResponseWriter, r *http.Request) {

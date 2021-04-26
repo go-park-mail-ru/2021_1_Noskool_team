@@ -5,6 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/playlists"
 	"2021_1_Noskool_team/internal/app/playlists/models"
+	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
@@ -88,7 +89,7 @@ func (handler *PlaylistsHandler) GetPlaylists(w http.ResponseWriter, r *http.Req
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, playlists, http.StatusOK)
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) GetPlaylistsNotAuth(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +99,7 @@ func (handler *PlaylistsHandler) GetPlaylistsNotAuth(w http.ResponseWriter, r *h
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, playlists, http.StatusOK)
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r *http.Request) {
@@ -144,7 +145,7 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlist, http.StatusOK)
+	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
 
 func (handler *PlaylistsHandler) DeletePlaylistFromMediatekaHandler(w http.ResponseWriter, r *http.Request) {
@@ -206,7 +207,7 @@ func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlist, http.StatusOK)
+	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
 
 func (handler *PlaylistsHandler) AddPlaylistToMediatekaHandler(w http.ResponseWriter, r *http.Request) {
@@ -277,7 +278,7 @@ func (handler *PlaylistsHandler) GetMediateka(w http.ResponseWriter, r *http.Req
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlists, http.StatusOK)
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r *http.Request) {
@@ -299,7 +300,7 @@ func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r 
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlistsByGenreID, http.StatusOK)
+	response.SendCorrectResponse(w, playlistsByGenreID, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWriter, r *http.Request) {
