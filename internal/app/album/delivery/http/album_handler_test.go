@@ -379,7 +379,7 @@ func TestGetFavoriteAlbums(t *testing.T) {
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
 	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
 	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
-	pagination := &commonModels.Pagination{1, 1}
+	pagination := &commonModels.Pagination{Limit: 1, Offset: 1}
 	mockAlbumUsecase.EXPECT().GetFavoriteAlbums(1, pagination).Return(albumsForTests, nil)
 
 	w := httptest.NewRecorder()

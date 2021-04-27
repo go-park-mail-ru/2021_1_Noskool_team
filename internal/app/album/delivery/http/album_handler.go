@@ -55,8 +55,16 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 
 	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 	middleware.ContentTypeJson(handler.router)
+
 	handler.router.HandleFunc("/favorites",
-		authmiddlware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(handler.GetFavoriteAlbums))).Methods(http.MethodGet, http.MethodOptions)
+		authmiddlware.CheckSessionMiddleware(
+			middleware.CheckCSRFMiddleware(handler.GetFavoriteAlbums))).Methods(http.MethodGet, http.MethodOptions)
+
+	handler.router.HandleFunc("/top",
+		authmiddlware.CheckSessionMiddleware(handler.GetAlbums)).Methods("GET", http.MethodOptions)
+
+	handler.router.HandleFunc("/top/notauth", handler.GetAlbums).Methods("GET", http.MethodOptions)
+
 	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET", http.MethodOptions)
@@ -268,6 +276,16 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 		return
 	}
 	response.SendCorrectResponse(w, tracks, http.StatusOK, albumModels.MarshalAlbums)
+}
+
+func (handler *AlbumsHandler) GetAlbums(w http.ResponseWriter, r *http.Request) {
+	albums, err := handler.albumsUsecase.GetAlbums()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, albums, http.StatusOK, albumModels.MarshalAlbums)
 }
 
 //easyjson:json

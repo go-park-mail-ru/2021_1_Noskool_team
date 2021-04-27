@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS albums
     album_id     serial PRIMARY KEY,
     tittle       citext,
     picture      varchar(100),
-    release_date date
+    release_date date,
+    rating       int default 0
 );
 
 CREATE TABLE IF NOT EXISTS tracks
