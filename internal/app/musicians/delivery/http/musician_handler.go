@@ -48,6 +48,9 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
+	handler.router.HandleFunc("/top", authmiddlware.CheckSessionMiddleware(handler.GetMusicians)).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/top/notauth", handler.GetMusicians).Methods("GET", http.MethodOptions)
+
 	handler.router.HandleFunc("/popular", authmiddlware.CheckSessionMiddleware(handler.GetMusiciansTop4)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bygenre/{genre}", handler.GetMusiciansByGenre).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicianByID).Methods("GET", http.MethodOptions)
@@ -194,5 +197,15 @@ func (handler *MusiciansHandler) GetMusiciansTop4(w http.ResponseWriter, r *http
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
+	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
+}
+
+func (handler *MusiciansHandler) GetMusicians(w http.ResponseWriter, r *http.Request) {
+	musicians, err := handler.musicianUsecase.GetMusicians()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
 }

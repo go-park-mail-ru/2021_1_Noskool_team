@@ -196,3 +196,32 @@ func (musicRep *MusicianRepository) SearchMusicians(searchQuery string) ([]*mode
 	}
 	return musiciansByQuery, nil
 }
+
+func (musicRep *MusicianRepository) GetMusicians() (*[]models.Musician, error) {
+	query := `select musician_id, name, description, picture 
+	          from musicians 
+			  order by rating desc 
+			  limit 20`
+	musiciansRows, err := musicRep.con.Query(query)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	defer musiciansRows.Close()
+	musicians := make([]models.Musician, 0)
+
+	for musiciansRows.Next() {
+		musician := models.Musician{}
+		err = musiciansRows.Scan(
+			&musician.MusicianID,
+			&musician.Name,
+			&musician.Description,
+			&musician.Picture)
+		if err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		musicians = append(musicians, musician)
+	}
+	return &musicians, nil
+}

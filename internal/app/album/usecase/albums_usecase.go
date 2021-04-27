@@ -80,3 +80,8 @@ func (usecase *AlbumsUsecase) GetFavoriteAlbums(userID int,
 	albums, err := usecase.albumsRep.GetFavoriteAlbums(userID, pagination)
 	return albums, err
 }
+
+func (usecase *AlbumsUsecase) GetAlbums(pagination *commonModels.Pagination) ([]*models.Album, error) {
+	albums, err := usecase.albumsRep.GetAlbums()
+	return albums, err
+}
