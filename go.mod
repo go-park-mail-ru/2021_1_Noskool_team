@@ -5,6 +5,8 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/SevereCloud/vksdk v1.10.0
+	github.com/SevereCloud/vksdk/v2 v2.9.0
 	github.com/alicebob/miniredis/v2 v2.14.3
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
@@ -20,8 +22,9 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.7
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.8.0
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 	google.golang.org/grpc v1.35.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/jcmturner/dnsutils.v1 v1.0.1 // indirect

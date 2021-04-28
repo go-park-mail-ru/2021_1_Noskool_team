@@ -13,9 +13,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	//vkAPI "github.com/SevereCloud/vksdk/v2/api"
 	"github.com/microcosm-cc/bluemonday"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/vk"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -90,6 +94,10 @@ func (s *ProfilesServer) configureRouter() {
 	s.router.Use(cors.CORS)
 	s.router.HandleFunc("/api/v1/login",
 		s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/display",
+		s.DisplayURl)
+	s.router.HandleFunc("/",
+		s.HandlerOAUthAuthorization).Methods(http.MethodPost, http.MethodOptions, http.MethodGet)
 	s.router.HandleFunc("/api/v1/registrate",
 		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/logout",
@@ -104,6 +112,71 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.Use(middleware.PanicMiddleware)
 	s.router.Use(middleware.ContentTypeJson)
+}
+
+const (
+	APP_ID     = "7838600"
+	APP_KEY    = "055TcqVP82gzKNxshO41"
+	APP_SECRET = "981629bc981629bc981629bcb49861b23499816981629bcf890dba9ca6096c2586f9b82"
+	API_URL    = "https://api.vk.com/method/users.get?fields=id,first_name,last_name&access_token=%s&v=5.89"
+)
+
+type Response struct {
+	Response []map[string]interface{}
+}
+
+func (s *ProfilesServer) DisplayURl(w http.ResponseWriter, r *http.Request) {
+	conf := oauth2.Config{
+		ClientID:     APP_ID,
+		ClientSecret: APP_KEY,
+		RedirectURL:  "http://localhost:8082/",
+		Endpoint:     vk.Endpoint,
+	}
+	url := conf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	w.Write([]byte(url))
+}
+
+func (s *ProfilesServer) HandlerOAUthAuthorization(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	code := r.FormValue("code")
+	conf := oauth2.Config{
+		ClientID:     APP_ID,
+		ClientSecret: APP_KEY,
+		RedirectURL:  "http://localhost:8082/",
+		Endpoint:     vk.Endpoint,
+	}
+	token, err := conf.Exchange(ctx, code)
+	if err != nil {
+		log.Println("cannot exchange", err)
+		w.Write([]byte("====("))
+		return
+	}
+
+	//vkClient := vkAPI.NewVK(token.AccessToken)
+	client := conf.Client(ctx, token)
+	resp, err := client.Get(fmt.Sprintf(API_URL, token.AccessToken))
+	if err != nil {
+		log.Println("cannot request data", err)
+		w.Write([]byte("=("))
+		return
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("cannot read buffer", err)
+		w.Write([]byte("=("))
+		return
+	}
+	//m := make(map[interface{}]interface{}, 0)
+
+	data := &Response{}
+	//json.Unmarshal(body, &m)
+	json.Unmarshal(body, data)
+	//fmt.Println(m)
+	fmt.Println(data)
+	fmt.Println(data.Response[0]["id"].(float64))
 }
 
 func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Request) {
