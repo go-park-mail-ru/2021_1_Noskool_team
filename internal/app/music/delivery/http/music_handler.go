@@ -3,6 +3,7 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	"2021_1_Noskool_team/internal/pkg/monitoring"
 	albumHttp "2021_1_Noskool_team/internal/app/album/delivery/http"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
@@ -39,6 +40,8 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 		router: mux.NewRouter(),
 	}
 
+	metricks := monitoring.RegisterMetrics(handler.router)
+
 	logrus.Info(config.MediaFolder)
 
 	handler.router.PathPrefix("/api/v1/data/").
@@ -48,7 +51,7 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 
 	sanitizer := bluemonday.UGCPolicy()
 
-	handler.router.Use(middleware.LoggingMiddleware)
+	handler.router.Use(middleware.LoggingMiddleware(metricks))
 
 	musicRouter := handler.router.PathPrefix("/api/v1/musician/").Subrouter()
 	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
@@ -68,6 +71,6 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 
 	CORSMiddleware := middleware.NewCORSMiddleware(config)
 	handler.router.Use(CORSMiddleware.CORS)
-	handler.router.Use(middleware.PanicMiddleware)
+	handler.router.Use(middleware.PanicMiddleware(metricks))
 	return handler
 }
