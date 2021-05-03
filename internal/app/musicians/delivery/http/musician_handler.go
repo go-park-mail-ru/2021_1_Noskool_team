@@ -7,6 +7,8 @@ import (
 	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/response"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -51,6 +53,8 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	handler.router.HandleFunc("/top", authmiddlware.CheckSessionMiddleware(handler.GetMusicians)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/top/notauth", handler.GetMusicians).Methods("GET", http.MethodOptions)
 
+	handler.router.HandleFunc("/genres", handler.GetGenreForMusician).Methods("GET", http.MethodOptions)
+
 	handler.router.HandleFunc("/popular", authmiddlware.CheckSessionMiddleware(handler.GetMusiciansTop4)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bygenre/{genre}", handler.GetMusiciansByGenre).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicianByID).Methods("GET", http.MethodOptions)
@@ -73,6 +77,27 @@ func ConfigLogger(handler *MusiciansHandler, config *configs.Config) error {
 
 func (handler *MusiciansHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler.router.ServeHTTP(w, r)
+}
+
+func (handler *MusiciansHandler) GetGenreForMusician(w http.ResponseWriter, r *http.Request) {
+	type MusicianName struct {
+		Name string `json:"name"`
+	}
+	req := &MusicianName{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+
+	geners, err := handler.musicianUsecase.GetGenreForMusician(req.Name)
+	if err != nil {
+		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
+		w.Write(response.FailedResponse(w, 500))
+		return
+	}
+	fmt.Println(geners)
+	response.SendCorrectResponse(w, geners, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusiciansByGenre(w http.ResponseWriter, r *http.Request) {
