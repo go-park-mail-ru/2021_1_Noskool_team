@@ -150,8 +150,8 @@ CREATE TABLE IF NOT EXISTS Profiles
     profiles_id        bigserial not null primary key,
     email              varchar   not null unique,
     nickname           citext    not null unique,
-    first_name         varchar   not null,
-    second_name        varchar   not null,
+    first_name         varchar   not null default '',
+    second_name        varchar   not null default '',
     encrypted_password varchar   not null,
     avatar             varchar   not null,
     favorite_genre     text[]    not null default '{}'::text[]
