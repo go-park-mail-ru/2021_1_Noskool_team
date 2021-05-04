@@ -12,7 +12,7 @@ func FailedResponse(w http.ResponseWriter, code int) []byte {
 	w.WriteHeader(code)
 	response := models.FailedResponse{}
 	response.ResultStatus = "failed"
-	resp, _ := json.Marshal(response)
+	resp, _ := response.MarshalJSON()
 	return resp
 }
 
@@ -30,8 +30,10 @@ func SendErrorResponse(w http.ResponseWriter, error *commonModels.HTTPError) {
 	w.Write(body)
 }
 
-func SendCorrectResponse(w http.ResponseWriter, data interface{}, HTTPStatus int) {
-	body, err := json.Marshal(data)
+func SendCorrectResponse(w http.ResponseWriter, data interface{}, HTTPStatus int,
+	marshalingFunc func(data interface{}) ([]byte, error)) {
+	//body, err := commonModels.Response{Body: data}.MarshalJSON()
+	body, err := marshalingFunc(data)
 	if err != nil {
 		SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusInternalServerError,

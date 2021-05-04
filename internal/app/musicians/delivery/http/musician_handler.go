@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"net/http"
@@ -47,6 +48,9 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
+	handler.router.HandleFunc("/top", authmiddlware.CheckSessionMiddleware(handler.GetMusicians)).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/top/notauth", handler.GetMusicians).Methods("GET", http.MethodOptions)
+
 	handler.router.HandleFunc("/popular", authmiddlware.CheckSessionMiddleware(handler.GetMusiciansTop4)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bygenre/{genre}", handler.GetMusiciansByGenre).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicianByID).Methods("GET", http.MethodOptions)
@@ -86,7 +90,7 @@ func (handler *MusiciansHandler) GetMusiciansByGenre(w http.ResponseWriter, r *h
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +114,7 @@ func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musician, 200)
+	response.SendCorrectResponse(w, musician, 200, musiciansModels.MarshalMusician)
 }
 
 func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +138,7 @@ func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusicianByAlbumID(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +162,7 @@ func (handler *MusiciansHandler) GetMusicianByAlbumID(w http.ResponseWriter, r *
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusicianByPlaylistID(w http.ResponseWriter, r *http.Request) {
@@ -182,7 +186,7 @@ func (handler *MusiciansHandler) GetMusicianByPlaylistID(w http.ResponseWriter, 
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetMusiciansTop4(w http.ResponseWriter, r *http.Request) {
@@ -193,5 +197,15 @@ func (handler *MusiciansHandler) GetMusiciansTop4(w http.ResponseWriter, r *http
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musicians, 200)
+	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
+}
+
+func (handler *MusiciansHandler) GetMusicians(w http.ResponseWriter, r *http.Request) {
+	musicians, err := handler.musicianUsecase.GetMusicians()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
 }

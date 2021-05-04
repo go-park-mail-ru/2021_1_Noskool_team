@@ -1,6 +1,8 @@
 package repository
 
 import (
+	albumsModels "2021_1_Noskool_team/internal/app/album/models"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"fmt"
@@ -27,6 +29,47 @@ var (
 			Audio:       "/api/v1/data/audio/2.mp3",
 			Picture:     "/api/v1/data/audio/tracks/2.mp3",
 			ReleaseDate: "2020-03-04",
+		},
+	}
+
+	musiciansForTests = []*musiciansModels.Musician{
+		{
+			MusicianID:  1,
+			Name:        "Some Name",
+			Description: "some description",
+			Picture:     "some picture",
+		},
+		{
+			MusicianID:  2,
+			Name:        "Some Name",
+			Description: "some description",
+			Picture:     "some picture",
+		},
+	}
+
+	albumsForTests = []*albumsModels.Album{
+		{
+			AlbumID:     1,
+			Tittle:      "albumalbum1",
+			Picture:     "picturepicture1",
+			ReleaseDate: "datedate1",
+		},
+		{
+			AlbumID:     2,
+			Tittle:      "albumalbum2",
+			Picture:     "picturepicture2",
+			ReleaseDate: "datedate2",
+		},
+	}
+
+	genresForTests = []*commonModels.Genre{
+		{
+			GenreID: 1,
+			Title:   "some title",
+		},
+		{
+			GenreID: 2,
+			Title:   "some title",
 		},
 	}
 )
@@ -107,7 +150,7 @@ func TestGetTracksByTittle(t *testing.T) {
 		Audio:       "audio",
 		Picture:     "picture",
 		ReleaseDate: "date",
-		Duration: "3:50",
+		Duration:    "3:50",
 	}
 
 	rows := sqlmock.NewRows([]string{
@@ -381,6 +424,205 @@ func TestSearchTracks(t *testing.T) {
 
 	assert.NoError(t, err)
 	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetTop20Tracks(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+	})
+	for _, row := range tracksForTests {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+	}
+
+	query := "select track_id, tittle, text, audio, picture, release_date, " +
+		"duration from tracks\n\t\t\torder by rating desc\n\t\t\tlimit 20"
+	mock.ExpectQuery(query).WillReturnRows(rows)
+	track, err := tracRep.GetTop20Tracks()
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetBillbordTopCharts(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+	})
+	for _, row := range tracksForTests {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+	}
+	query := "select track_id, tittle, text, audio, picture, release_date, " +
+		"duration from tracks\n\t\t\torder by amount_of_listens desc\n\t\t\tlimit 20"
+	mock.ExpectQuery(query).WillReturnRows(rows)
+	track, err := tracRep.GetBillbordTopCharts()
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetHistory(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+	})
+	for _, row := range tracksForTests {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+	}
+
+	query := "select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date, " +
+		"t.duration\n\t\t\tfrom history as h\n\t\t\tleft join tracks as t on t.track_id " +
+		"= h.track_id\n\t\t\twhere h.user_id ="
+	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
+	track, err := tracRep.GetHistory(1)
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestAddToHistory(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+	query := "insert into history"
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.AddToHistory(1, 2)
+
+	assert.NoError(t, err)
+}
+
+func TestGetMusicianByTrackID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"musician_id", "name", "description", "picture",
+	})
+	for _, row := range musiciansForTests {
+		rows.AddRow(row.MusicianID, row.Name, row.Description,
+			row.Picture)
+	}
+	query := "select mus.musician_id, mus.name, mus.description, mus.picture " +
+		"from musicians as mus\n\t\t\t\t\t\tleft join musicians_to_tracks mtt on " +
+		"mus.musician_id = mtt.musician_id\n\t\t\t\t\t\twhere mtt.track_id ="
+	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
+	musicians := tracRep.GetMusicianByTrackID(1)
+
+	if !reflect.DeepEqual(musiciansForTests, musicians) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetAlbumsByTrackID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"album_id", "tittle", "picture", "release_date",
+	})
+	for _, row := range albumsForTests {
+		rows.AddRow(row.AlbumID, row.Tittle, row.Picture, row.ReleaseDate)
+	}
+	query := "select a.album_id, a.tittle, a.picture, a.release_date from albums " +
+		"as a\n\t\t\t\t\t\tleft join tracks_to_albums tta on a.album_id = " +
+		"tta.album_id\n\t\t\t\t\t\twhere tta.track_id = "
+	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
+	albums := tracRep.GetAlbumsByTrackID(1)
+
+	if !reflect.DeepEqual(albumsForTests, albums) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetGenreByTrackID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"genre_id", "title",
+	})
+	for _, row := range genresForTests {
+		rows.AddRow(row.GenreID, row.Title)
+	}
+	query := "select g.genre_id, g.title from genres as g\n\t\t\t\t\tleft " +
+		"join tracks_to_genres ttg on g.genre_id = " +
+		"ttg.genre_id\n\t\t\t\t\twhere ttg.track_id = "
+	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
+	genres := tracRep.GetGenreByTrackID(1)
+
+	if !reflect.DeepEqual(genresForTests, genres) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestGetTopTrack(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+	})
+	for _, row := range tracksForTests[:1] {
+		rows.AddRow(row.TrackID, row.Tittle, row.Text,
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+	}
+
+	query := "select track_id, tittle, text, audio, picture, release_date, duration " +
+		"from tracks\n\t\t\torder by rating desc\n\t\t\tlimit 1"
+	mock.ExpectQuery(query).WillReturnRows(rows)
+	track, err := tracRep.GetTopTrack()
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(tracksForTests[:1], track) {
 		t.Fatalf("Not equal")
 	}
 }

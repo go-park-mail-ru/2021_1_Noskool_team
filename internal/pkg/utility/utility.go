@@ -1,9 +1,13 @@
 package utility
 
 import (
+	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	"2021_1_Noskool_team/internal/models"
+	commonModels "2021_1_Noskool_team/internal/models"
+	"2021_1_Noskool_team/internal/pkg/response"
 	"crypto/sha256"
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/lib/pq" //goland:noinspection
 	"github.com/sirupsen/logrus"
@@ -87,4 +91,26 @@ func RandomString(n int) string {
 func CreateCSRFToken(secret string) string {
 	b := secret + RandomString(5)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(b)))
+}
+
+func CheckUserID(w http.ResponseWriter, r *http.Request, logger *logrus.Logger) (int, error) {
+	session, ok := r.Context().Value("user_id").(sessionModels.Result)
+	if !ok {
+		logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return 0, errors.New("Not correct user id")
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return 0, err
+	}
+	return userID, nil
 }

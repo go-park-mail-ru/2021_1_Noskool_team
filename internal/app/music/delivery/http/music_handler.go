@@ -57,7 +57,8 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	playlistsRouter := handler.router.PathPrefix("/api/v1/playlist/").Subrouter()
 	handler.musicianHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
 	handler.tracksHandler = trackHttp.NewTracksHandler(tracksRouter, config, tracksUsecase)
-	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase)
+	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase,
+		tracksUsecase, musicUsecase)
 	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase, sanitizer)
 	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
 

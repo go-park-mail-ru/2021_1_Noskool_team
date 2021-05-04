@@ -99,3 +99,79 @@ func TestGetMediateka(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, result, playlistsForTest)
 }
+
+func TestGetPlaylists(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock_playlists.NewMockRepository(ctrl)
+	mockUsecase := NewPlaylistUsecase(mockRepo)
+
+	mockRepo.EXPECT().GetPlaylists().Return(playlistsForTest, nil)
+	mockRepo.EXPECT().GetTracksByPlaylistID(gomock.Any()).AnyTimes()
+	playlists, err := mockUsecase.GetPlaylists()
+	assert.Equal(t, err, nil)
+	assert.Equal(t, playlistsForTest, playlists)
+}
+
+func TestCreatePlaylist(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock_playlists.NewMockRepository(ctrl)
+	mockUsecase := NewPlaylistUsecase(mockRepo)
+
+	mockRepo.EXPECT().CreatePlaylist(playlistsForTest[0]).Return(playlistsForTest[0], nil)
+	playlists, err := mockUsecase.CreatePlaylist(playlistsForTest[0])
+	assert.Equal(t, err, nil)
+	assert.Equal(t, playlistsForTest[0], playlists)
+}
+
+func TestDeletePlaylistFromUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock_playlists.NewMockRepository(ctrl)
+	mockUsecase := NewPlaylistUsecase(mockRepo)
+
+	mockRepo.EXPECT().DeletePlaylistFromUser(1, 2).Return(nil)
+	err := mockUsecase.DeletePlaylistFromUser(1, 2)
+	assert.Equal(t, err, nil)
+}
+
+func TestAddPlaylistToMediateka(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock_playlists.NewMockRepository(ctrl)
+	mockUsecase := NewPlaylistUsecase(mockRepo)
+
+	mockRepo.EXPECT().AddPlaylistToMediateka(1, 2).Return(nil)
+	err := mockUsecase.AddPlaylistToMediateka(1, 2)
+	assert.Equal(t, err, nil)
+}
+
+func TestUploadAudio(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock_playlists.NewMockRepository(ctrl)
+	mockUsecase := NewPlaylistUsecase(mockRepo)
+
+	mockRepo.EXPECT().UploadPicture(1, "some path").Return(nil)
+	err := mockUsecase.UploadAudio(1, "some path")
+	assert.Equal(t, err, nil)
+}
+
+func TestGetPlaylistsByGenreID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mock_playlists.NewMockRepository(ctrl)
+	mockUsecase := NewPlaylistUsecase(mockRepo)
+
+	mockRepo.EXPECT().GetPlaylistsByGenreID(1).Return(playlistsForTest, nil)
+	playlists, err := mockUsecase.GetPlaylistsByGenreID(1)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, playlistsForTest, playlists)
+}

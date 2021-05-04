@@ -3,6 +3,7 @@ package usecase
 import (
 	mocktracks "2021_1_Noskool_team/internal/app/tracks/mocks"
 	"2021_1_Noskool_team/internal/app/tracks/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -302,4 +303,61 @@ func TestAddToHistory(t *testing.T) {
 		Return(nil)
 	err := mockUsecase.AddToHistory(1, 2)
 	assert.Equal(t, err, nil)
+}
+
+func TestGetTopTrack(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocktracks.NewMockRepository(ctrl)
+	mockUsecase := NewTracksUsecase(mockRepo)
+
+	mockRepo.EXPECT().GetTopTrack().Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(gomock.Any()).Return(tracksForTests)
+	track, err := mockUsecase.GetTopTrack()
+	assert.Equal(t, err, nil)
+	assert.Equal(t, tracksForTests, track)
+}
+
+func TestCheckTrackInMediateka(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocktracks.NewMockRepository(ctrl)
+	mockUsecase := NewTracksUsecase(mockRepo)
+	mockRepo.EXPECT().CheckTrackInMediateka(1, 2).Return(nil)
+
+	result := mockUsecase.CheckTrackInMediateka(1, 2)
+	assert.Equal(t, true, result)
+}
+
+func TestCheckTrackInFavorite(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocktracks.NewMockRepository(ctrl)
+	mockUsecase := NewTracksUsecase(mockRepo)
+	mockRepo.EXPECT().CheckTrackInFavorite(1, 2).Return(nil)
+
+	result := mockUsecase.CheckTrackInFavorite(1, 2)
+	assert.Equal(t, true, result)
+}
+
+func TestGetFavoriteTracks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocktracks.NewMockRepository(ctrl)
+	mockUsecase := NewTracksUsecase(mockRepo)
+
+	pagination := &commonModels.Pagination{
+		Limit:  1,
+		Offset: 2,
+	}
+
+	mockRepo.EXPECT().GetFavoriteTracks(1, pagination).Return(tracksForTests, nil)
+	mockRepo.EXPECT().GetMusiciansGenresAndAlbums(gomock.Any()).Return(tracksForTests)
+	track, err := mockUsecase.GetFavoriteTracks(1, pagination)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, tracksForTests, track)
 }

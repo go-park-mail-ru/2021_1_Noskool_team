@@ -3,12 +3,18 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	albumModels "2021_1_Noskool_team/internal/app/album/models"
 	"2021_1_Noskool_team/internal/app/middleware"
+	"2021_1_Noskool_team/internal/app/musicians"
+	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
+	"2021_1_Noskool_team/internal/app/tracks"
+	models0 "2021_1_Noskool_team/internal/app/tracks/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -20,11 +26,14 @@ import (
 type AlbumsHandler struct {
 	router         *mux.Router
 	albumsUsecase  album.Usecase
+	tracksUsecase  tracks.Usecase
+	musUsecase     musicians.Usecase
 	logger         *logrus.Logger
 	sessionsClient client.AuthCheckerClient
 }
 
-func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Usecase) *AlbumsHandler {
+func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Usecase,
+	tracksUsecase tracks.Usecase, musUsecase musicians.Usecase) *AlbumsHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		logrus.Error(err)
@@ -33,6 +42,8 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 	handler := &AlbumsHandler{
 		router:         r,
 		albumsUsecase:  usecase,
+		tracksUsecase:  tracksUsecase,
+		musUsecase:     musUsecase,
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
@@ -44,8 +55,16 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 
 	authmiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 	middleware.ContentTypeJson(handler.router)
+
 	handler.router.HandleFunc("/favorites",
-		authmiddlware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(handler.GetFavoriteAlbums))).Methods(http.MethodGet, http.MethodOptions)
+		authmiddlware.CheckSessionMiddleware(
+			middleware.CheckCSRFMiddleware(handler.GetFavoriteAlbums))).Methods(http.MethodGet, http.MethodOptions)
+
+	handler.router.HandleFunc("/top",
+		authmiddlware.CheckSessionMiddleware(handler.GetAlbums)).Methods("GET", http.MethodOptions)
+
+	handler.router.HandleFunc("/top/notauth", handler.GetAlbums).Methods("GET", http.MethodOptions)
+
 	handler.router.HandleFunc("/{album_id:[0-9]+}", handler.GetAlbumByID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bymusician/{musician_id:[0-9]+}", handler.GetAlbumsByMusicianID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetAlbumsByTrackID).Methods("GET", http.MethodOptions)
@@ -87,12 +106,15 @@ func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	album, err := handler.albumsUsecase.GetAlbumByID(albumIDint)
+	albumWithTracks := ConvertAlumToFullAlbum(album)
+	albumWithTracks.Tracks, _ = handler.tracksUsecase.GetTracksByAlbumID(albumWithTracks.AlbumID)
+	albumWithTracks.Musician, _ = handler.musUsecase.GetMusicianByAlbumID(albumWithTracks.AlbumID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumByID: %v", err)
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200)
+	response.SendCorrectResponse(w, albumWithTracks, 200, MarshalAlbumWithExtraInform)
 }
 
 func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +138,7 @@ func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *ht
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200)
+	response.SendCorrectResponse(w, album, 200, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.Request) {
@@ -140,7 +162,7 @@ func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.
 		w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200)
+	response.SendCorrectResponse(w, album, 200, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) AddDeleteAlbumToMediateka(w http.ResponseWriter, r *http.Request) {
@@ -253,5 +275,45 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, albumModels.MarshalAlbums)
+}
+
+func (handler *AlbumsHandler) GetAlbums(w http.ResponseWriter, r *http.Request) {
+	albums, err := handler.albumsUsecase.GetAlbums()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, albums, http.StatusOK, albumModels.MarshalAlbums)
+}
+
+//easyjson:json
+type AlbumWithExtraInform struct {
+	AlbumID     int                         `json:"album_id"`
+	Tittle      string                      `json:"tittle"`
+	Picture     string                      `json:"picture"`
+	ReleaseDate string                      `json:"release_date"`
+	Musician    *[]musiciansModels.Musician `json:"musician"`
+	Tracks      []*models0.Track            `json:"tracks"`
+}
+
+func ConvertAlumToFullAlbum(album *albumModels.Album) *AlbumWithExtraInform {
+	return &AlbumWithExtraInform{
+		AlbumID:     album.AlbumID,
+		Tittle:      album.Tittle,
+		Picture:     album.Picture,
+		ReleaseDate: album.ReleaseDate,
+		Musician:    nil,
+		Tracks:      nil,
+	}
+}
+
+func MarshalAlbumWithExtraInform(data interface{}) ([]byte, error) {
+	album, ok := data.(*AlbumWithExtraInform)
+	if !ok {
+		return nil, errors.New("cant convernt interface{} to album")
+	}
+	body, err := album.MarshalJSON()
+	return body, err
 }

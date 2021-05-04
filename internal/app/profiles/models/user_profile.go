@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserProfile ...
+//easyjson:json
 type UserProfile struct {
 	ProfileID         int      `json:"user_id"`
 	Email             string   `json:"email"`

@@ -37,16 +37,11 @@ func (playlistRep *PlaylistRepository) CreatePlaylist(playlist *models.Playlist)
 			return nil, err
 		}
 	}
-	queryPlaylistToUser := `INSERT INTO playlists_to_user (user_id, playlist_id) VALUES ($1, $2)`
-	_, err = playlistRep.con.Exec(queryPlaylistToUser, playlist.UserID, playlist.PlaylistID)
-	if err != nil {
-		return nil, err
-	}
 	return playlist, nil
 }
 
 func (playlistRep *PlaylistRepository) DeletePlaylistFromUser(userID, playlistID int) error {
-	query := `DELETE FROM playlists_to_user where playlist_id = $1 and user_id = $2`
+	query := `DELETE FROM playlists where playlist_id = $1 and user_id = $2`
 
 	_, err := playlistRep.con.Exec(query, playlistID, userID)
 	return err
@@ -89,19 +84,31 @@ func (playlistRep *PlaylistRepository) GetTracksByPlaylistID(playlistID int) ([]
 }
 
 func (playlistRep *PlaylistRepository) AddPlaylistToMediateka(userID, playlistID int) error {
-	query := `INSERT INTO playlists_to_user (user_id, playlist_id) VALUES ($1, $2)`
-
-	_, err := playlistRep.con.Exec(query, userID, playlistID)
+	playlist, err := playlistRep.GetPlaylistByID(playlistID)
+	if err != nil {
+		return err
+	}
+	playlist.UserID = userID
+	_, err = playlistRep.CreatePlaylist(playlist)
+	if err != nil {
+		return err
+	}
+	tracks, err := playlistRep.GetTracksByPlaylistID(playlistID)
+	for _, track := range tracks {
+		err = playlistRep.AddTrackToPlaylist(playlist.PlaylistID, track.TrackID)
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 
-func (plalistRep *PlaylistRepository) GetMediateka(userID int) ([]*models.Playlist, error) {
+func (playlistRep *PlaylistRepository) GetMediateka(userID int) ([]*models.Playlist, error) {
 	query := `select p.playlist_id, p.tittle, p.description, p.picture,
-       p.release_date, p.user_id from playlists_to_user as p_u
-			left join playlists p on p_u.playlist_id = p.playlist_id
+       		p.release_date, p.user_id from  playlists p 
 			where p.user_id = $1`
 
-	rows, err := plalistRep.con.Query(query, userID)
+	rows, err := playlistRep.con.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +188,7 @@ func (playlistRep *PlaylistRepository) UploadPicture(playlistID int, audioPath s
 func (playlistRep *PlaylistRepository) GetPlaylists() ([]*models.Playlist, error) {
 	query := `select playlist_id, tittle, description, picture, release_date, user_id
 			from playlists
-			order by playlist_id;`
+			order by rating desc`
 	rows, err := playlistRep.con.Query(query)
 	if err != nil {
 		return nil, err
@@ -199,4 +206,19 @@ func (playlistRep *PlaylistRepository) GetPlaylists() ([]*models.Playlist, error
 		playlists = append(playlists, playlist)
 	}
 	return playlists, nil
+}
+
+func (playlistRep *PlaylistRepository) AddTrackToPlaylist(playlistID, trackID int) error {
+	query := `INSERT INTO tracks_to_playlist (track_id, playlist_id) VALUES ($1, $2)`
+
+	_, err := playlistRep.con.Exec(query, trackID, playlistID)
+	return err
+}
+
+func (playlistRep *PlaylistRepository) DeleteTrackFromPlaylist(playlistID, trackID int) error {
+	query := `DELETE FROM tracks_to_playlist
+			WHERE track_id = $1 AND playlist_id = $2`
+
+	_, err := playlistRep.con.Exec(query, trackID, playlistID)
+	return err
 }
