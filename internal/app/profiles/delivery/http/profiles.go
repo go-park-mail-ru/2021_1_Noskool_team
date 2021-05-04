@@ -8,6 +8,7 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	authModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
+	"2021_1_Noskool_team/internal/pkg/monitoring"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"context"
@@ -84,7 +85,9 @@ func (s *ProfilesServer) configureRouter() {
 			http.StripPrefix(
 				"/api/v1/data/", http.FileServer(http.Dir(mediaFolder))))
 
-	s.router.Use(middleware.LoggingMiddleware)
+	metricks := monitoring.RegisterMetrics(s.router)
+
+	s.router.Use(middleware.LoggingMiddleware(metricks))
 
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
@@ -103,7 +106,7 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
-	s.router.Use(middleware.PanicMiddleware)
+	s.router.Use(middleware.PanicMiddleware(metricks))
 	s.router.Use(middleware.ContentTypeJson)
 }
 
