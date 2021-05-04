@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS playlists
     tittle       varchar(100),
     description  text,
     picture      varchar(100),
-    release_date date,
+    release_date date default now(),
     rating       int default 0
 );
 
