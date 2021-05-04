@@ -107,3 +107,5 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     expose:
       - "9100"
+    ports:
+      - 3000:3000

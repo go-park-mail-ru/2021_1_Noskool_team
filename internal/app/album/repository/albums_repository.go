@@ -59,7 +59,7 @@ func (albumRep *AlbumsRepository) GetAlbumsByMusicianID(musicianID int) (*[]mode
 }
 
 func (albumRep *AlbumsRepository) GetAlbumsByTrackID(trackID int) (*[]models.Album, error) {
-	query := `select album_id, tittle, picture, release_date from albums 
+	query := `select albums.album_id, albums.tittle, albums.picture, albums.release_date from albums 
 	left join Tracks_to_Albums as t_a on t_a.album_id = albums.album_id 
 	left join tracks on tracks.track_id = t_a.track_id  
 	where tracks.track_id = $1`
