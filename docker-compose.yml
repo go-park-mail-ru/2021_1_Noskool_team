@@ -88,3 +88,16 @@ services:
       - prometheus
     ports:
       - 3000:3000
+  node_exporter:
+    image: quay.io/prometheus/node-exporter
+    container_name: node_exporter
+    user: root
+    privileged: true
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
