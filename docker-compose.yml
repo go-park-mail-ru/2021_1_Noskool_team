@@ -81,6 +81,8 @@ services:
       - "./prometheus:/etc/prometheus"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+    expose:
+      - "9090"
   grafana:
     image: grafana/grafana
     user: "grafana"
@@ -88,6 +90,8 @@ services:
       - prometheus
     ports:
       - 3000:3000
+    expose:
+      - "3000"
   node_exporter:
     image: quay.io/prometheus/node-exporter
     container_name: node_exporter
@@ -101,3 +105,5 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - "9100"
