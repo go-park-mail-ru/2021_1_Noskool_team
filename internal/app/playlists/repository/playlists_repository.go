@@ -18,10 +18,10 @@ func NewPlaylistRepository(newCon *sql.DB) *PlaylistRepository {
 }
 
 func (playlistRep *PlaylistRepository) CreatePlaylist(playlist *models.Playlist) (*models.Playlist, error) {
-	query := `INSERT INTO playlists (tittle, description, picture, release_date, user_id) VALUES 
-	($1, $2, $3, $4, $5) returning playlist_id`
+	query := `INSERT INTO playlists (tittle, description, picture, user_id) VALUES 
+	($1, $2, $3, $4) returning playlist_id`
 	err := playlistRep.con.QueryRow(query, playlist.Tittle, playlist.Description,
-		playlist.Picture, playlist.ReleaseDate, playlist.UserID).Scan(&playlist.PlaylistID)
+		playlist.Picture, playlist.UserID).Scan(&playlist.PlaylistID)
 	if err != nil {
 		return nil, err
 	}
