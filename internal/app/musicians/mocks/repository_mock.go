@@ -34,6 +34,21 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// GetGenreForMusician mocks base method.
+func (m *MockRepository) GetGenreForMusician(nameMusician string) (*[]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGenreForMusician", nameMusician)
+	ret0, _ := ret[0].(*[]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGenreForMusician indicates an expected call of GetGenreForMusician.
+func (mr *MockRepositoryMockRecorder) GetGenreForMusician(nameMusician interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGenreForMusician", reflect.TypeOf((*MockRepository)(nil).GetGenreForMusician), nameMusician)
+}
+
 // GetMusicianByAlbumID mocks base method.
 func (m *MockRepository) GetMusicianByAlbumID(albumID int) (*[]models.Musician, error) {
 	m.ctrl.T.Helper()

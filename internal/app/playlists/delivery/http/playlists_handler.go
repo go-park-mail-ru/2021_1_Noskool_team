@@ -47,27 +47,27 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	authMiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
 	handler.router.HandleFunc("/",
-		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost)
+		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/",
-		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
+		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/top",
 		authMiddlware.CheckSessionMiddleware(handler.GetPlaylists)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/top/notauth",
 		handler.GetPlaylists).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
+		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet)
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost)
+		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet)
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/picture",
-		handler.UploadPlaylistPictureHandler).Methods(http.MethodPost)
+		handler.UploadPlaylistPictureHandler).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.AddTrackToPlaylist)).Methods(http.MethodPost)
+		authMiddlware.CheckSessionMiddleware(handler.AddTrackToPlaylist)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.DeleteTrackFromPlaylist)).Methods(http.MethodDelete)
+		authMiddlware.CheckSessionMiddleware(handler.DeleteTrackFromPlaylist)).Methods(http.MethodDelete, http.MethodOptions)
 
 	return handler
 }

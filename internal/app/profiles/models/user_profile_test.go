@@ -69,7 +69,7 @@ func TestValidate(t *testing.T) {
 
 	for _, testCase := range testCases {
 		user := testCase.userCridentials
-		resErr := user.Validate(testCase.withPassword)
+		resErr := user.Validate(testCase.withPassword, true)
 
 		assert.NotEqual(t, testCase.want, resErr)
 	}
