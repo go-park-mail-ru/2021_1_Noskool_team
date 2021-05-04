@@ -17,11 +17,12 @@ func PanicMiddleware(metrics *monitoring.PromMetrics) mux.MiddlewareFunc {
 			defer func() {
 				if err := recover(); err != nil {
 					respTime := time.Since(reqTime)
+					url := "/api/v1/" + re.ReplaceAllString(r.URL.String()[8:], ":num")
 					metrics.Hits.WithLabelValues(
-						strconv.Itoa(http.StatusInternalServerError), r.URL.Path, r.Method).Inc()
+						strconv.Itoa(http.StatusInternalServerError), url, r.Method).Inc()
 
 					metrics.Timings.WithLabelValues(
-						strconv.Itoa(http.StatusInternalServerError), r.URL.String(),
+						strconv.Itoa(http.StatusInternalServerError), url,
 						r.Method).Observe(respTime.Seconds())
 
 					logrus.Error(fmt.Sprintf("panic catched: %s", err))
