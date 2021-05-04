@@ -20,24 +20,97 @@ type UserProfile struct {
 }
 
 // Validate ....
-func (u *UserProfile) Validate(withPassword bool) error {
+func (u *UserProfile) Validate(withPassword bool, registrate bool) error {
+	if registrate {
+		return validation.ValidateStruct(
+			u,
+			validation.Field(&u.Email,
+				validation.Required,
+				is.Email.Error("Некорректный email")),
+			validation.Field(&u.Login,
+				validation.Required,
+				validation.Length(6, 64).Error("Логин должен содержать от 6 до 64 символов")),
+			validation.Field(&u.Password,
+				validation.By(requiredIF(u.EncryptedPassword == "")),
+				validation.Length(6, 32).Error("Пароль должен содержать от 6 до 32 символов")),
+		)
+
+	}
 	if withPassword {
 		return validation.ValidateStruct(
 			u,
-			validation.Field(&u.Email, validation.Required, is.Email),
-			validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
-			validation.Field(&u.Name, validation.Required, validation.Length(2, 64)),
-			validation.Field(&u.Surname, validation.Required, validation.Length(2, 128)),
-			validation.Field(&u.Password, validation.By(requiredIF(u.EncryptedPassword == "")), validation.Length(6, 32)),
+			validation.Field(&u.Email,
+				validation.Required,
+				is.Email.Error("Некорректный email")),
+			validation.Field(&u.Login,
+				validation.Required,
+				validation.Length(6, 64).Error("Логин должен содержать от 6 до 64 символов")),
+			validation.Field(&u.Name,
+				validation.Required,
+				validation.Length(2, 64).Error("Имя должно содержать от 2 до 64 символов")),
+			validation.Field(&u.Surname,
+				validation.Required,
+				validation.Length(2, 128).Error("Фамилия должна содержать от 2 до 128 символов")),
+			validation.Field(&u.Password,
+				validation.By(requiredIF(u.EncryptedPassword == "")),
+				validation.Length(6, 32).Error("Пароль должен содержать от 6 до 32 символов")),
 			validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
 		)
 	}
 	return validation.ValidateStruct(
 		u,
-		validation.Field(&u.Email, validation.Required, is.Email),
-		validation.Field(&u.Name, validation.Required, validation.Length(2, 64)),
-		validation.Field(&u.Surname, validation.Required, validation.Length(2, 128)),
-		validation.Field(&u.Login, validation.Required, validation.Length(6, 64)),
+		validation.Field(&u.Email,
+			validation.Required,
+			is.Email.Error("Некорректный email")),
+		validation.Field(&u.Login,
+			validation.Required,
+			validation.Length(6, 64).Error("Логин должен содержать от 6 до 64 символов")),
+		validation.Field(&u.Name,
+			validation.Required,
+			validation.Length(2, 64).Error("Имя должно содержать от 2 до 64 символов")),
+		validation.Field(&u.Surname,
+			validation.Required,
+			validation.Length(2, 128).Error("Фамилия должна содержать от 2 до 128 символов")),
+		validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
+	)
+}
+
+func (u *UserProfile) ValidationForUpdate(withPassword bool) error {
+	if withPassword {
+		return validation.ValidateStruct(
+			u,
+			validation.Field(&u.Email,
+				validation.By(requiredIF(u.Email != "")),
+				is.Email.Error("Некорректный email")),
+			validation.Field(&u.Login,
+				validation.By(requiredIF(u.Login != "")),
+				validation.Length(6, 64).Error("Логин должен содержать от 6 до 64 символов")),
+			validation.Field(&u.Name,
+				validation.By(requiredIF(u.Name != "")),
+				validation.Length(2, 64).Error("Имя должно содержать от 2 до 64 символов")),
+			validation.Field(&u.Surname,
+				validation.By(requiredIF(u.Surname != "")),
+				validation.Length(2, 128).Error("Фамилия должна содержать от 2 до 128 символов")),
+			validation.Field(&u.Password,
+				validation.By(requiredIF(u.EncryptedPassword == "")),
+				validation.Length(6, 32).Error("Пароль должен содержать от 6 до 32 символов")),
+			validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
+		)
+	}
+	return validation.ValidateStruct(
+		u,
+		validation.Field(&u.Email,
+			validation.By(requiredIF(u.Email != "")),
+			is.Email.Error("Некорректный email")),
+		validation.Field(&u.Login,
+			validation.By(requiredIF(u.Login != "")),
+			validation.Length(6, 64).Error("Логин должен содержать от 6 до 64 символов")),
+		validation.Field(&u.Name,
+			validation.By(requiredIF(u.Name != "")),
+			validation.Length(2, 64).Error("Имя должно содержать от 2 до 64 символов")),
+		validation.Field(&u.Surname,
+			validation.By(requiredIF(u.Surname != "")),
+			validation.Length(2, 128).Error("Фамилия должна содержать от 2 до 128 символов")),
 		validation.Field(&u.FavoriteGenre, validation.By(chrckGenres())),
 	)
 }

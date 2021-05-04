@@ -150,8 +150,8 @@ CREATE TABLE IF NOT EXISTS Profiles
     profiles_id        bigserial not null primary key,
     email              varchar   not null unique,
     nickname           citext    not null unique,
-    first_name         varchar   not null,
-    second_name        varchar   not null,
+    first_name         varchar   not null default '',
+    second_name        varchar   not null default '',
     encrypted_password varchar   not null,
     avatar             varchar   not null,
     favorite_genre     text[]    not null default '{}'::text[]
@@ -212,6 +212,8 @@ values (1, 'AM', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
        (5, 'Good News', '/api/v1/data/img/tracks/good_news.webp', '2018-06-01'),
        (6, 'Каждый раз', '/api/v1/data/img/tracks/monetohka.webp', '2018-06-01'),
        (7, 'Born To Die', '/api/v1/data/img/tracks/BornToDie.webp', '2012-06-01');
+
+
 
 insert into tracks_to_albums (track_id, album_id)
 values (1, 1),
@@ -317,3 +319,7 @@ VALUES ('classical'),
        ('blues'),
        ('reggae'),
        ('indie');
+
+
+insert into Musicians_to_Genres (genre_id, musician_id)
+    values (1,4), (2,4), (3,4);
