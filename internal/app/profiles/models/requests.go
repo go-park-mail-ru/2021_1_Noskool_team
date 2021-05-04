@@ -18,6 +18,12 @@ type ProfileRequest struct {
 	FavoriteGenre []string `json:"favorite_genre"`
 }
 
+type ProfileForRegistrate struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Nickname string `json:"nickname"`
+}
+
 func (req *RequestLogin) Sanitize(sanitizer *bluemonday.Policy) {
 	req.Login = sanitizer.Sanitize(req.Login)
 	req.Password = sanitizer.Sanitize(req.Password)
@@ -30,7 +36,13 @@ func (req *ProfileRequest) Sanitize(sanitizer *bluemonday.Policy) {
 	req.Name = sanitizer.Sanitize(req.Name)
 	req.Surname = sanitizer.Sanitize(req.Surname)
 
-	for i, _ := range req.FavoriteGenre {
+	for i := range req.FavoriteGenre {
 		req.FavoriteGenre[i] = sanitizer.Sanitize(req.FavoriteGenre[i])
 	}
+}
+
+func (req *ProfileForRegistrate) Sanitize(sanitizer *bluemonday.Policy) {
+	req.Email = sanitizer.Sanitize(req.Email)
+	req.Password = sanitizer.Sanitize(req.Password)
+	req.Nickname = sanitizer.Sanitize(req.Nickname)
 }

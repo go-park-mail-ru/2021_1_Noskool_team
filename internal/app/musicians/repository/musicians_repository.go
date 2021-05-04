@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"database/sql"
+	"fmt"
 
 	_ "github.com/lib/pq" //goland:noinspection GoLinterLocal
 	"github.com/sirupsen/logrus"
@@ -224,4 +225,32 @@ func (musicRep *MusicianRepository) GetMusicians() (*[]models.Musician, error) {
 		musicians = append(musicians, musician)
 	}
 	return &musicians, nil
+}
+
+func (musicRep *MusicianRepository) GetGenreForMusician(nameMusician string) (*[]string, error) {
+	query := `select g.title from musicians as m 
+	left join Musicians_to_Genres as m_g on (m_g.musician_id = m.musician_id) 
+	left join genres as g on (g.genre_id = m_g.genre_id) 
+	where m.name = $1;`
+
+	rows, err := musicRep.con.Query(query, nameMusician)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	genres := make([]string, 0)
+
+	for rows.Next() {
+		var tmp string
+		err = rows.Scan(&tmp)
+		if err != nil {
+			logrus.Error(err)
+			return nil, fmt.Errorf("Ошибка получения жанров музыканта: %s", nameMusician)
+		}
+		genres = append(genres, tmp)
+	}
+	return &genres, nil
+
 }

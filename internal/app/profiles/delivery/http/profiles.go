@@ -13,7 +13,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/microcosm-cc/bluemonday"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -21,6 +20,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -238,7 +239,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 
 		// TODO: проверка авторизован ли уже пользователь???
 
-		req := &models.ProfileRequest{}
+		req := &models.ProfileForRegistrate{}
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			s.logger.Error(err)
@@ -254,13 +255,10 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		req.Sanitize(s.sanitizer)
 
 		u := &models.UserProfile{
-			Email:         req.Email,
-			Password:      req.Password,
-			Login:         req.Nickname,
-			Name:          req.Name,
-			Surname:       req.Surname,
-			FavoriteGenre: req.FavoriteGenre,
-			Avatar:        "/api/v1/data/img/default.png",
+			Email:    req.Email,
+			Password: req.Password,
+			Login:    req.Nickname,
+			Avatar:   "/api/v1/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
 			s.logger.Error(err)
