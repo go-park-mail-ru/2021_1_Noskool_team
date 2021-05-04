@@ -70,7 +70,7 @@ func (usecase *SearchUsecase) ConvertTracks(tracks []*trackModels.Track) []*mode
 	for idx, track := range tracks {
 		newTracks[idx] = models.ConvertTrackToTrackWithAlbum(track)
 		albums, err := usecase.albumsRep.GetAlbumsByTrackID(track.TrackID)
-		if err == nil && len(*albums) > 0 {
+		if err == nil && albums != nil && len(*albums) > 0 {
 			newTracks[idx].Album = (*albums)[0].AlbumID
 		}
 	}
