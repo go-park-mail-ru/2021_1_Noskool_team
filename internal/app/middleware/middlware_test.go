@@ -12,18 +12,6 @@ import (
 	"testing"
 )
 
-//func TestLoggingMiddleware(t *testing.T) {
-//	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		assert.True(t, true)
-//	})
-//	handlerToTest := LoggingMiddleware(nextHandler)
-//
-//	req := httptest.NewRequest("GET", "/api/v1/", nil)
-//
-//	w := httptest.NewRecorder()
-//	handlerToTest.ServeHTTP(w, req)
-//}
-
 const (
 	configPath = "configs/config.toml"
 )
@@ -53,17 +41,6 @@ func TestCORSMiddleware(t *testing.T) {
 	assert.Equal(t, w.Header().Get("Access-Control-Allow-Credentials"),
 		"true")
 }
-
-//func TestPanicMiddleware(t *testing.T) {
-//	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		panic("panic")
-//	})
-//	handlerToTest := PanicMiddleware(nextHandler)
-//	req := httptest.NewRequest("GET", "/api/v1/", nil)
-//
-//	w := httptest.NewRecorder()
-//	handlerToTest.ServeHTTP(w, req)
-//}
 
 func TestCheckSessionMiddleware(t *testing.T) {
 	ctrl := gomock.NewController(t)

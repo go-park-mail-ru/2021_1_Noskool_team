@@ -688,6 +688,99 @@ func TestGetTop20Tracks(t *testing.T) {
 	}
 }
 
+func TestGetTop20TracksNotAuth(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetTop20Tracks().Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTop20TracksNotAuth(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecase.EXPECT().GetTop20Tracks().Return(nil, errors.New("not content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTop20TracksNotAuth(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestGetTopTrack(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetTopTrack().Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTopTrack(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecase.EXPECT().GetTopTrack().Return(nil, errors.New("not content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTopTrack(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+func TestGetTopTrackNotAuth(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetTopTrack().Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTopTrackNotAuth(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecase.EXPECT().GetTopTrack().Return(nil, errors.New("not content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/top", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetTopTrackNotAuth(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
 func TestGetBillbordTopCharts(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -718,6 +811,39 @@ func TestGetBillbordTopCharts(t *testing.T) {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 }
+
+func TestGetBillbordTopChartsNotAuth(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockTracksUsecase.EXPECT().GetBillbordTopCharts().Return(testTreks, nil)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/track/billbord", nil)
+	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetBillbordTopChartsNotAuth(w, r)
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(testTreks)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockTracksUsecase.EXPECT().GetBillbordTopCharts().Return(nil, errors.New("not content"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/track/billbord", nil)
+	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
+	handler.GetBillbordTopChartsNotAuth(w, r)
+	expected = http.StatusNoContent
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+}
+
+
 
 func TestUploadTrackAudioHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
