@@ -319,7 +319,7 @@ func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWri
 		return
 	}
 
-	err = handler.playlistsUsecase.UploadAudio(playlistIDINT, fileNetPath)
+	err = handler.playlistsUsecase.UploadPicture(playlistIDINT, fileNetPath)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusInternalServerError)
