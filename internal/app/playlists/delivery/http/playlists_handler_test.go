@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -329,6 +330,114 @@ func TestGetMediateka(t *testing.T) {
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.GetMediateka(w, r)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestAddTrackToPlaylist(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPlaylistUsecase := mock_playlists.NewMockUsecase(ctrl)
+
+	mockPlaylistUsecase.EXPECT().AddTrackToPlaylist(1, 5).Return(nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1),
+		"track_id": strconv.Itoa(5)})
+
+	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.AddTrackToPlaylist(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.AddTrackToPlaylist(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1)})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.AddTrackToPlaylist(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	mockPlaylistUsecase.EXPECT().AddTrackToPlaylist(1,
+		5).Return(fmt.Errorf("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1),
+		"track_id": strconv.Itoa(5)})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.AddTrackToPlaylist(w, r)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestDeleteTrackFromPlaylist(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPlaylistUsecase := mock_playlists.NewMockUsecase(ctrl)
+
+	mockPlaylistUsecase.EXPECT().DeleteTrackFromPlaylist(1, 5).Return(nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1),
+		"track_id": strconv.Itoa(5)})
+
+	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.DeleteTrackFromPlaylist(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.DeleteTrackFromPlaylist(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1)})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.DeleteTrackFromPlaylist(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	mockPlaylistUsecase.EXPECT().DeleteTrackFromPlaylist(1,
+		5).Return(fmt.Errorf("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1),
+		"track_id": strconv.Itoa(5)})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
+	handler.DeleteTrackFromPlaylist(w, r)
 	if w.Code != http.StatusNoContent {
 		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
 	}
