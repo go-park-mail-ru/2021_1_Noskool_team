@@ -4,6 +4,8 @@ import (
 	"2021_1_Noskool_team/configs"
 	mock_album "2021_1_Noskool_team/internal/app/album/mocks"
 	"2021_1_Noskool_team/internal/app/album/models"
+	mock_musicians "2021_1_Noskool_team/internal/app/musicians/mocks"
+	mock_tracks "2021_1_Noskool_team/internal/app/tracks/mocks"
 	models2 "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"context"
@@ -62,14 +64,19 @@ func TestGetAlbumByID(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().GetAlbumByID(testAlbum.AlbumID).Times(1).Return(testAlbum, nil)
+	mockTracksUsecase.EXPECT().GetTracksByAlbumID(gomock.Any()).AnyTimes()
+	mockMusicianUsecase.EXPECT().GetMusicianByAlbumID(gomock.Any()).AnyTimes()
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/album/", nil)
 	r = mux.SetURLVars(r, map[string]string{"album_id": strconv.Itoa(testAlbum.AlbumID)})
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetAlbumByID(w, r)
 
@@ -78,7 +85,8 @@ func TestGetAlbumByID(t *testing.T) {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 
-	expectedMsg, _ := json.Marshal(testAlbum)
+	albumWithExtra := ConvertAlumToFullAlbum(testAlbum)
+	expectedMsg, _ := json.Marshal(albumWithExtra)
 	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
 		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
 	}
@@ -89,15 +97,20 @@ func TestGetAlbumByIDFailed(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().GetAlbumByID(testAlbum.AlbumID).Times(1).Return(testAlbum,
 		errors.New("albumUsecase error"))
+	mockTracksUsecase.EXPECT().GetTracksByAlbumID(gomock.Any()).AnyTimes()
+	mockMusicianUsecase.EXPECT().GetMusicianByAlbumID(gomock.Any()).AnyTimes()
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/album/", nil)
 	r = mux.SetURLVars(r, map[string]string{"album_id": strconv.Itoa(testAlbum.AlbumID)})
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetAlbumByID(w, r)
 
@@ -116,6 +129,8 @@ func TestGetAlbumsByMusicianID(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().GetAlbumsByMusicianID(1).Times(1).Return(expectedAlbums, nil)
 
@@ -123,7 +138,8 @@ func TestGetAlbumsByMusicianID(t *testing.T) {
 	r := httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
 	r = mux.SetURLVars(r, map[string]string{"musician_id": "1"})
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetAlbumsByMusicianID(w, r)
 
@@ -143,6 +159,8 @@ func TestGetAlbumsByMusicianIDFailed(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().GetAlbumsByMusicianID(1).Times(1).Return(expectedAlbums,
 		errors.New("albumUsecase error"))
@@ -151,7 +169,8 @@ func TestGetAlbumsByMusicianIDFailed(t *testing.T) {
 	r := httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
 	r = mux.SetURLVars(r, map[string]string{"musician_id": "1"})
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetAlbumsByMusicianID(w, r)
 
@@ -170,6 +189,8 @@ func TestGetAlbumsByTrackID(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().GetAlbumsByTrackID(1).Times(1).Return(expectedAlbums, nil)
 
@@ -177,7 +198,8 @@ func TestGetAlbumsByTrackID(t *testing.T) {
 	r := httptest.NewRequest("GET", "/api/v1/album/bytrack/", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": "1"})
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetAlbumsByTrackID(w, r)
 
@@ -197,6 +219,8 @@ func TestGetAlbumsByTrackIDFailed(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().GetAlbumsByTrackID(1).Times(1).Return(expectedAlbums,
 		errors.New("albumUsecase error"))
@@ -205,7 +229,8 @@ func TestGetAlbumsByTrackIDFailed(t *testing.T) {
 	r := httptest.NewRequest("GET", "/api/v1/album/bytrack/", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": "1"})
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetAlbumsByTrackID(w, r)
 
@@ -224,6 +249,8 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().AddAlbumToMediateka(1, 1).Return(nil)
 
@@ -233,7 +260,8 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 	r = mux.SetURLVars(r, map[string]string{"album_id": "1"})
 	r.URL.RawQuery = "type=add"
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.AddDeleteAlbumToMediateka(w, r)
 
@@ -244,7 +272,8 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToMediateka(w, r)
 
 	expected = http.StatusBadRequest
@@ -255,7 +284,8 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"}))
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToMediateka(w, r)
 
 	expected = http.StatusInternalServerError
@@ -268,7 +298,8 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 	r = r.WithContext(context.WithValue(r.Context(), "user_id",
 		models2.Result{ID: "cont correct id"}))
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToMediateka(w, r)
 
 	expected = http.StatusBadRequest
@@ -282,6 +313,8 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockAlbumUsecase.EXPECT().AddAlbumToFavorites(1, 1).Return(nil)
 
@@ -291,7 +324,8 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 	r = mux.SetURLVars(r, map[string]string{"album_id": "1"})
 	r.URL.RawQuery = "type=add"
 
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.AddDeleteAlbumToFavorites(w, r)
 
@@ -302,7 +336,8 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToFavorites(w, r)
 
 	expected = http.StatusBadRequest
@@ -313,7 +348,8 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"}))
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToFavorites(w, r)
 
 	expected = http.StatusInternalServerError
@@ -326,7 +362,8 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 	r = r.WithContext(context.WithValue(r.Context(), "user_id",
 		models2.Result{ID: "cont correct id"}))
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToFavorites(w, r)
 
 	expected = http.StatusBadRequest
@@ -340,14 +377,17 @@ func TestGetFavoriteAlbums(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
-	pagination := &commonModels.Pagination{1, 1}
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
+	pagination := &commonModels.Pagination{Limit: 1, Offset: 1}
 	mockAlbumUsecase.EXPECT().GetFavoriteAlbums(1, pagination).Return(albumsForTests, nil)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
 	r.URL.RawQuery = "limit=1&offset=1"
-	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 
 	handler.GetFavoriteAlbums(w, r)
 
@@ -363,7 +403,8 @@ func TestGetFavoriteAlbums(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.GetFavoriteAlbums(w, r)
 
 	expected = http.StatusBadRequest
@@ -374,7 +415,8 @@ func TestGetFavoriteAlbums(t *testing.T) {
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
 	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"}))
-	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase)
+	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
 	handler.GetFavoriteAlbums(w, r)
 
 	expected = http.StatusInternalServerError

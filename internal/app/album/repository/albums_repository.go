@@ -59,7 +59,7 @@ func (albumRep *AlbumsRepository) GetAlbumsByMusicianID(musicianID int) (*[]mode
 }
 
 func (albumRep *AlbumsRepository) GetAlbumsByTrackID(trackID int) (*[]models.Album, error) {
-	query := `select album_id, tittle, picture, release_date from albums 
+	query := `select albums.album_id, albums.tittle, albums.picture, albums.release_date from albums 
 	left join Tracks_to_Albums as t_a on t_a.album_id = albums.album_id 
 	left join tracks on tracks.track_id = t_a.track_id  
 	where tracks.track_id = $1`
@@ -167,4 +167,31 @@ func (albumRep *AlbumsRepository) CheckAlbumInMediateka(userID, albumID int) err
 
 	_, err := albumRep.con.Exec(query, userID, albumID)
 	return err
+}
+
+func (albumRep *AlbumsRepository) GetAlbums() ([]*models.Album, error) {
+	query := `select album_id, tittle, picture, release_date
+			  from albums
+			  order by rating desc
+			  limit 20`
+	rows, err := albumRep.con.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	res := make([]*models.Album, 0)
+
+	for rows.Next() {
+		tmp := &models.Album{}
+		err = rows.Scan(
+			&tmp.AlbumID,
+			&tmp.Tittle,
+			&tmp.Picture,
+			&tmp.ReleaseDate)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, tmp)
+	}
+	return res, nil
 }

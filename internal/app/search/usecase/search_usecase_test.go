@@ -9,7 +9,7 @@ import (
 	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
 	"2021_1_Noskool_team/internal/app/search/models"
 	mockTracks "2021_1_Noskool_team/internal/app/tracks/mocks"
-	trackModels "2021_1_Noskool_team/internal/app/tracks/models"
+	models2 "2021_1_Noskool_team/internal/app/tracks/models"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +17,26 @@ import (
 )
 
 var (
+	tr = []*models2.Track{
+		{
+			TrackID:     1,
+			Tittle:      "song",
+			Text:        "sing song song",
+			Audio:       "/api/v1/data/audio/track/2.mp3",
+			Picture:     "picture",
+			ReleaseDate: "2021-03-04",
+		},
+		{
+			TrackID:     2,
+			Tittle:      "song helloWorld",
+			Text:        "sing song song ooooo",
+			Audio:       "/api/v1/data/audio/2.mp3",
+			Picture:     "/api/v1/data/audio/tracks/2.mp3",
+			ReleaseDate: "2020-03-04",
+		},
+	}
 	searchResultForTests = &models.Search{
-		Tracks: []*trackModels.Track{
+		Tracks: []*models.TrackWithAlbum{
 			{
 				TrackID:     1,
 				Tittle:      "song",
@@ -85,7 +103,7 @@ var (
 	}
 
 	noContentResult = &models.Search{
-		Tracks:    []*trackModels.Track{},
+		Tracks:    []*models.TrackWithAlbum{},
 		Albums:    []*albumModels.Album{},
 		Musicians: []*musicianModels.Musician{},
 		Playlists: []*playlistModels.Playlist{},
@@ -108,7 +126,9 @@ func TestSearchContent(t *testing.T) {
 
 	trackRepMock.
 		EXPECT().SearchTracks(gomock.Eq(searchQuery)).
-		Return(searchResultForTests.Tracks, nil)
+		Return(tr, nil)
+	albumRepMock.
+		EXPECT().GetAlbumsByTrackID(gomock.Any()).AnyTimes()
 	playlistRepMock.
 		EXPECT().SearchPlaylists(gomock.Eq(searchQuery)).
 		Return(searchResultForTests.Playlists, nil)

@@ -4,8 +4,10 @@ import (
 	albumsModels "2021_1_Noskool_team/internal/app/album/models"
 	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/models"
+	"errors"
 )
 
+//easyjson:json
 type Track struct {
 	TrackID     int                         `json:"track_id"`
 	Tittle      string                      `json:"tittle"`
@@ -19,4 +21,27 @@ type Track struct {
 	Genres      []*models.Genre             `json:"genres"`
 	Musicians   []*musiciansModels.Musician `json:"musicians"`
 	Albums      []*albumsModels.Album       `json:"album"`
+}
+
+//easyjson:json
+type Tracks []*Track
+
+func MarshalTracks(data interface{}) ([]byte, error) {
+	track, ok := data.([]*Track)
+	if !ok {
+		return nil, errors.New("cant convernt interface{} to track")
+	}
+	var tracks Tracks
+	tracks = track
+	body, err := tracks.MarshalJSON()
+	return body, err
+}
+
+func MarshalTrack(data interface{}) ([]byte, error) {
+	track, ok := data.(*Track)
+	if !ok {
+		return nil, errors.New("cant convernt interface{} to track")
+	}
+	body, err := track.MarshalJSON()
+	return body, err
 }

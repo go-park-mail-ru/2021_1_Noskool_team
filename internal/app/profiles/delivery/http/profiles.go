@@ -8,12 +8,12 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	authModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
+	"2021_1_Noskool_team/internal/pkg/monitoring"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/microcosm-cc/bluemonday"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -21,6 +21,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -83,7 +85,9 @@ func (s *ProfilesServer) configureRouter() {
 			http.StripPrefix(
 				"/api/v1/data/", http.FileServer(http.Dir(mediaFolder))))
 
-	s.router.Use(middleware.LoggingMiddleware)
+	metricks := monitoring.RegisterMetrics(s.router)
+
+	s.router.Use(middleware.LoggingMiddleware(metricks))
 
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
@@ -102,7 +106,7 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
-	s.router.Use(middleware.PanicMiddleware)
+	s.router.Use(middleware.PanicMiddleware(metricks))
 	s.router.Use(middleware.ContentTypeJson)
 }
 
@@ -238,7 +242,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 
 		// TODO: проверка авторизован ли уже пользователь???
 
-		req := &models.ProfileRequest{}
+		req := &models.ProfileForRegistrate{}
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			s.logger.Error(err)
@@ -254,13 +258,10 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 		req.Sanitize(s.sanitizer)
 
 		u := &models.UserProfile{
-			Email:         req.Email,
-			Password:      req.Password,
-			Login:         req.Nickname,
-			Name:          req.Name,
-			Surname:       req.Surname,
-			FavoriteGenre: req.FavoriteGenre,
-			Avatar:        "/api/v1/data/img/default.png",
+			Email:    req.Email,
+			Password: req.Password,
+			Login:    req.Nickname,
+			Avatar:   "/api/v1/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
 			s.logger.Error(err)

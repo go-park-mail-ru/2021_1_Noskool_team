@@ -159,7 +159,7 @@ func TestUploadAudio(t *testing.T) {
 	mockUsecase := NewPlaylistUsecase(mockRepo)
 
 	mockRepo.EXPECT().UploadPicture(1, "some path").Return(nil)
-	err := mockUsecase.UploadAudio(1, "some path")
+	err := mockUsecase.UploadPicture(1, "some path")
 	assert.Equal(t, err, nil)
 }
 

@@ -48,6 +48,20 @@ func (mr *MockUsecaseMockRecorder) AddPlaylistToMediateka(userID, playlistID int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPlaylistToMediateka", reflect.TypeOf((*MockUsecase)(nil).AddPlaylistToMediateka), userID, playlistID)
 }
 
+// AddTrackToPlaylist mocks base method.
+func (m *MockUsecase) AddTrackToPlaylist(playlistID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTrackToPlaylist", playlistID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTrackToPlaylist indicates an expected call of AddTrackToPlaylist.
+func (mr *MockUsecaseMockRecorder) AddTrackToPlaylist(playlistID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToPlaylist", reflect.TypeOf((*MockUsecase)(nil).AddTrackToPlaylist), playlistID, trackID)
+}
+
 // CreatePlaylist mocks base method.
 func (m *MockUsecase) CreatePlaylist(playlist *models.Playlist) (*models.Playlist, error) {
 	m.ctrl.T.Helper()
@@ -75,6 +89,20 @@ func (m *MockUsecase) DeletePlaylistFromUser(userID, playlistID int) error {
 func (mr *MockUsecaseMockRecorder) DeletePlaylistFromUser(userID, playlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePlaylistFromUser", reflect.TypeOf((*MockUsecase)(nil).DeletePlaylistFromUser), userID, playlistID)
+}
+
+// DeleteTrackFromPlaylist mocks base method.
+func (m *MockUsecase) DeleteTrackFromPlaylist(playlistID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrackFromPlaylist", playlistID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrackFromPlaylist indicates an expected call of DeleteTrackFromPlaylist.
+func (mr *MockUsecaseMockRecorder) DeleteTrackFromPlaylist(playlistID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackFromPlaylist", reflect.TypeOf((*MockUsecase)(nil).DeleteTrackFromPlaylist), playlistID, trackID)
 }
 
 // GetMediateka mocks base method.
@@ -137,16 +165,16 @@ func (mr *MockUsecaseMockRecorder) GetPlaylistsByGenreID(genreID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylistsByGenreID", reflect.TypeOf((*MockUsecase)(nil).GetPlaylistsByGenreID), genreID)
 }
 
-// UploadAudio mocks base method.
-func (m *MockUsecase) UploadAudio(playlistID int, audioPath string) error {
+// UploadPicture mocks base method.
+func (m *MockUsecase) UploadPicture(playlistID int, audioPath string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAudio", playlistID, audioPath)
+	ret := m.ctrl.Call(m, "UploadPicture", playlistID, audioPath)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UploadAudio indicates an expected call of UploadAudio.
-func (mr *MockUsecaseMockRecorder) UploadAudio(playlistID, audioPath interface{}) *gomock.Call {
+// UploadPicture indicates an expected call of UploadPicture.
+func (mr *MockUsecaseMockRecorder) UploadPicture(playlistID, audioPath interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAudio", reflect.TypeOf((*MockUsecase)(nil).UploadAudio), playlistID, audioPath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadPicture", reflect.TypeOf((*MockUsecase)(nil).UploadPicture), playlistID, audioPath)
 }

@@ -99,7 +99,7 @@ func TestCreatePlaylist(t *testing.T) {
 	queryFirst := "INSERT INTO playlists"
 
 	mock.ExpectQuery(queryFirst).WithArgs(playlistsForTest[2].Tittle, playlistsForTest[2].Description,
-		playlistsForTest[2].Picture, playlistsForTest[2].ReleaseDate, playlistsForTest[2].UserID,
+		"/api/v1/data/img/playlists/happy.webp", playlistsForTest[2].UserID,
 	).WillReturnRows(rows)
 
 	querySecond := "INSERT INTO Tracks_to_Playlist"
@@ -113,7 +113,7 @@ func TestCreatePlaylist(t *testing.T) {
 			PlaylistID:  3,
 			Tittle:      "Tittle without tracks",
 			Description: "some description",
-			Picture:     "/api/v1/data/img/playlists/3.png",
+			Picture:     "/api/v1/data/img/playlists/happy.webp",
 			ReleaseDate: "2020-03-04",
 			UserID:      1,
 			Tracks: []*trackModels.Track{
@@ -161,21 +161,29 @@ func TestGetTracksByPlaylistID(t *testing.T) {
 	}
 }
 
-func TestAddPlaylistToMediateka(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("cant create mock '%s'", err)
-	}
-	playlistRep := NewPlaylistRepository(db)
-
-	defer db.Close()
-	query := "INSERT INTO playlists_to_user"
-	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
-		sqlmock.NewResult(1, 1))
-	err = playlistRep.AddPlaylistToMediateka(1, 2)
-
-	assert.NoError(t, err)
-}
+//func TestAddPlaylistToMediateka(t *testing.T) {
+//	db, mock, err := sqlmock.New()
+//	if err != nil {
+//		t.Fatalf("cant create mock '%s'", err)
+//	}
+//	playlistRep := NewPlaylistRepository(db)
+//	defer db.Close()
+//
+//	rows := sqlmock.NewRows([]string{
+//		"playlist_id", "tittle", "description", "picture", "release_date", "user_id",
+//	}).AddRow(playlistsForTest[2].PlaylistID, playlistsForTest[2].Tittle, playlistsForTest[2].Description,
+//		playlistsForTest[2].Picture, playlistsForTest[2].ReleaseDate, playlistsForTest[2].UserID)
+//
+//	queryGetPlaylistID := `SELECT playlist_id, tittle, description, picture, release_date, user_id FROM playlists`
+//	mock.ExpectQuery(queryGetPlaylistID).WithArgs(playlistsForTest[2].PlaylistID).WillReturnRows(rows)
+//	query := "INSERT"
+//	mock.ExpectExec(query).WithArgs(1, 3).WillReturnResult(
+//		sqlmock.NewResult(1, 1))
+//
+//	err = playlistRep.AddPlaylistToMediateka(1, 3)
+//
+//	assert.NoError(t, err)
+//}
 
 func TestGetMediateka(t *testing.T) {
 	db, mock, err := sqlmock.New()
@@ -192,9 +200,8 @@ func TestGetMediateka(t *testing.T) {
 		rows.AddRow(row.PlaylistID, row.Tittle, row.Description,
 			row.Picture, row.ReleaseDate, row.UserID)
 	}
-	query := "select p.playlist_id, p.tittle, p.description, p.picture,\n       " +
-		"p.release_date, p.user_id from playlists_to_user " +
-		"as p_u\n\t\t\tleft join playlists p on p_u.playlist_id = p.playlist_id"
+	query := "select p.playlist_id, p.tittle, p.description, p.picture," +
+		"\n       \t\tp.release_date, p.user_id from  playlists p \n\t\t\twhere p.user_id ="
 
 	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
 	playlists, err := playlistRep.GetMediateka(1)
@@ -281,7 +288,7 @@ func TestDeletePlaylistFromUser(t *testing.T) {
 	playlistRep := NewPlaylistRepository(db)
 
 	defer db.Close()
-	query := "DELETE FROM playlists_to_user where playlist_id ="
+	query := "DELETE FROM playlists where playlist_id ="
 	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
 		sqlmock.NewResult(1, 1))
 	err = playlistRep.DeletePlaylistFromUser(2, 1)
@@ -305,7 +312,7 @@ func TestGetPlaylistsa(t *testing.T) {
 			row.Picture, row.ReleaseDate, row.UserID)
 	}
 	query := "select playlist_id, tittle, description, picture, release_date, " +
-		"user_id\n\t\t\tfrom playlists\n\t\t\torder by playlist_id"
+		"user_id\n\t\t\tfrom playlists\n\t\t\torder by rating"
 
 	mock.ExpectQuery(query).WithArgs().WillReturnRows(rows)
 	playlists, err := playlistRep.GetPlaylists()
@@ -313,4 +320,37 @@ func TestGetPlaylistsa(t *testing.T) {
 	if !reflect.DeepEqual(playlistsForTest, playlists) {
 		t.Fatalf("Not equal")
 	}
+}
+
+func TestAddTrackToPlaylist(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	playlistRep := NewPlaylistRepository(db)
+
+	defer db.Close()
+	query := `INSERT INTO tracks_to_playlist`
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = playlistRep.AddTrackToPlaylist(2, 1)
+
+	assert.NoError(t, err)
+}
+
+func TestDeleteTrackFromPlaylist(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	playlistRep := NewPlaylistRepository(db)
+
+	defer db.Close()
+	query := `DELETE FROM tracks_to_playlist
+			WHERE track_id = `
+	mock.ExpectExec(query).WithArgs(1, 2).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = playlistRep.DeleteTrackFromPlaylist(2, 1)
+
+	assert.NoError(t, err)
 }

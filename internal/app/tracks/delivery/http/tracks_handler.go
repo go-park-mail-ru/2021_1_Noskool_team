@@ -45,11 +45,17 @@ func NewTracksHandler(r *mux.Router, config *configs.Config, usecase tracks.Usec
 	authMiddleware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
 	handler.router.HandleFunc("/top",
+		authMiddleware.CheckSessionMiddleware(handler.GetTop20Tracks)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/top/notauth",
 		handler.GetTop20Tracks).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/toptrack",
+		authMiddleware.CheckSessionMiddleware(handler.GetTopTrack)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/toptrack/notauth",
 		handler.GetTopTrack).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/billbord",
 		authMiddleware.CheckSessionMiddleware(handler.GetBillbordTopCharts)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/billbord/notauth",
+		handler.GetBillbordTopChartsNotAuth).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{track_id:[0-9]+}",
 		handler.GetTrackByIDHandler)
 	handler.router.HandleFunc("/mediateka",
@@ -110,7 +116,7 @@ func (handler *TracksHandler) GetTrackByIDHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	response.SendCorrectResponse(w, track, http.StatusOK)
+	response.SendCorrectResponse(w, track, http.StatusOK, tracksModels.MarshalTrack)
 }
 
 func (handler *TracksHandler) UploadTrackPictureHandler(w http.ResponseWriter, r *http.Request) {
@@ -175,7 +181,7 @@ func (handler *TracksHandler) GetTracksByTittle(w http.ResponseWriter, r *http.R
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, track, http.StatusOK)
+	response.SendCorrectResponse(w, track, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTracksByMusicinID(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +201,7 @@ func (handler *TracksHandler) GetTracksByMusicinID(w http.ResponseWriter, r *htt
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, track, http.StatusOK)
+	response.SendCorrectResponse(w, track, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
@@ -226,7 +232,7 @@ func (handler *TracksHandler) GetMediatekaForUser(w http.ResponseWriter, r *http
 	}
 	handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +263,7 @@ func (handler *TracksHandler) GetFavoriteTracks(w http.ResponseWriter, r *http.R
 	}
 	handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) AddDeleteTrackToFavorite(w http.ResponseWriter, r *http.Request) {
@@ -319,7 +325,7 @@ func (handler *TracksHandler) GetTracksByAlbumIDHandler(w http.ResponseWriter, r
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTracksByGenreIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -339,7 +345,7 @@ func (handler *TracksHandler) GetTracksByGenreIDHandler(w http.ResponseWriter, r
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) AddDeleteTrackToMediateka(w http.ResponseWriter, r *http.Request) {
@@ -387,8 +393,26 @@ func (handler *TracksHandler) GetTop20Tracks(w http.ResponseWriter, r *http.Requ
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if ok {
+		userID, err := strconv.Atoi(session.ID)
+		if err == nil {
+			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
+		}
+	}
 
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
+}
+
+func (handler *TracksHandler) GetTop20TracksNotAuth(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetTop20Tracks()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetTopTrack(w http.ResponseWriter, r *http.Request) {
@@ -398,7 +422,25 @@ func (handler *TracksHandler) GetTopTrack(w http.ResponseWriter, r *http.Request
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if ok {
+		userID, err := strconv.Atoi(session.ID)
+		if err == nil {
+			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
+		}
+	}
+
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
+}
+
+func (handler *TracksHandler) GetTopTrackNotAuth(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetTopTrack()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *http.Request) {
@@ -415,7 +457,24 @@ func (handler *TracksHandler) GetBillbordTopCharts(w http.ResponseWriter, r *htt
 			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
 		}
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
+}
+
+func (handler *TracksHandler) GetBillbordTopChartsNotAuth(w http.ResponseWriter, r *http.Request) {
+	tracks, err := handler.tracksUsecase.GetBillbordTopCharts()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if ok {
+		userID, err := strconv.Atoi(session.ID)
+		if err == nil {
+			handler.CheckTracksFavoriteAndMediateka(userID, tracks)
+		}
+	}
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) GetHistory(w http.ResponseWriter, r *http.Request) {
@@ -443,7 +502,7 @@ func (handler *TracksHandler) GetHistory(w http.ResponseWriter, r *http.Request)
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK)
+	response.SendCorrectResponse(w, tracks, http.StatusOK, tracksModels.MarshalTracks)
 }
 
 func (handler *TracksHandler) AddToHistory(w http.ResponseWriter, r *http.Request) {

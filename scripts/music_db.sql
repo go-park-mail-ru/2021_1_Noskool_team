@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS albums
     album_id     serial PRIMARY KEY,
     tittle       citext,
     picture      varchar(100),
-    release_date date
+    release_date date,
+    rating       int default 0
 );
 
 CREATE TABLE IF NOT EXISTS tracks
@@ -41,10 +42,10 @@ CREATE TABLE IF NOT EXISTS tracks
     text              text,
     rating            int default 0,
     amount_of_listens int default 0,
-    duration          text,
     audio             bytea,
     picture           varchar(100),
-    release_date      date
+    release_date      date,
+    duration          text
 );
 
 -- ///
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS playlists
     tittle       varchar(100),
     description  text,
     picture      varchar(100),
-    release_date date
+    release_date date default now(),
+    rating       int default 0
 );
 
 CREATE TABLE IF NOT EXISTS album_to_user
@@ -74,13 +76,6 @@ CREATE TABLE IF NOT EXISTS playlists_to_genres
     genre_id    INTEGER NOT NULL,
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE,
     FOREIGN KEY (genre_id) REFERENCES Genres (genre_id) on delete CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS playlists_to_user
-(
-    user_id     INTEGER NOT NULL,
-    playlist_id INTEGER NOT NULL,
-    FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Tracks_to_Playlist
@@ -155,8 +150,8 @@ CREATE TABLE IF NOT EXISTS Profiles
     profiles_id        bigserial not null primary key,
     email              varchar   not null unique,
     nickname           citext    not null unique,
-    first_name         varchar   not null,
-    second_name        varchar   not null,
+    first_name         varchar   not null default '',
+    second_name        varchar   not null default '',
     encrypted_password varchar   not null,
     avatar             varchar   not null,
     favorite_genre     text[]    not null default '{}'::text[]
@@ -217,6 +212,8 @@ values (1, 'AM', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
        (5, 'Good News', '/api/v1/data/img/tracks/good_news.webp', '2018-06-01'),
        (6, 'Каждый раз', '/api/v1/data/img/tracks/monetohka.webp', '2018-06-01'),
        (7, 'Born To Die', '/api/v1/data/img/tracks/BornToDie.webp', '2012-06-01');
+
+
 
 insert into tracks_to_albums (track_id, album_id)
 values (1, 1),
@@ -286,12 +283,18 @@ values (1, 1),
        (7, 7);
 
 
-insert into playlists (playlist_id, user_id, tittle, description, picture, release_date) VALUES
-(1, 0, 'Alternative', 'Alternative music', '/api/v1/data/img/playlists/alternative.webp', '2021-06-01'),
-(2, 0, 'For Good Mood', 'favorite music', '/api/v1/data/img/playlists/happy.webp', '2021-07-01');
+-- insert into playlists (playlist_id, user_id, tittle, description, picture, release_date)
+-- VALUES (1, 0, 'Alternative', 'Alternative music', '/api/v1/data/img/playlists/alternative.webp', '2021-06-01'),
+--        (2, 0, 'For Good Mood', 'favorite music', '/api/v1/data/img/playlists/happy.webp', '2021-07-01');
 
-insert into tracks_to_playlist(track_id, playlist_id) VALUES
-(1, 1), (11, 1), (15, 1), (18, 1), (22, 2), (7, 2), (20, 2);
+insert into tracks_to_playlist(track_id, playlist_id)
+VALUES (1, 1),
+       (11, 1),
+       (15, 1),
+       (18, 1),
+       (22, 2),
+       (7, 2),
+       (20, 2);
 
 CREATE TABLE IF NOT EXISTS tracks_to_user
 (
@@ -316,3 +319,7 @@ VALUES ('classical'),
        ('blues'),
        ('reggae'),
        ('indie');
+
+
+insert into Musicians_to_Genres (genre_id, musician_id)
+    values (1,4), (2,4), (3,4);

@@ -7,9 +7,9 @@ import (
 	musicHttp "2021_1_Noskool_team/internal/app/music/delivery/http"
 	musiciansRepository "2021_1_Noskool_team/internal/app/musicians/repository"
 	musicianUsecase "2021_1_Noskool_team/internal/app/musicians/usecase"
-	searchUsecase "2021_1_Noskool_team/internal/app/search/usecase"
 	playlistRepository "2021_1_Noskool_team/internal/app/playlists/repository"
 	playlistUsecase "2021_1_Noskool_team/internal/app/playlists/usecase"
+	searchUsecase "2021_1_Noskool_team/internal/app/search/usecase"
 	trackRepository "2021_1_Noskool_team/internal/app/tracks/repository"
 	trackUsecase "2021_1_Noskool_team/internal/app/tracks/usecase"
 	"2021_1_Noskool_team/internal/pkg/server"
@@ -25,7 +25,7 @@ const (
 )
 
 func main() {
-	time.Sleep(10 * time.Second)
+	time.Sleep(30 * time.Second)
 	config := configs.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {

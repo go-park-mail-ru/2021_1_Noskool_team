@@ -15,4 +15,5 @@ type Usecase interface {
 	AddAlbumToMediateka(userID, albumID int) error
 	DeleteAlbumFromMediateka(userID, albumID int) error
 	GetFavoriteAlbums(userID int, pagination *commonModels.Pagination) ([]*models.Album, error)
+	GetAlbums() ([]*models.Album, error)
 }

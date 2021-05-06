@@ -1,10 +1,10 @@
- package http
+package http
 
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/playlists"
-	"2021_1_Noskool_team/internal/app/playlists/models"
+	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
 	sessionModels "2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
@@ -47,21 +47,27 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	authMiddlware := middleware.NewSessionMiddleware(handler.sessionsClient)
 
 	handler.router.HandleFunc("/",
-		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost)
+		authMiddlware.CheckSessionMiddleware(handler.CreatePlaylistHandler)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/",
-		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet)
+		authMiddlware.CheckSessionMiddleware(handler.GetMediateka)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/top",
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylists)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/top/notauth",
 		handler.GetPlaylists).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete)
+		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet)
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost)
+		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
-		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet)
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByGenreID)).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/picture",
-		handler.UploadPlaylistPictureHandler).Methods(http.MethodPost)
+		handler.UploadPlaylistPictureHandler).Methods(http.MethodPost, http.MethodOptions)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
+		authMiddlware.CheckSessionMiddleware(handler.AddTrackToPlaylist)).Methods(http.MethodPost, http.MethodOptions)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
+		authMiddlware.CheckSessionMiddleware(handler.DeleteTrackFromPlaylist)).Methods(http.MethodDelete, http.MethodOptions)
 
 	return handler
 }
@@ -82,7 +88,17 @@ func (handler *PlaylistsHandler) GetPlaylists(w http.ResponseWriter, r *http.Req
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, playlists, http.StatusOK)
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
+}
+
+func (handler *PlaylistsHandler) GetPlaylistsNotAuth(w http.ResponseWriter, r *http.Request) {
+	playlists, err := handler.playlistsUsecase.GetPlaylists()
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +109,7 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	playlist := &models.Playlist{}
+	playlist := &playlistModels.Playlist{}
 	err = playlist.UnmarshalJSON(body)
 	if err != nil {
 		handler.logger.Error(err)
@@ -128,7 +144,7 @@ func (handler *PlaylistsHandler) CreatePlaylistHandler(w http.ResponseWriter, r 
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlist, http.StatusOK)
+	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
 
 func (handler *PlaylistsHandler) DeletePlaylistFromMediatekaHandler(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +206,7 @@ func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlist, http.StatusOK)
+	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
 
 func (handler *PlaylistsHandler) AddPlaylistToMediatekaHandler(w http.ResponseWriter, r *http.Request) {
@@ -261,7 +277,7 @@ func (handler *PlaylistsHandler) GetMediateka(w http.ResponseWriter, r *http.Req
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlists, http.StatusOK)
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r *http.Request) {
@@ -283,7 +299,7 @@ func (handler *PlaylistsHandler) GetPlaylistsByGenreID(w http.ResponseWriter, r 
 		})
 		return
 	}
-	response.SendCorrectResponse(w, playlistsByGenreID, http.StatusOK)
+	response.SendCorrectResponse(w, playlistsByGenreID, http.StatusOK, playlistModels.MarshalPlaylists)
 }
 
 func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWriter, r *http.Request) {
@@ -303,12 +319,76 @@ func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWri
 		return
 	}
 
-	err = handler.playlistsUsecase.UploadAudio(playlistIDINT, fileNetPath)
+	err = handler.playlistsUsecase.UploadPicture(playlistIDINT, fileNetPath)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusInternalServerError)
 		return
 	}
 
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) AddTrackToPlaylist(w http.ResponseWriter, r *http.Request) {
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct playlist id",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct track id",
+		})
+		return
+	}
+
+	err = handler.playlistsUsecase.AddTrackToPlaylist(playlistID, trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant delete track %d from playlist  %d", trackID, playlistID),
+		})
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) DeleteTrackFromPlaylist(w http.ResponseWriter, r *http.Request) {
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct playlist id",
+		})
+		return
+	}
+	trackID, err := strconv.Atoi(mux.Vars(r)["track_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct track id",
+		})
+		return
+	}
+
+	err = handler.playlistsUsecase.DeleteTrackFromPlaylist(playlistID, trackID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant delete track %d from playlist  %d", trackID, playlistID),
+		})
+		return
+	}
 	response.SendEmptyBody(w, http.StatusOK)
 }

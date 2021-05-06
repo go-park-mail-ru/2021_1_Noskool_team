@@ -18,6 +18,8 @@ require (
 	github.com/lib/pq v1.9.0
 	github.com/mailru/easyjson v0.7.7
 	github.com/microcosm-cc/bluemonday v1.0.7
+	github.com/prometheus/client_golang v1.10.0
+	github.com/prometheus/common v0.18.0
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.8.0
 	github.com/stretchr/testify v1.5.1

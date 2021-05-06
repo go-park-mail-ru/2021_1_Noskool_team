@@ -29,13 +29,15 @@ func NewSearchUsecase(trackRep tracks.Repository, albumRep album.Repository,
 	}
 }
 
+
+
 func (usecase *SearchUsecase) SearchContent(searchQuery string) *models.Search {
 	search := &models.Search{}
 	tracks, _ := usecase.tracksRep.SearchTracks(searchQuery)
 	if tracks == nil {
-		search.Tracks = make([]*trackModels.Track, 0)
+		search.Tracks = make([]*models.TrackWithAlbum, 0)
 	} else {
-		search.Tracks = tracks
+		search.Tracks = usecase.ConvertTracks(tracks)
 	}
 
 	albums, _ := usecase.albumsRep.SearchAlbums(searchQuery)
@@ -60,4 +62,17 @@ func (usecase *SearchUsecase) SearchContent(searchQuery string) *models.Search {
 	}
 
 	return search
+}
+
+func (usecase *SearchUsecase) ConvertTracks(tracks []*trackModels.Track) []*models.TrackWithAlbum{
+	newTracks := make([]*models.TrackWithAlbum, len(tracks))
+
+	for idx, track := range tracks {
+		newTracks[idx] = models.ConvertTrackToTrackWithAlbum(track)
+		albums, err := usecase.albumsRep.GetAlbumsByTrackID(track.TrackID)
+		if err == nil && albums != nil && len(*albums) > 0 {
+			newTracks[idx].Album = (*albums)[0].AlbumID
+		}
+	}
+	return newTracks
 }

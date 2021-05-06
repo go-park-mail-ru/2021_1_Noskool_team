@@ -21,7 +21,85 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(in *jlexer.Lexer, out *Playlist) {
+func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(in *jlexer.Lexer, out *Playlists) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		in.Skip()
+		*out = nil
+	} else {
+		in.Delim('[')
+		if *out == nil {
+			if !in.IsDelim(']') {
+				*out = make(Playlists, 0, 8)
+			} else {
+				*out = Playlists{}
+			}
+		} else {
+			*out = (*out)[:0]
+		}
+		for !in.IsDelim(']') {
+			var v1 *Playlist
+			if in.IsNull() {
+				in.Skip()
+				v1 = nil
+			} else {
+				if v1 == nil {
+					v1 = new(Playlist)
+				}
+				(*v1).UnmarshalEasyJSON(in)
+			}
+			*out = append(*out, v1)
+			in.WantComma()
+		}
+		in.Delim(']')
+	}
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(out *jwriter.Writer, in Playlists) {
+	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+		out.RawString("null")
+	} else {
+		out.RawByte('[')
+		for v2, v3 := range in {
+			if v2 > 0 {
+				out.RawByte(',')
+			}
+			if v3 == nil {
+				out.RawString("null")
+			} else {
+				(*v3).MarshalEasyJSON(out)
+			}
+		}
+		out.RawByte(']')
+	}
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Playlists) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Playlists) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Playlists) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Playlists) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(l, v)
+}
+func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels1(in *jlexer.Lexer, out *Playlist) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -68,17 +146,17 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(in *jlexer
 					out.Tracks = (out.Tracks)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v1 *models.Track
+					var v4 *models.Track
 					if in.IsNull() {
 						in.Skip()
-						v1 = nil
+						v4 = nil
 					} else {
-						if v1 == nil {
-							v1 = new(models.Track)
+						if v4 == nil {
+							v4 = new(models.Track)
 						}
-						easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in, v1)
+						easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in, v4)
 					}
-					out.Tracks = append(out.Tracks, v1)
+					out.Tracks = append(out.Tracks, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -93,7 +171,7 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(in *jlexer
 		in.Consumed()
 	}
 }
-func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(out *jwriter.Writer, in Playlist) {
+func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels1(out *jwriter.Writer, in Playlist) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -134,14 +212,14 @@ func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(out *jwrit
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v2, v3 := range in.Tracks {
-				if v2 > 0 {
+			for v5, v6 := range in.Tracks {
+				if v5 > 0 {
 					out.RawByte(',')
 				}
-				if v3 == nil {
+				if v6 == nil {
 					out.RawString("null")
 				} else {
-					easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out, *v3)
+					easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out, *v6)
 				}
 			}
 			out.RawByte(']')
@@ -153,25 +231,25 @@ func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(out *jwrit
 // MarshalJSON supports json.Marshaler interface
 func (v Playlist) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(&w, v)
+	easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Playlist) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels(w, v)
+	easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Playlist) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(&r, v)
+	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Playlist) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels(l, v)
+	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels1(l, v)
 }
 func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in *jlexer.Lexer, out *models.Track) {
 	isTopLevel := in.IsStart()
@@ -204,6 +282,12 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in *jlexer.Le
 			out.Picture = string(in.String())
 		case "release_date":
 			out.ReleaseDate = string(in.String())
+		case "duration":
+			out.Duration = string(in.String())
+		case "in_mediateka":
+			out.InMediateka = bool(in.Bool())
+		case "in_favorite":
+			out.InFavorite = bool(in.Bool())
 		case "genres":
 			if in.IsNull() {
 				in.Skip()
@@ -220,17 +304,17 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in *jlexer.Le
 					out.Genres = (out.Genres)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v4 *models1.Genre
+					var v7 *models1.Genre
 					if in.IsNull() {
 						in.Skip()
-						v4 = nil
+						v7 = nil
 					} else {
-						if v4 == nil {
-							v4 = new(models1.Genre)
+						if v7 == nil {
+							v7 = new(models1.Genre)
 						}
-						easyjsonB2c5512fDecode20211NoskoolTeamInternalModels(in, v4)
+						easyjsonB2c5512fDecode20211NoskoolTeamInternalModels(in, v7)
 					}
-					out.Genres = append(out.Genres, v4)
+					out.Genres = append(out.Genres, v7)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -251,17 +335,17 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in *jlexer.Le
 					out.Musicians = (out.Musicians)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v5 *models2.Musician
+					var v8 *models2.Musician
 					if in.IsNull() {
 						in.Skip()
-						v5 = nil
+						v8 = nil
 					} else {
-						if v5 == nil {
-							v5 = new(models2.Musician)
+						if v8 == nil {
+							v8 = new(models2.Musician)
 						}
-						easyjsonB2c5512fDecode20211NoskoolTeamInternalAppMusiciansModels(in, v5)
+						(*v8).UnmarshalEasyJSON(in)
 					}
-					out.Musicians = append(out.Musicians, v5)
+					out.Musicians = append(out.Musicians, v8)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -282,17 +366,17 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in *jlexer.Le
 					out.Albums = (out.Albums)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v6 *models3.Album
+					var v9 *models3.Album
 					if in.IsNull() {
 						in.Skip()
-						v6 = nil
+						v9 = nil
 					} else {
-						if v6 == nil {
-							v6 = new(models3.Album)
+						if v9 == nil {
+							v9 = new(models3.Album)
 						}
-						easyjsonB2c5512fDecode20211NoskoolTeamInternalAppAlbumModels(in, v6)
+						(*v9).UnmarshalEasyJSON(in)
 					}
-					out.Albums = append(out.Albums, v6)
+					out.Albums = append(out.Albums, v9)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -342,20 +426,35 @@ func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out *jwriter.
 		out.String(string(in.ReleaseDate))
 	}
 	{
+		const prefix string = ",\"duration\":"
+		out.RawString(prefix)
+		out.String(string(in.Duration))
+	}
+	{
+		const prefix string = ",\"in_mediateka\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.InMediateka))
+	}
+	{
+		const prefix string = ",\"in_favorite\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.InFavorite))
+	}
+	{
 		const prefix string = ",\"genres\":"
 		out.RawString(prefix)
 		if in.Genres == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v7, v8 := range in.Genres {
-				if v7 > 0 {
+			for v10, v11 := range in.Genres {
+				if v10 > 0 {
 					out.RawByte(',')
 				}
-				if v8 == nil {
+				if v11 == nil {
 					out.RawString("null")
 				} else {
-					easyjsonB2c5512fEncode20211NoskoolTeamInternalModels(out, *v8)
+					easyjsonB2c5512fEncode20211NoskoolTeamInternalModels(out, *v11)
 				}
 			}
 			out.RawByte(']')
@@ -368,14 +467,14 @@ func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out *jwriter.
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v9, v10 := range in.Musicians {
-				if v9 > 0 {
+			for v12, v13 := range in.Musicians {
+				if v12 > 0 {
 					out.RawByte(',')
 				}
-				if v10 == nil {
+				if v13 == nil {
 					out.RawString("null")
 				} else {
-					easyjsonB2c5512fEncode20211NoskoolTeamInternalAppMusiciansModels(out, *v10)
+					(*v13).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
@@ -388,144 +487,18 @@ func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out *jwriter.
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v11, v12 := range in.Albums {
-				if v11 > 0 {
+			for v14, v15 := range in.Albums {
+				if v14 > 0 {
 					out.RawByte(',')
 				}
-				if v12 == nil {
+				if v15 == nil {
 					out.RawString("null")
 				} else {
-					easyjsonB2c5512fEncode20211NoskoolTeamInternalAppAlbumModels(out, *v12)
+					(*v15).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
 		}
-	}
-	out.RawByte('}')
-}
-func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppAlbumModels(in *jlexer.Lexer, out *models3.Album) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "album_id":
-			out.AlbumID = int(in.Int())
-		case "tittle":
-			out.Tittle = string(in.String())
-		case "picture":
-			out.Picture = string(in.String())
-		case "release_date":
-			out.ReleaseDate = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppAlbumModels(out *jwriter.Writer, in models3.Album) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"album_id\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.AlbumID))
-	}
-	{
-		const prefix string = ",\"tittle\":"
-		out.RawString(prefix)
-		out.String(string(in.Tittle))
-	}
-	{
-		const prefix string = ",\"picture\":"
-		out.RawString(prefix)
-		out.String(string(in.Picture))
-	}
-	{
-		const prefix string = ",\"release_date\":"
-		out.RawString(prefix)
-		out.String(string(in.ReleaseDate))
-	}
-	out.RawByte('}')
-}
-func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppMusiciansModels(in *jlexer.Lexer, out *models2.Musician) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "musician_id":
-			out.MusicianID = int(in.Int())
-		case "name":
-			out.Name = string(in.String())
-		case "description":
-			out.Description = string(in.String())
-		case "picture":
-			out.Picture = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppMusiciansModels(out *jwriter.Writer, in models2.Musician) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"musician_id\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.MusicianID))
-	}
-	{
-		const prefix string = ",\"name\":"
-		out.RawString(prefix)
-		out.String(string(in.Name))
-	}
-	{
-		const prefix string = ",\"description\":"
-		out.RawString(prefix)
-		out.String(string(in.Description))
-	}
-	{
-		const prefix string = ",\"picture\":"
-		out.RawString(prefix)
-		out.String(string(in.Picture))
 	}
 	out.RawByte('}')
 }

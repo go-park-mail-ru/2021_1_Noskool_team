@@ -49,6 +49,20 @@ func (mr *MockRepositoryMockRecorder) AddPlaylistToMediateka(userID, playlistID 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPlaylistToMediateka", reflect.TypeOf((*MockRepository)(nil).AddPlaylistToMediateka), userID, playlistID)
 }
 
+// AddTrackToPlaylist mocks base method.
+func (m *MockRepository) AddTrackToPlaylist(playlistID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTrackToPlaylist", playlistID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTrackToPlaylist indicates an expected call of AddTrackToPlaylist.
+func (mr *MockRepositoryMockRecorder) AddTrackToPlaylist(playlistID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrackToPlaylist", reflect.TypeOf((*MockRepository)(nil).AddTrackToPlaylist), playlistID, trackID)
+}
+
 // CreatePlaylist mocks base method.
 func (m *MockRepository) CreatePlaylist(playlist *models.Playlist) (*models.Playlist, error) {
 	m.ctrl.T.Helper()
@@ -76,6 +90,20 @@ func (m *MockRepository) DeletePlaylistFromUser(userID, playlistID int) error {
 func (mr *MockRepositoryMockRecorder) DeletePlaylistFromUser(userID, playlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePlaylistFromUser", reflect.TypeOf((*MockRepository)(nil).DeletePlaylistFromUser), userID, playlistID)
+}
+
+// DeleteTrackFromPlaylist mocks base method.
+func (m *MockRepository) DeleteTrackFromPlaylist(playlistID, trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrackFromPlaylist", playlistID, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrackFromPlaylist indicates an expected call of DeleteTrackFromPlaylist.
+func (mr *MockRepositoryMockRecorder) DeleteTrackFromPlaylist(playlistID, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrackFromPlaylist", reflect.TypeOf((*MockRepository)(nil).DeleteTrackFromPlaylist), playlistID, trackID)
 }
 
 // GetMediateka mocks base method.

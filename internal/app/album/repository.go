@@ -16,4 +16,5 @@ type Repository interface {
 	DeleteAlbumFromMediateka(userID, albumID int) error
 	GetFavoriteAlbums(userID int, pagination *commonModels.Pagination) ([]*models.Album, error)
 	CheckAlbumInMediateka(userID, albumID int) error
+	GetAlbums() ([]*models.Album, error)
 }

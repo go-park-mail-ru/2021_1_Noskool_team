@@ -3,6 +3,7 @@ package usecase
 import (
 	"2021_1_Noskool_team/internal/app/playlists"
 	"2021_1_Noskool_team/internal/app/playlists/models"
+	"fmt"
 )
 
 type PlaylistUsecase struct {
@@ -63,17 +64,27 @@ func (usecase *PlaylistUsecase) GetPlaylistsByGenreID(genreID int) ([]*models.Pl
 	return playlist, err
 }
 
-func (usecase *PlaylistUsecase) UploadAudio(playlistID int, audioPath string) error {
+func (usecase *PlaylistUsecase) UploadPicture(playlistID int, audioPath string) error {
 	err := usecase.playlistRep.UploadPicture(playlistID, audioPath)
 	return err
 }
 
 func (usecase *PlaylistUsecase) GetPlaylists() ([]*models.Playlist, error) {
 	playlists, err := usecase.playlistRep.GetPlaylists()
-
 	for _, playlist := range playlists {
+		fmt.Println(*playlist)
 		tracks, _ := usecase.playlistRep.GetTracksByPlaylistID(playlist.PlaylistID)
 		playlist.Tracks = tracks
 	}
 	return playlists, err
+}
+
+func (usecase *PlaylistUsecase) AddTrackToPlaylist(playlistID, trackID int) error {
+	err := usecase.playlistRep.AddTrackToPlaylist(playlistID, trackID)
+	return err
+}
+
+func (usecase *PlaylistUsecase) DeleteTrackFromPlaylist(playlistID, trackID int) error {
+	err := usecase.playlistRep.DeleteTrackFromPlaylist(playlistID, trackID)
+	return err
 }
