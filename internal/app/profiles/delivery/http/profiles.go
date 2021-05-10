@@ -370,7 +370,6 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 			return
 		}
 		req.Sanitize(s.sanitizer)
-		flagPassword := false
 		if req.Email != "" {
 			userForUpdates.Email = req.Email
 		}
@@ -386,25 +385,15 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		if len(req.FavoriteGenre) != 0 {
 			userForUpdates.FavoriteGenre = req.FavoriteGenre
 		}
-		if req.Password != "" {
-			userForUpdates.Password = req.Password
-			flagPassword = true
-		}
+
 		s.logger.Info("userForUpdates: ", userForUpdates)
 
-		if flagPassword {
-			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
-				msg, httpCode := checkDBerr(err)
-				s.error(w, r, httpCode, fmt.Errorf(msg))
-				return
-			}
-		} else {
-			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
-				msg, httpCode := checkDBerr(err)
-				s.error(w, r, httpCode, fmt.Errorf(msg))
-				return
-			}
+		if err := s.profUsecase.Update(userForUpdates); err != nil {
+			msg, httpCode := checkDBerr(err)
+			s.error(w, r, httpCode, fmt.Errorf(msg))
+			return
 		}
+
 		userForUpdates.Sanitize()
 		s.respond(w, r, http.StatusCreated, userForUpdates)
 	}

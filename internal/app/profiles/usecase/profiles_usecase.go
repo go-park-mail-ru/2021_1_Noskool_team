@@ -21,8 +21,8 @@ func (usecase *ProfilesUsecase) Create(u *models.UserProfile) error {
 
 }
 
-func (usecase *ProfilesUsecase) Update(u *models.UserProfile, withPassword bool) error {
-	err := usecase.profilesRepo.Update(u, withPassword)
+func (usecase *ProfilesUsecase) Update(u *models.UserProfile) error {
+	err := usecase.profilesRepo.Update(u)
 	return err
 
 }
