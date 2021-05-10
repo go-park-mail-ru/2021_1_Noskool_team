@@ -116,6 +116,24 @@ func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, e
 	return u, nil
 }
 
+// Create ...
+func (r *ProfileRepository) UpdatePassword(id int, newPass string) error {
+	if err := models.ValidateForChangePass(newPass); err != nil {
+		return err
+	}
+	encNewPass, err := models.BeforeUpdatePass(newPass)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.con.Exec("UPDATE Profiles SET encrypted_password = $1 WHERE profiles_id = $2;", encNewPass, id)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func formattingDBerr(err *pq.Error) error {
 	fmt.Println(err)
 	var formatedErr error
