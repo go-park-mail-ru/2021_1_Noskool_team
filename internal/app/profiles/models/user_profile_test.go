@@ -1,75 +1,76 @@
 package models
 
 import (
-"fmt"
-	"github.com/microcosm-cc/bluemonday"
+	"fmt"
 	"testing"
 
-"github.com/stretchr/testify/assert"
+	"github.com/microcosm-cc/bluemonday"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidate(t *testing.T) {
 	testCases := []struct {
-		name string
+		name            string
 		userCridentials UserProfile
-		withPassword bool
-		want error
+		withPassword    bool
+		want            error
 	}{
 		{
-			name: "normal with password",
+			name:            "normal with password",
 			userCridentials: UserProfile{Email: "test123@mail.ru", Login: "test123", Password: "test123pas"},
-			withPassword: true,
-			want: fmt.Errorf("not error"),
+			withPassword:    true,
+			want:            fmt.Errorf("not error"),
 		},
 		{
-			name: "bad email (not @)",
+			name:            "bad email (not @)",
 			userCridentials: UserProfile{Email: "test123mail.ru", Login: "test123", Password: "test123pas"},
-			withPassword: true,
-			want: nil,
+			withPassword:    true,
+			want:            nil,
 		},
 		{
-			name: "bad login (too short)",
+			name:            "bad login (too short)",
 			userCridentials: UserProfile{Email: "test123@mail.ru", Login: "t", Password: "test123pas"},
-			withPassword: true,
-			want: nil,
+			withPassword:    true,
+			want:            nil,
 		},
 		{
-			name: "bad password (too short)",
+			name:            "bad password (too short)",
 			userCridentials: UserProfile{Email: "test123@mail.ru", Login: "test123", Password: "123"},
-			withPassword: true,
-			want: nil,
+			withPassword:    true,
+			want:            nil,
 		},
 		{
 			name: "bad password (too long)",
 			userCridentials: UserProfile{Email: "test123@mail.ru",
-				Login: "test123",
+				Login:    "test123",
 				Password: "171711askdfjlaksdjkfjalksdjf9384398439848578394dfnvmldfdgrd56677778888899KJHKJHL"},
 			withPassword: true,
-			want: nil,
+			want:         nil,
 		},
 		{
-			name: "normal without password",
+			name:            "normal without password",
 			userCridentials: UserProfile{Email: "alah_babah@mail.ru", Login: "testTEST"},
-			withPassword: false,
-			want: fmt.Errorf("not error"),
+			withPassword:    false,
+			want:            fmt.Errorf("not error"),
 		},
 		{
-			name: "bad email without password",
+			name:            "bad email without password",
 			userCridentials: UserProfile{Email: "alah_babah", Login: "testTEST"},
-			withPassword: false,
-			want: nil,
+			withPassword:    false,
+			want:            nil,
 		},
 		{
-			name: "bad login without password",
+			name:            "bad login without password",
 			userCridentials: UserProfile{Email: "alah_babah@mail.ru", Login: "1"},
-			withPassword: false,
-			want: nil,
+			withPassword:    false,
+			want:            nil,
 		},
 	}
 
 	for _, testCase := range testCases {
 		user := testCase.userCridentials
-		resErr := user.Validate(testCase.withPassword, true)
+		resErr := user.ValidateForCreate()
 
 		assert.NotEqual(t, testCase.want, resErr)
 	}

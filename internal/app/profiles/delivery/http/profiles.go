@@ -106,6 +106,10 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
+
+	s.router.HandleFunc("/api/v1/profile/update/password",
+		authMiddleware.CheckSessionMiddleware(s.handleUpdatePassword())).Methods(http.MethodPost, http.MethodOptions)
+
 	s.router.Use(middleware.PanicMiddleware(metricks))
 	s.router.Use(middleware.ContentTypeJson)
 }
@@ -210,7 +214,9 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 			return
 		}
 		req.Sanitize(s.sanitizer)
+		fmt.Println("req.Login", req.Login, "req.Password", req.Password)
 		u, err := s.profUsecase.FindByLogin(req.Login)
+		fmt.Println("user", u)
 		if err != nil || !u.ComparePassword(req.Password) {
 			s.logger.Error(err)
 			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Некорректный nickname или пароль"))
@@ -370,7 +376,6 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 			return
 		}
 		req.Sanitize(s.sanitizer)
-		flagPassword := false
 		if req.Email != "" {
 			userForUpdates.Email = req.Email
 		}
@@ -386,27 +391,74 @@ func (s *ProfilesServer) handleUpdateProfile() http.HandlerFunc {
 		if len(req.FavoriteGenre) != 0 {
 			userForUpdates.FavoriteGenre = req.FavoriteGenre
 		}
-		if req.Password != "" {
-			userForUpdates.Password = req.Password
-			flagPassword = true
-		}
+
 		s.logger.Info("userForUpdates: ", userForUpdates)
 
-		if flagPassword {
-			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
-				msg, httpCode := checkDBerr(err)
-				s.error(w, r, httpCode, fmt.Errorf(msg))
-				return
-			}
-		} else {
-			if err := s.profUsecase.Update(userForUpdates, flagPassword); err != nil {
-				msg, httpCode := checkDBerr(err)
-				s.error(w, r, httpCode, fmt.Errorf(msg))
-				return
-			}
+		if err := s.profUsecase.Update(userForUpdates); err != nil {
+			msg, httpCode := checkDBerr(err)
+			s.error(w, r, httpCode, fmt.Errorf(msg))
+			return
 		}
+
 		userForUpdates.Sanitize()
 		s.respond(w, r, http.StatusCreated, userForUpdates)
+	}
+}
+
+func (s *ProfilesServer) handleUpdatePassword() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.logger.Info("starting handleUpdatePassword")
+		w.Header().Set("Content-Type", "application/json")
+
+		SessionHash, err := r.Cookie("session_id")
+		if err != nil {
+			s.logger.Error(err)
+			s.error(w, r, http.StatusInternalServerError, fmt.Errorf("Ошибка на сервере :("))
+			return
+		}
+		session, err := s.sessionsClient.Check(context.Background(), SessionHash.Value)
+		if err != nil {
+			s.logger.Error(err)
+			s.error(w, r, http.StatusUnauthorized, nil)
+			return
+		}
+		userIDfromCookie := session.ID
+		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
+
+		userForUpdates, err := s.profUsecase.FindByID(userIDfromCookieStr)
+		if err != nil {
+			s.logger.Error(err)
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Не удалось найти пользователя"))
+			return
+		}
+		req := &models.ChangePassword{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.logger.Error(err)
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Cервер не смог обработать информацию :("))
+			return
+		}
+		req.Sanitize(s.sanitizer)
+
+		if req.OldPassword == req.NewPassword {
+			s.error(w, r, http.StatusBadRequest, fmt.Errorf("Новый пароль совпадает со старым."))
+			return
+		}
+
+		if err != nil || !userForUpdates.ComparePassword(req.OldPassword) {
+			s.logger.Error(err)
+			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Введен неверный старый пароль"))
+			return
+		}
+
+		if err := s.profUsecase.UpdatePassword(userForUpdates.ProfileID, req.NewPassword); err != nil {
+			fmt.Println("2>", err)
+			//msg, httpCode := checkDBerr(err)
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		userForUpdates.Sanitize()
+		s.respond(w, r, http.StatusOK, nil)
 	}
 }
 
