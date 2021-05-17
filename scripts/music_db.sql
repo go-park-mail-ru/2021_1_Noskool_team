@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS tracks
     audio             bytea,
     picture           varchar(100),
     release_date      date,
-    duration          text
+    duration          text,
+    likes int default 0
 );
 
 -- ///

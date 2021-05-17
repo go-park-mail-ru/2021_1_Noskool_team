@@ -73,7 +73,11 @@ func (usecase *TracksUsecase) GetFavoriteTracks(userID int,
 }
 
 func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
-	err := usecase.trackRep.CheckTrackInMediateka(userID, trackID)
+	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
+	if err != nil {
+		err = usecase.trackRep.IncrementLikes(trackID)
+	}
+	err = usecase.trackRep.CheckTrackInMediateka(userID, trackID)
 	if err != nil {
 		err = usecase.trackRep.AddTrackToMediateka(userID, trackID)
 		if err != nil {
@@ -81,11 +85,16 @@ func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
 		}
 	}
 	err = usecase.trackRep.AddTrackToFavorites(userID, trackID)
+
 	return err
 }
 
 func (usecase *TracksUsecase) DeleteTrackFromFavorites(userID, trackID int) error {
-	err := usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
+	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
+	if err == nil {
+		err = usecase.trackRep.DecrementLikes(trackID)
+	}
+	err = usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
 	return err
 }
 

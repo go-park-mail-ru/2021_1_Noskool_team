@@ -25,9 +25,9 @@ func NewTracksRepository(con *sql.DB) tracks.Repository {
 func (trackRep *TracksRepository) GetTrackByID(trackID int) (*models.Track, error) {
 	track := &models.Track{}
 	err := trackRep.con.QueryRow(
-		"SELECT track_id, tittle, text, audio, picture, release_date, duration FROM tracks where track_id = $1", trackID,
+		"SELECT track_id, tittle, text, audio, picture, release_date, duration, likes FROM tracks where track_id = $1", trackID,
 	).Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-		&track.ReleaseDate, &track.Duration)
+		&track.ReleaseDate, &track.Duration, &track.Likes)
 
 	return track, err
 }
@@ -91,7 +91,7 @@ func (trackRep *TracksRepository) GetTracksByTittle(trackTittle string) ([]*mode
 
 func (trackRep *TracksRepository) GetTrackByMusicianID(musicianID int) ([]*models.Track, error) {
 	query := `SELECT tracks.track_id, tracks.tittle, tracks.text,
-       		tracks.audio,tracks.picture, tracks.release_date, tracks.duration
+       		tracks.audio,tracks.picture, tracks.release_date, tracks.duration, tracks.likes
 			FROM tracks
 			INNER JOIN musicians_to_tracks
 			ON tracks.track_id = musicians_to_tracks.track_id
@@ -110,7 +110,7 @@ func (trackRep *TracksRepository) GetTrackByMusicianID(musicianID int) ([]*model
 	for rows.Next() {
 		track := &models.Track{}
 		_ = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 
 		tracksByMusName = append(tracksByMusName, track)
 	}
@@ -119,7 +119,7 @@ func (trackRep *TracksRepository) GetTrackByMusicianID(musicianID int) ([]*model
 }
 
 func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track, error) {
-	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration from tracks
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes from tracks
 			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
 			where ttu.user_id = $1`
 
@@ -135,7 +135,7 @@ func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track
 	for rows.Next() {
 		track := &models.Track{}
 		err = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -146,7 +146,7 @@ func (trackRep *TracksRepository) GetTracksByUserID(userID int) ([]*models.Track
 
 func (trackRep *TracksRepository) GetFavoriteTracks(userID int,
 	pagination *commonModels.Pagination) ([]*models.Track, error) {
-	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration from tracks
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes from tracks
 			LEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id
 			where ttu.user_id = $1 and ttu.favorite = true
 			order by tracks.track_id
@@ -165,7 +165,7 @@ func (trackRep *TracksRepository) GetFavoriteTracks(userID int,
 	for rows.Next() {
 		track := &models.Track{}
 		err = rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -193,7 +193,7 @@ func (trackRep *TracksRepository) DeleteTrackFromFavorites(userID, trackID int) 
 }
 
 func (trackRep *TracksRepository) GetTracksByAlbumID(albumID int) ([]*models.Track, error) {
-	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration FROM tracks
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes FROM tracks
 			left join tracks_to_albums tta on tracks.track_id = tta.track_id
 			WHERE tta.album_id = $1`
 	rows, err := trackRep.con.Query(query, albumID)
@@ -206,7 +206,7 @@ func (trackRep *TracksRepository) GetTracksByAlbumID(albumID int) ([]*models.Tra
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -216,7 +216,7 @@ func (trackRep *TracksRepository) GetTracksByAlbumID(albumID int) ([]*models.Tra
 }
 
 func (trackRep *TracksRepository) GetTracksByGenreID(genreID int) ([]*models.Track, error) {
-	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration FROM tracks
+	query := `SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes FROM tracks
 			LEFT JOIN tracks_to_genres ttg ON tracks.track_id = ttg.track_id
 			WHERE ttg.genre_id = $1`
 	rows, err := trackRep.con.Query(query, genreID)
@@ -229,7 +229,7 @@ func (trackRep *TracksRepository) GetTracksByGenreID(genreID int) ([]*models.Tra
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -254,7 +254,7 @@ func (trackRep *TracksRepository) DeleteTrackFromMediateka(userID, trackID int) 
 }
 
 func (trackRep *TracksRepository) SearchTracks(searchQuery string) ([]*models.Track, error) {
-	query := `SELECT track_id, tittle, text, audio, picture, release_date, duration FROM tracks
+	query := `SELECT track_id, tittle, text, audio, picture, release_date, duration, likes FROM tracks
 			WHERE tittle LIKE '%' || $1 || '%'`
 
 	rows, err := trackRep.con.Query(query, searchQuery)
@@ -267,7 +267,7 @@ func (trackRep *TracksRepository) SearchTracks(searchQuery string) ([]*models.Tr
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			return nil, err
 		}
@@ -277,7 +277,7 @@ func (trackRep *TracksRepository) SearchTracks(searchQuery string) ([]*models.Tr
 }
 
 func (trackRep *TracksRepository) GetTop20Tracks() ([]*models.Track, error) {
-	query := `select track_id, tittle, text, audio, picture, release_date, duration from tracks
+	query := `select track_id, tittle, text, audio, picture, release_date, duration, likes from tracks
 			order by rating desc
 			limit 20`
 
@@ -291,7 +291,7 @@ func (trackRep *TracksRepository) GetTop20Tracks() ([]*models.Track, error) {
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			return nil, err
 		}
@@ -301,7 +301,7 @@ func (trackRep *TracksRepository) GetTop20Tracks() ([]*models.Track, error) {
 }
 
 func (trackRep *TracksRepository) GetBillbordTopCharts() ([]*models.Track, error) {
-	query := `select track_id, tittle, text, audio, picture, release_date, duration from tracks
+	query := `select track_id, tittle, text, audio, picture, release_date, duration, likes from tracks
 			order by amount_of_listens desc
 			limit 20`
 
@@ -315,7 +315,7 @@ func (trackRep *TracksRepository) GetBillbordTopCharts() ([]*models.Track, error
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			return nil, err
 		}
@@ -325,7 +325,7 @@ func (trackRep *TracksRepository) GetBillbordTopCharts() ([]*models.Track, error
 }
 
 func (trackRep *TracksRepository) GetHistory(userID int) ([]*models.Track, error) {
-	query := `select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date, t.duration
+	query := `select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date, t.duration, t.likes
 			from history as h
 			left join tracks as t on t.track_id = h.track_id
 			where h.user_id = $1
@@ -341,7 +341,7 @@ func (trackRep *TracksRepository) GetHistory(userID int) ([]*models.Track, error
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			return nil, err
 		}
@@ -448,7 +448,7 @@ func (trackRep *TracksRepository) GetGenreByTrackID(trackID int) []*commonModels
 }
 
 func (trackRep *TracksRepository) GetTopTrack() ([]*models.Track, error) {
-	query := `select track_id, tittle, text, audio, picture, release_date, duration from tracks
+	query := `select track_id, tittle, text, audio, picture, release_date, duration, likes from tracks
 			order by rating desc
 			limit 1`
 
@@ -462,7 +462,7 @@ func (trackRep *TracksRepository) GetTopTrack() ([]*models.Track, error) {
 	for rows.Next() {
 		track := &models.Track{}
 		err := rows.Scan(&track.TrackID, &track.Tittle, &track.Text, &track.Audio, &track.Picture,
-			&track.ReleaseDate, &track.Duration)
+			&track.ReleaseDate, &track.Duration, &track.Likes)
 		if err != nil {
 			return nil, err
 		}
@@ -480,5 +480,21 @@ func (trackRep *TracksRepository) CheckTrackInFavorite(userID, trackID int) erro
 	if res < 1 {
 		return errors.New("no track")
 	}
+	return err
+}
+
+func (trackRep *TracksRepository) IncrementLikes(trackID int) error {
+	query := `update tracks set likes = likes + 1
+			where music_service.public.tracks.track_id = $1`
+
+	_, err := trackRep.con.Exec(query, trackID)
+	return err
+}
+
+func (trackRep *TracksRepository) DecrementLikes(trackID int) error {
+	query := `update tracks set likes = likes - 1
+			where music_service.public.tracks.track_id = $1`
+
+	_, err := trackRep.con.Exec(query, trackID)
 	return err
 }
