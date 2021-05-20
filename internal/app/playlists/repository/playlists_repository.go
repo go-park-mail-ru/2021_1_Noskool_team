@@ -223,3 +223,23 @@ func (playlistRep *PlaylistRepository) DeleteTrackFromPlaylist(playlistID, track
 	_, err := playlistRep.con.Exec(query, trackID, playlistID)
 	return err
 }
+
+func (playlistRep *PlaylistRepository) UpdatePlaylistTittle(playlist *models.Playlist) error {
+	query := `update playlists set tittle = $1
+			where playlist_id = $2 and user_id = $3`
+
+	_, err := playlistRep.con.Exec(query, playlist.Tittle, playlist.PlaylistID,
+		playlist.UserID,
+	)
+	return err
+}
+
+func (playlistRep *PlaylistRepository) UpdatePlaylistDescription(playlist *models.Playlist) error {
+	query := `update playlists set description = $1
+			where playlist_id = $2 and user_id = $3`
+
+	_, err := playlistRep.con.Exec(query, playlist.Description, playlist.PlaylistID,
+		playlist.UserID,
+	)
+	return err
+}

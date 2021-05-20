@@ -68,6 +68,10 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.AddTrackToPlaylist)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/track/{track_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.DeleteTrackFromPlaylist)).Methods(http.MethodDelete, http.MethodOptions)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/description",
+		authMiddlware.CheckSessionMiddleware(handler.UpdatePlaylistDescriptionHandler)).Methods(http.MethodPost, http.MethodOptions)
+	handler.router.HandleFunc("/{playlist_id:[0-9]+}/title",
+		authMiddlware.CheckSessionMiddleware(handler.UpdatePlaylistTittleHandler)).Methods(http.MethodPost, http.MethodOptions)
 
 	return handler
 }
@@ -391,4 +395,88 @@ func (handler *PlaylistsHandler) DeleteTrackFromPlaylist(w http.ResponseWriter, 
 		return
 	}
 	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) UpdatePlaylistTittleHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		handler.logger.Error(err)
+		response.FailedResponse(w, http.StatusInternalServerError)
+	}
+	defer r.Body.Close()
+	playlist := &playlistModels.Playlist{}
+	err = playlist.UnmarshalJSON(body)
+	if err != nil {
+		handler.logger.Error(err)
+		response.FailedResponse(w, http.StatusInternalServerError)
+	}
+
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct playlist id",
+		})
+		return
+	}
+	playlist.PlaylistID = playlistID
+	userID, err := utility.CheckUserID(w, r, handler.logger)
+	if err != nil {
+		return
+	}
+	playlist.UserID = userID
+
+	err = handler.playlistsUsecase.UpdatePlaylistTittle(playlist)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNotFound,
+			Message: fmt.Sprintf("Some error happened"),
+		})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) UpdatePlaylistDescriptionHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		handler.logger.Error(err)
+		response.FailedResponse(w, http.StatusInternalServerError)
+	}
+	defer r.Body.Close()
+	playlist := &playlistModels.Playlist{}
+	err = playlist.UnmarshalJSON(body)
+	if err != nil {
+		handler.logger.Error(err)
+		response.FailedResponse(w, http.StatusInternalServerError)
+	}
+
+	playlistID, err := strconv.Atoi(mux.Vars(r)["playlist_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct playlist id",
+		})
+		return
+	}
+	playlist.PlaylistID = playlistID
+	userID, err := utility.CheckUserID(w, r, handler.logger)
+	if err != nil {
+		return
+	}
+	playlist.UserID = userID
+
+	err = handler.playlistsUsecase.UpdatePlaylistDescription(playlist)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNotFound,
+			Message: fmt.Sprintf("Some error happened"),
+		})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
