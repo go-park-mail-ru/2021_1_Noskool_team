@@ -135,6 +135,8 @@ func easyjsonAe118d8fDecode20211NoskoolTeamInternalAppTracksModels1(in *jlexer.L
 			out.InMediateka = bool(in.Bool())
 		case "in_favorite":
 			out.InFavorite = bool(in.Bool())
+		case "likes":
+			out.Likes = int(in.Int())
 		case "genres":
 			if in.IsNull() {
 				in.Skip()
@@ -286,6 +288,11 @@ func easyjsonAe118d8fEncode20211NoskoolTeamInternalAppTracksModels1(out *jwriter
 		const prefix string = ",\"in_favorite\":"
 		out.RawString(prefix)
 		out.Bool(bool(in.InFavorite))
+	}
+	{
+		const prefix string = ",\"likes\":"
+		out.RawString(prefix)
+		out.Int(int(in.Likes))
 	}
 	{
 		const prefix string = ",\"genres\":"

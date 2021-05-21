@@ -88,3 +88,13 @@ func (usecase *PlaylistUsecase) DeleteTrackFromPlaylist(playlistID, trackID int)
 	err := usecase.playlistRep.DeleteTrackFromPlaylist(playlistID, trackID)
 	return err
 }
+
+func (usecase *PlaylistUsecase) UpdatePlaylistTittle(playlist *models.Playlist) error {
+	err := usecase.playlistRep.UpdatePlaylistTittle(playlist)
+	return err
+}
+
+func (usecase *PlaylistUsecase) UpdatePlaylistDescription(playlist *models.Playlist) error {
+	err := usecase.playlistRep.UpdatePlaylistDescription(playlist)
+	return err
+}
