@@ -55,7 +55,7 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.router.Use(middleware.LoggingMiddleware(metricks))
 
 	musicRouter := handler.router.PathPrefix("/api/v1/music/musician/").Subrouter()
-	tracksRouter := handler.router.PathPrefix("/api/v1/music/v1/track/").Subrouter()
+	tracksRouter := handler.router.PathPrefix("/api/v1/music/track/").Subrouter()
 	albumsRouter := handler.router.PathPrefix("/api/v1/music/album/").Subrouter()
 	searchRouter := handler.router.PathPrefix("/api/v1/music/search/").Subrouter()
 	playlistsRouter := handler.router.PathPrefix("/api/v1/music/playlist/").Subrouter()
