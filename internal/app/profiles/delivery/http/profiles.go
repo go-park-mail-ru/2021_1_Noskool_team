@@ -198,7 +198,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		}
 		defer f.Close()
 		io.Copy(f, file)
-		s.profUsecase.UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/"+session.ID+ext)
+		s.profUsecase.UpdateAvatar(userIDfromCookieStr, "/api/v1/user/data/img/"+session.ID+ext)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
