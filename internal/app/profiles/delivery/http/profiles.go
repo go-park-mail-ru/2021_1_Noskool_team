@@ -267,7 +267,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 			Login:    req.Nickname,
-			Avatar:   "/api/v1/data/img/default.png",
+			Avatar:   "/api/v1/user/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
 			s.logger.Error(err)
