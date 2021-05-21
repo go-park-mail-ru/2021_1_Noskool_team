@@ -80,10 +80,10 @@ func (s *ProfilesServer) configureLogger() error {
 
 func (s *ProfilesServer) configureRouter() {
 	mediaFolder := fmt.Sprintf("%s", "./static")
-	s.router.PathPrefix("/api/v1/data/").
+	s.router.PathPrefix("/api/v1/user/data/").
 		Handler(
 			http.StripPrefix(
-				"/api/v1/data/", http.FileServer(http.Dir(mediaFolder))))
+				"/api/v1/user/data/", http.FileServer(http.Dir(mediaFolder))))
 
 	metricks := monitoring.RegisterMetrics(s.router)
 
@@ -92,22 +92,22 @@ func (s *ProfilesServer) configureRouter() {
 	authMiddleware := middleware.NewSessionMiddleware(s.sessionsClient)
 	cors := middleware.NewCORSMiddleware(s.config)
 	s.router.Use(cors.CORS)
-	s.router.HandleFunc("/api/v1/login",
+	s.router.HandleFunc("/api/v1/user/login",
 		s.handleLogin()).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/registrate",
+	s.router.HandleFunc("/api/v1/user/registrate",
 		s.handleRegistrate()).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/logout",
+	s.router.HandleFunc("/api/v1/user/logout",
 		authMiddleware.CheckSessionMiddleware(s.handleLogout())).Methods(http.MethodGet, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/profile/csrf",
+	s.router.HandleFunc("/api/v1/user/profile/csrf",
 		authMiddleware.CheckSessionMiddleware(s.CreateCSRFHandler)).Methods(http.MethodGet, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/profile",
+	s.router.HandleFunc("/api/v1/user/profile",
 		authMiddleware.CheckSessionMiddleware(middleware.CheckCSRFMiddleware(s.handleProfile()))).Methods(http.MethodGet, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/profile/update",
+	s.router.HandleFunc("/api/v1/user/profile/update",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/profile/avatar/upload",
+	s.router.HandleFunc("/api/v1/user/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
 
-	s.router.HandleFunc("/api/v1/profile/update/password",
+	s.router.HandleFunc("/api/v1/user/profile/update/password",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdatePassword())).Methods(http.MethodPost, http.MethodOptions)
 
 	s.router.Use(middleware.PanicMiddleware(metricks))
