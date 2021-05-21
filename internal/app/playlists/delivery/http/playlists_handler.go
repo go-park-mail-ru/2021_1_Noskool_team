@@ -315,7 +315,7 @@ func (handler *PlaylistsHandler) UploadPlaylistPictureHandler(w http.ResponseWri
 		response.SendEmptyBody(w, http.StatusBadRequest)
 		return
 	}
-	fileNetPath := "/api/v1/data/img/playlists/" + *fileName
+	fileNetPath := "/api/v1/music/data/img/playlists/" + *fileName
 	playlistIDINT, err := strconv.Atoi(playlistID)
 	if err != nil {
 		handler.logger.Error(err)
