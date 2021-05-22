@@ -42,8 +42,8 @@ jobs:
       - name: run project
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PRIVATE_KEY }}
+          SSH_HOSTNAME: ${{ secrets.HOST }}
+          SSH_USERNAME: ${{ secrets.USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           script: docker rm -vf $(docker ps -a -q) || true && cd 2021_1_Noskool_team/ && docker-compose up -d --build --no-deps
 
