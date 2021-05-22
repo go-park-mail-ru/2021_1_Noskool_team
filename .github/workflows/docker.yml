@@ -18,7 +18,7 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker image
-        run: sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${GITHUB_SHA::8} -f ./build/package/session-service.Dockerfile . &&
+        run: ls && sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/session-service:${GITHUB_SHA::8} -f ./build/package/session-service.Dockerfile . &&
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/profiles-service:${GITHUB_SHA::8} -f ./build/package/profiles.Dockerfile . &&
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/music-service:${GITHUB_SHA::8} -f ./build/package/service.Dockerfile .
 
