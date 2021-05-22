@@ -22,7 +22,7 @@ func NewProfileRepository(con *sql.DB) profiles.Repository {
 
 // Create ...
 func (r *ProfileRepository) Create(u *models.UserProfile) error {
-	if err := u.Validate(true, true); err != nil {
+	if err := u.ValidateForCreate(); err != nil {
 		validationErr, _ := json.Marshal(err)
 		return fmt.Errorf(string(validationErr))
 	}
@@ -45,30 +45,9 @@ func (r *ProfileRepository) Create(u *models.UserProfile) error {
 }
 
 // Update ...
-func (r *ProfileRepository) Update(u *models.UserProfile, withPassword bool) error {
-	// if withPassword {
-	// 	if err := u.Validate(true, false); err != nil {
-	// 		validationErr, _ := json.Marshal(err)
-	// 		return fmt.Errorf(string(validationErr))
-	// 	}
-	// 	if err := u.BeforeCreate(); err != nil {
-	// 		return err
-	// 	}
-	// }
-	// if err := u.Validate(false, false); err != nil {
-	// 	validationErr, _ := json.Marshal(err)
-	// 	return fmt.Errorf(string(validationErr))
-	// }
-	if withPassword {
-		if err := u.ValidationForUpdate(true); err != nil {
-			validationErr, _ := json.Marshal(err)
-			return fmt.Errorf(string(validationErr))
-		}
-		if err := u.BeforeCreate(); err != nil {
-			return err
-		}
-	}
-	if err := u.ValidationForUpdate(false); err != nil {
+func (r *ProfileRepository) Update(u *models.UserProfile) error {
+	if err := u.ValidationForUpdate(); err != nil {
+		fmt.Println(">>>", err)
 		validationErr, _ := json.Marshal(err)
 		return fmt.Errorf(string(validationErr))
 	}
@@ -135,6 +114,24 @@ func (r *ProfileRepository) FindByLogin(nickname string) (*models.UserProfile, e
 		return nil, err
 	}
 	return u, nil
+}
+
+// Create ...
+func (r *ProfileRepository) UpdatePassword(id int, newPass string) error {
+	if err := models.ValidateForChangePass(newPass); err != nil {
+		return err
+	}
+	encNewPass, err := models.BeforeUpdatePass(newPass)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.con.Exec("UPDATE Profiles SET encrypted_password = $1 WHERE profiles_id = $2;", encNewPass, id)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func formattingDBerr(err *pq.Error) error {

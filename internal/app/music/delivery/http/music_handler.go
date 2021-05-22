@@ -3,7 +3,6 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
-	"2021_1_Noskool_team/internal/pkg/monitoring"
 	albumHttp "2021_1_Noskool_team/internal/app/album/delivery/http"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/musicians"
@@ -14,10 +13,12 @@ import (
 	searchHttp "2021_1_Noskool_team/internal/app/search/delivery/http"
 	"2021_1_Noskool_team/internal/app/tracks"
 	trackHttp "2021_1_Noskool_team/internal/app/tracks/delivery/http"
+	"2021_1_Noskool_team/internal/pkg/monitoring"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type MusicHandler struct {
@@ -44,20 +45,20 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 
 	logrus.Info(config.MediaFolder)
 
-	handler.router.PathPrefix("/api/v1/data/").
+	handler.router.PathPrefix("/api/v1/music/data/").
 		Handler(
 			http.StripPrefix(
-				"/api/v1/data/", http.FileServer(http.Dir(config.MediaFolder))))
+				"/api/v1/music/data/", http.FileServer(http.Dir(config.MediaFolder))))
 
 	sanitizer := bluemonday.UGCPolicy()
 
 	handler.router.Use(middleware.LoggingMiddleware(metricks))
 
-	musicRouter := handler.router.PathPrefix("/api/v1/musician/").Subrouter()
-	tracksRouter := handler.router.PathPrefix("/api/v1/track/").Subrouter()
-	albumsRouter := handler.router.PathPrefix("/api/v1/album/").Subrouter()
-	searchRouter := handler.router.PathPrefix("/api/v1/search/").Subrouter()
-	playlistsRouter := handler.router.PathPrefix("/api/v1/playlist/").Subrouter()
+	musicRouter := handler.router.PathPrefix("/api/v1/music/musician/").Subrouter()
+	tracksRouter := handler.router.PathPrefix("/api/v1/music/track/").Subrouter()
+	albumsRouter := handler.router.PathPrefix("/api/v1/music/album/").Subrouter()
+	searchRouter := handler.router.PathPrefix("/api/v1/music/search/").Subrouter()
+	playlistsRouter := handler.router.PathPrefix("/api/v1/music/playlist/").Subrouter()
 	handler.musicianHandler = musicHttp.NewMusicHandler(musicRouter, config, musicUsecase)
 	handler.tracksHandler = trackHttp.NewTracksHandler(tracksRouter, config, tracksUsecase)
 	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase,
@@ -65,7 +66,7 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase, sanitizer)
 	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
 
-	handler.router.HandleFunc("/api/v1/", func(w http.ResponseWriter, r *http.Request) {
+	handler.router.HandleFunc("/api/v1/music/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("main main page"))
 	})
 

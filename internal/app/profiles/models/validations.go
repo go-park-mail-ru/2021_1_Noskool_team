@@ -33,10 +33,10 @@ func chrckGenres() validation.RuleFunc {
 		}
 		reciveGenres, ok := value.([]string)
 		if !ok {
-			return errors.New("must be a valid genre type")
+			return errors.New("must be a valid json type")
 		}
 		if len(reciveGenres) == 0 {
-			return errors.New("cannot be blank")
+			return nil
 		}
 		for _, Gengre := range reciveGenres {
 			if !Contains(acceptableMusicGenres, Gengre) {

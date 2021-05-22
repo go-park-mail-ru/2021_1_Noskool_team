@@ -18,6 +18,7 @@ type Track struct {
 	Duration    string                      `json:"duration"`
 	InMediateka bool                        `json:"in_mediateka"`
 	InFavorite  bool                        `json:"in_favorite"`
+	Likes       int                         `json:"likes"`
 	Genres      []*models.Genre             `json:"genres"`
 	Musicians   []*musiciansModels.Musician `json:"musicians"`
 	Albums      []*albumsModels.Album       `json:"album"`

@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS tracks
     audio             bytea,
     picture           varchar(100),
     release_date      date,
-    duration          text
+    duration          text,
+    likes int default 0
 );
 
 -- ///
@@ -158,60 +159,60 @@ CREATE TABLE IF NOT EXISTS Profiles
 );
 
 insert into tracks (track_id, tittle, text, audio, picture, release_date, duration, rating)
-VALUES (1, 'Do I Wanna Know?', 'text', '/api/v1/data/audio/Do_I_Wanna_Know.ogg', '/api/v1/data/img/tracks/AM.webp',
+VALUES (1, 'Do I Wanna Know?', 'text', '/api/v1/music/data/audio/Do_I_Wanna_Know.ogg', '/api/v1/music/data/img/tracks/AM.webp',
         '2013-03-03', '3:43', 0),
-       (2, 'R U Mine', 'some text', '/api/v1/data/audio/R_U_Mine.ogg', '/api/v1/data/img/tracks/AM.webp',
+       (2, 'R U Mine', 'some text', '/api/v1/music/data/audio/R_U_Mine.ogg', '/api/v1/music/data/img/tracks/AM.webp',
         '2013-03-03', '3:43', 50),
-       (3, 'One For The Road', 'some text', '/api/v1/data/audio/One_For_The_Road.ogg',
-        '/api/v1/data/img/tracks/AM.webp', '2013-03-03', '3:43', 100),
-       (4, 'Arabella', 'some text', '/api/v1/data/audio/Arabella.ogg', '/api/v1/data/img/tracks/AM.webp', '2013-03-03',
+       (3, 'One For The Road', 'some text', '/api/v1/music/data/audio/One_For_The_Road.ogg',
+        '/api/v1/music/data/img/tracks/AM.webp', '2013-03-03', '3:43', 100),
+       (4, 'Arabella', 'some text', '/api/v1/music/data/audio/Arabella.ogg', '/api/v1/music/data/img/tracks/AM.webp', '2013-03-03',
         '3:43', 12),
-       (5, 'I Want It All', 'some text', '/api/v1/data/audio/I_Want_It_All.ogg', '/api/v1/data/img/tracks/AM.webp',
+       (5, 'I Want It All', 'some text', '/api/v1/music/data/audio/I_Want_It_All.ogg', '/api/v1/music/data/img/tracks/AM.webp',
         '2013-03-03', '3:43', 200),
-       (6, 'Pretty Boy', 'some text', '/api/v1/data/audio/Joji_feat._Lil_Yachty_Pretty_Boy.ogg',
-        '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01', '3:43', 5000),
-       (7, 'Tick Tock', 'some text', '/api/v1/data/audio/Joji_-_Tick_Tock.ogg', '/api/v1/data/img/tracks/Nectar.webp',
+       (6, 'Pretty Boy', 'some text', '/api/v1/music/data/audio/Joji_feat._Lil_Yachty_Pretty_Boy.ogg',
+        '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01', '3:43', 5000),
+       (7, 'Tick Tock', 'some text', '/api/v1/music/data/audio/Joji_-_Tick_Tock.ogg', '/api/v1/music/data/img/tracks/Nectar.webp',
         '2018-10-01', '3:43', 70),
-       (8, 'Daylight', 'some text', '/api/v1/data/audio/Joji__Diplo_-_Daylight.ogg',
-        '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01', '3:43', 20),
-       (9, 'Upgrade', 'some text', '/api/v1/data/audio/Joji_-_Upgrade.ogg', '/api/v1/data/img/tracks/Nectar.webp',
+       (8, 'Daylight', 'some text', '/api/v1/music/data/audio/Joji__Diplo_-_Daylight.ogg',
+        '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01', '3:43', 20),
+       (9, 'Upgrade', 'some text', '/api/v1/music/data/audio/Joji_-_Upgrade.ogg', '/api/v1/music/data/img/tracks/Nectar.webp',
         '2018-10-01', '3:43', 200),
-       (10, 'Mr. Hollywood', 'some text', '/api/v1/data/audio/Joji_-_Mr._Hollywood.ogg',
-        '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01', '3:43', 3),
-       (11, 'Run', 'some text', '/api/v1/data/audio/Joji_-_Run.ogg', '/api/v1/data/img/tracks/Nectar.webp',
+       (10, 'Mr. Hollywood', 'some text', '/api/v1/music/data/audio/Joji_-_Mr._Hollywood.ogg',
+        '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01', '3:43', 3),
+       (11, 'Run', 'some text', '/api/v1/music/data/audio/Joji_-_Run.ogg', '/api/v1/music/data/img/tracks/Nectar.webp',
         '2018-10-01', '3:43', 3),
-       (12, 'Flowers', 'some text', '/api/v1/data/audio/Flowers.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp',
+       (12, 'Flowers', 'some text', '/api/v1/music/data/audio/Flowers.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:43', 300),
-       (13, 'Scary Love', 'some text', '/api/v1/data/audio/Scary_Love.ogg',
-        '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01', '3:43', 250),
-       (14, 'Nervous', 'some text', '/api/v1/data/audio/Nervous.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp',
+       (13, 'Scary Love', 'some text', '/api/v1/music/data/audio/Scary_Love.ogg',
+        '/api/v1/music/data/img/tracks/The_Neighbourhood.webp', '2018-10-01', '3:43', 250),
+       (14, 'Nervous', 'some text', '/api/v1/music/data/audio/Nervous.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:43', 30),
-       (15, 'Void', 'some text', '/api/v1/data/audio/Void.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp',
+       (15, 'Void', 'some text', '/api/v1/music/data/audio/Void.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:43', 40),
-       (16, 'Softcore', 'some text', '/api/v1/data/audio/Softcore.ogg',
-        '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-10-01', '3:43', 49),
-       (17, 'Blue', 'some text', '/api/v1/data/audio/Blue.ogg', '/api/v1/data/img/tracks/The_Neighbourhood.webp',
+       (16, 'Softcore', 'some text', '/api/v1/music/data/audio/Softcore.ogg',
+        '/api/v1/music/data/img/tracks/The_Neighbourhood.webp', '2018-10-01', '3:43', 49),
+       (17, 'Blue', 'some text', '/api/v1/music/data/audio/Blue.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:43', 42),
-       (18, 'Smells Like Teen Spirit', 'some text', '/api/v1/data/audio/Smells_Like_Teen_Spirit.ogg',
-        '/api/v1/data/img/tracks/smels_like.webp', '1991-10-01', '3:43', 500),
-       (19, 'Good News', 'some text', '/api/v1/data/audio/Mac_Miller.ogg', '/api/v1/data/img/tracks/good_news.webp',
+       (18, 'Smells Like Teen Spirit', 'some text', '/api/v1/music/data/audio/Smells_Like_Teen_Spirit.ogg',
+        '/api/v1/music/data/img/tracks/smels_like.webp', '1991-10-01', '3:43', 500),
+       (19, 'Good News', 'some text', '/api/v1/music/data/audio/Mac_Miller.ogg', '/api/v1/music/data/img/tracks/good_news.webp',
         '2020-01-01', '3:43', 600),
-       (20, 'Каждый раз', 'some text', '/api/v1/data/audio/mon_every_time.ogg',
-        '/api/v1/data/img/tracks/monetohka.webp', '2020-01-01', '3:43', 700),
-       (21, 'Born To Die', 'some text', '/api/v1/data/audio/Lana_Del_Rey_-_Born_To_Die.ogg',
-        '/api/v1/data/img/tracks/BornToDie.webp', '2012-01-01', '3:43', 1000),
-       (22, 'Dark Paradise', 'some text', '/api/v1/data/audio/Lana_Del_Rey_-_Dark_Paradise.ogg',
-        '/api/v1/data/img/tracks/BornToDie.webp', '2012-01-01', '3:43', 160);
+       (20, 'Каждый раз', 'some text', '/api/v1/music/data/audio/mon_every_time.ogg',
+        '/api/v1/music/data/img/tracks/monetohka.webp', '2020-01-01', '3:43', 700),
+       (21, 'Born To Die', 'some text', '/api/v1/music/data/audio/Lana_Del_Rey_-_Born_To_Die.ogg',
+        '/api/v1/music/data/img/tracks/BornToDie.webp', '2012-01-01', '3:43', 1000),
+       (22, 'Dark Paradise', 'some text', '/api/v1/music/data/audio/Lana_Del_Rey_-_Dark_Paradise.ogg',
+        '/api/v1/music/data/img/tracks/BornToDie.webp', '2012-01-01', '3:43', 160);
 
 
 insert into albums (album_id, tittle, picture, release_date)
-values (1, 'AM', '/api/v1/data/img/tracks/AM.webp', '2013-03-03'),
-       (2, 'Nectar', '/api/v1/data/img/tracks/Nectar.webp', '2018-10-01'),
-       (3, 'The Neighbourhood', '/api/v1/data/img/tracks/The_Neighbourhood.webp', '2018-06-01'),
-       (4, 'Smells Like Teen Spirit', '/api/v1/data/img/tracks/smels_like.webp', '2018-06-01'),
-       (5, 'Good News', '/api/v1/data/img/tracks/good_news.webp', '2018-06-01'),
-       (6, 'Каждый раз', '/api/v1/data/img/tracks/monetohka.webp', '2018-06-01'),
-       (7, 'Born To Die', '/api/v1/data/img/tracks/BornToDie.webp', '2012-06-01');
+values (1, 'AM', '/api/v1/music/data/img/tracks/AM.webp', '2013-03-03'),
+       (2, 'Nectar', '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01'),
+       (3, 'The Neighbourhood', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp', '2018-06-01'),
+       (4, 'Smells Like Teen Spirit', '/api/v1/music/data/img/tracks/smels_like.webp', '2018-06-01'),
+       (5, 'Good News', '/api/v1/music/data/img/tracks/good_news.webp', '2018-06-01'),
+       (6, 'Каждый раз', '/api/v1/music/data/img/tracks/monetohka.webp', '2018-06-01'),
+       (7, 'Born To Die', '/api/v1/music/data/img/tracks/BornToDie.webp', '2012-06-01');
 
 
 
@@ -240,14 +241,14 @@ values (1, 1),
        (22, 7);
 
 insert into musicians (musician_id, name, description, picture)
-values (1, 'Arctic Monkeys', 'british alternaitve group', '/api/v1/data/img/musicians/arctics_monkeys.webp'),
+values (1, 'Arctic Monkeys', 'british alternaitve group', '/api/v1/music/data/img/musicians/arctics_monkeys.webp'),
        (2, 'Joji', 'Джордж Кусуноки Миллер, более известный по сценическому псевдониму Joji',
-        '/api/v1/data/img/musicians/joji.webp'),
-       (3, 'The Neighbourhood', 'alternative group', '/api/v1/data/img/musicians/the_neighbourhood.webp'),
-       (4, 'Nirvana', 'grange', '/api/v1/data/img/musicians/Nirvana.webp'),
-       (5, 'Mac Miller', 'some artist', '/api/v1/data/img/tracks/good_news.webp'),
-       (6, 'Монеточка', 'some artist', '/api/v1/data/img/tracks/monetohka.webp'),
-       (7, 'Lana Del Rey', 'some artist', '/api/v1/data/img/tracks/BornToDie.webp');
+        '/api/v1/music/data/img/musicians/joji.webp'),
+       (3, 'The Neighbourhood', 'alternative group', '/api/v1/music/data/img/musicians/the_neighbourhood.webp'),
+       (4, 'Nirvana', 'grange', '/api/v1/music/data/img/musicians/Nirvana.webp'),
+       (5, 'Mac Miller', 'some artist', '/api/v1/music/data/img/tracks/good_news.webp'),
+       (6, 'Монеточка', 'some artist', '/api/v1/music/data/img/tracks/monetohka.webp'),
+       (7, 'Lana Del Rey', 'some artist', '/api/v1/music/data/img/tracks/BornToDie.webp');
 
 insert into musicians_to_tracks (track_id, musician_id)
 values (1, 1),
@@ -284,8 +285,8 @@ values (1, 1),
 
 
 -- insert into playlists (playlist_id, user_id, tittle, description, picture, release_date)
--- VALUES (1, 0, 'Alternative', 'Alternative music', '/api/v1/data/img/playlists/alternative.webp', '2021-06-01'),
---        (2, 0, 'For Good Mood', 'favorite music', '/api/v1/data/img/playlists/happy.webp', '2021-07-01');
+-- VALUES (1, 0, 'Alternative', 'Alternative music', '/api/v1/music/data/img/playlists/alternative.webp', '2021-06-01'),
+--        (2, 0, 'For Good Mood', 'favorite music', '/api/v1/music/data/img/playlists/happy.webp', '2021-07-01');
 
 insert into tracks_to_playlist(track_id, playlist_id)
 VALUES (1, 1),

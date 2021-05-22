@@ -13,4 +13,6 @@ type Usecase interface {
 	GetPlaylists() ([]*models.Playlist, error)
 	AddTrackToPlaylist(playlistID, trackID int) error
 	DeleteTrackFromPlaylist(playlistID, trackID int) error
+	UpdatePlaylistTittle(playlist *models.Playlist) error
+	UpdatePlaylistDescription(playlist *models.Playlist) error
 }
