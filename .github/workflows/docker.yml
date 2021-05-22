@@ -35,7 +35,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PRIVATE_KEY }}
+          key: ${{ secrets.PRIVATE_KEY }}
           script: cd 2021_1_Noskool_team/ && docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${GITHUB_SHA::8} &&
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/profiles-service:${GITHUB_SHA::8} &&
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/music-service:${GITHUB_SHA::8}
