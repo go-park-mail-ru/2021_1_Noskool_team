@@ -66,8 +66,10 @@ services:
     volumes:
       - ./scripts/music_db.sql:/docker-entrypoint-initdb.d/init.sql
       - postgis-data:/var/lib/postgresql
-    env_file:
-      - envs/postgres.env
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=andrewkireev
+      - POSTGRES_DB=music_service_docker
     ports:
       - "5432:5432"
     restart: on-failure

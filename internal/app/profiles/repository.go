@@ -9,4 +9,11 @@ type Repository interface {
 	UpdateAvatar(userID string, newAvatar string)
 	FindByLogin(nickname string) (*models.UserProfile, error)
 	UpdatePassword(int, string) error
+	SubscribeMeToSomebody(myID, otherUserID int) error
+	UnsubscribeMeToSomebody(myID, otherUserID int) error
+	CheckIsMySubscriber(myID, otherUserID int) bool
+	GetOtherUserPage(otherUserID int) (*models.OtherUser, error)
+	GetSubscribers(userID int) ([]*models.OtherUser, error)
+	GetSubscriptions(userID int) ([]*models.OtherUser, error)
+	SearchTracks(searchQuery string) ([]*models.OtherUser, error)
 }
