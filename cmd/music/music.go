@@ -71,3 +71,4 @@ func main() {
 	}
 	fmt.Println("Закончили работу")
 }
+
