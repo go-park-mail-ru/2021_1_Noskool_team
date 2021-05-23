@@ -36,7 +36,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: cd 2021_1_Noskool_team/ && docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${GITHUB_SHA::8} &&
+          script: mkdir 2021_1_Noskool_team && cd 2021_1_Noskool_team/ && docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${GITHUB_SHA::8} &&
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/profiles-service:${GITHUB_SHA::8} &&
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/music-service:${GITHUB_SHA::8}
       - name: run project
