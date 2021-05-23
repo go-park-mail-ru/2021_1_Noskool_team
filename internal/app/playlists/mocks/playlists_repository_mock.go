@@ -196,6 +196,34 @@ func (mr *MockRepositoryMockRecorder) SearchPlaylists(searchQuery interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchPlaylists", reflect.TypeOf((*MockRepository)(nil).SearchPlaylists), searchQuery)
 }
 
+// UpdatePlaylistDescription mocks base method.
+func (m *MockRepository) UpdatePlaylistDescription(playlist *models.Playlist) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePlaylistDescription", playlist)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdatePlaylistDescription indicates an expected call of UpdatePlaylistDescription.
+func (mr *MockRepositoryMockRecorder) UpdatePlaylistDescription(playlist interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePlaylistDescription", reflect.TypeOf((*MockRepository)(nil).UpdatePlaylistDescription), playlist)
+}
+
+// UpdatePlaylistTittle mocks base method.
+func (m *MockRepository) UpdatePlaylistTittle(playlist *models.Playlist) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePlaylistTittle", playlist)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdatePlaylistTittle indicates an expected call of UpdatePlaylistTittle.
+func (mr *MockRepositoryMockRecorder) UpdatePlaylistTittle(playlist interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePlaylistTittle", reflect.TypeOf((*MockRepository)(nil).UpdatePlaylistTittle), playlist)
+}
+
 // UploadPicture mocks base method.
 func (m *MockRepository) UploadPicture(playlistID int, audioPath string) error {
 	m.ctrl.T.Helper()

@@ -11,6 +11,24 @@ on:
       - dev
 
 jobs:
+  linter:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.26
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run test with cover
+        run: go test -covermode=atomic -coverpkg=./... -coverprofile=cover ./... &&
+        cat cover | fgrep -v "mock" | fgrep -v "pb.go" | fgrep -v "easyjson" | fgrep -v "start.go" > cover2 &&
+        go tool cover -func=cover2
+
   build:
     runs-on: ubuntu-latest
     steps:

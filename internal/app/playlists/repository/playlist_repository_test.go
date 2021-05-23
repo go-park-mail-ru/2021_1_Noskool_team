@@ -99,7 +99,7 @@ func TestCreatePlaylist(t *testing.T) {
 	queryFirst := "INSERT INTO playlists"
 
 	mock.ExpectQuery(queryFirst).WithArgs(playlistsForTest[2].Tittle, playlistsForTest[2].Description,
-		"/api/v1/data/img/playlists/happy.webp", playlistsForTest[2].UserID,
+		"/api/v1/music/data/img/playlists/happy.webp", playlistsForTest[2].UserID,
 	).WillReturnRows(rows)
 
 	querySecond := "INSERT INTO Tracks_to_Playlist"

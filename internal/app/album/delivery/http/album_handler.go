@@ -15,6 +15,7 @@ import (
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -47,7 +48,6 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
-
 	err = ConfigLogger(handler, config)
 	if err != nil {
 		logrus.Error(err)
@@ -96,13 +96,13 @@ func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Reques
 	albumID, ok := vars["album_id"]
 	if !ok {
 		handler.logger.Errorf("Error get album_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	albumIDint, err := strconv.Atoi(albumID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	album, err := handler.albumsUsecase.GetAlbumByID(albumIDint)
@@ -111,7 +111,7 @@ func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Reques
 	albumWithTracks.Musician, _ = handler.musUsecase.GetMusicianByAlbumID(albumWithTracks.AlbumID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumByID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, albumWithTracks, 200, MarshalAlbumWithExtraInform)
@@ -279,6 +279,7 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 }
 
 func (handler *AlbumsHandler) GetAlbums(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL)
 	albums, err := handler.albumsUsecase.GetAlbums()
 	if err != nil {
 		handler.logger.Error(err)

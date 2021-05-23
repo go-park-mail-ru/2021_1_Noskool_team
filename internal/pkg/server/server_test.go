@@ -23,8 +23,7 @@ func TestNewServer(t *testing.T) {
 		t.Error(err)
 	}
 
-	if serv.config.MusicServerAddr != ":8080" {
-		t.Errorf("Failed, expected: %v acctual: %v", ":8080", serv.config.MusicServerAddr)
+	if serv.config.MusicServerAddr != ":8888" {
+		t.Errorf("Failed, expected: %v acctual: %v", ":8888", serv.config.MusicServerAddr)
 	}
-
 }
