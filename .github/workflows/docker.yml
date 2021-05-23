@@ -45,4 +45,4 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker rm -vf $(sudo docker ps -a -q) || true && cd 2021_1_Noskool_team/ && sudo docker-compose up -d --build --no-deps
+          script: cd 2021_1_Noskool_team/ && sudo docker-compose up -d --build --no-deps
