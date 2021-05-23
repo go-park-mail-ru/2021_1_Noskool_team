@@ -36,13 +36,14 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: cd 2021_1_Noskool_team/ && docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${GITHUB_SHA::8} &&
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/profiles-service:${GITHUB_SHA::8} &&
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/music-service:${GITHUB_SHA::8}
+          script: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin &&
+          cd 2021_1_Noskool_team/ && sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:${GITHUB_SHA::8} &&
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/profiles-service:${GITHUB_SHA::8} &&
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/music-service:${GITHUB_SHA::8}
       - name: run project
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: docker rm -vf $(docker ps -a -q) || true && cd 2021_1_Noskool_team/ && docker-compose up -d --build --no-deps
+          script: sudo docker rm -vf $(sudo docker ps -a -q) || true && cd 2021_1_Noskool_team/ && sudo docker-compose up -d --build --no-deps
