@@ -326,6 +326,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		cookie := http.Cookie{
 			Name:     "session_id",
 			Value:    session.Hash,
+			Path:     "/",
 			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
 			HttpOnly: true,
