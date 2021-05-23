@@ -4,8 +4,3 @@ package models
 type Response struct {
 	Body interface{} `json:"body"`
 }
-
-func test() {
-	r := Response{}
-	r.MarshalJSON()
-}

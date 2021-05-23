@@ -9,13 +9,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -312,7 +313,7 @@ func TestAddDeleteTrackToFavorite(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r.URL.RawQuery = "type=add"
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
@@ -842,8 +843,6 @@ func TestGetBillbordTopChartsNotAuth(t *testing.T) {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
 }
-
-
 
 func TestUploadTrackAudioHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)

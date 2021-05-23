@@ -5,6 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"errors"
+
 	_ "github.com/lib/pq" //goland:noinspection
 )
 
@@ -75,7 +76,7 @@ func (usecase *TracksUsecase) GetFavoriteTracks(userID int,
 func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
 	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
 	if err != nil {
-		err = usecase.trackRep.IncrementLikes(trackID)
+		_ = usecase.trackRep.IncrementLikes(trackID)
 	}
 	err = usecase.trackRep.CheckTrackInMediateka(userID, trackID)
 	if err != nil {
@@ -92,7 +93,7 @@ func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
 func (usecase *TracksUsecase) DeleteTrackFromFavorites(userID, trackID int) error {
 	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
 	if err == nil {
-		err = usecase.trackRep.DecrementLikes(trackID)
+		_ = usecase.trackRep.DecrementLikes(trackID)
 	}
 	err = usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
 	return err

@@ -11,12 +11,13 @@ import (
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 type PlaylistsHandler struct {
@@ -434,7 +435,7 @@ func (handler *PlaylistsHandler) UpdatePlaylistTittleHandler(w http.ResponseWrit
 		handler.logger.Error(err)
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusNotFound,
-			Message: fmt.Sprintf("Some error happened"),
+			Message: "Some error happened",
 		})
 		return
 	}
@@ -476,7 +477,7 @@ func (handler *PlaylistsHandler) UpdatePlaylistDescriptionHandler(w http.Respons
 		handler.logger.Error(err)
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusNotFound,
-			Message: fmt.Sprintf("Some error happened"),
+			Message: "Some error happened",
 		})
 		return
 	}

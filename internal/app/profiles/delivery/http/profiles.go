@@ -29,10 +29,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	oneDayTime = 86400
-)
-
 // ProfilesServer ...
 type ProfilesServer struct {
 	config         *configs.Config
@@ -79,7 +75,7 @@ func (s *ProfilesServer) configureLogger() error {
 }
 
 func (s *ProfilesServer) configureRouter() {
-	mediaFolder := fmt.Sprintf("%s", "./static")
+	mediaFolder := "./static"
 	s.router.PathPrefix("/api/v1/user/data/").
 		Handler(
 			http.StripPrefix(
@@ -265,7 +261,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		userIDfromCookie := session.ID
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 
-		r.ParseMultipartForm(5 * 1024 * 1025)
+		_ = r.ParseMultipartForm(5 * 1024 * 1025)
 		file, handler, err := r.FormFile("my_file")
 		if err != nil {
 			s.logger.Error(err)
@@ -291,7 +287,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 			return
 		}
 		defer f.Close()
-		io.Copy(f, file)
+		_, _ = io.Copy(f, file)
 		s.profUsecase.UpdateAvatar(userIDfromCookieStr, "/api/v1/user/data/img/"+session.ID+ext)
 		s.respond(w, r, http.StatusOK, nil)
 	}
@@ -570,7 +566,7 @@ func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code in
 			s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf("Ошибка на сервере :("))
 			return
 		}
-		w.Write(resp)
+		_, _ = w.Write(resp)
 	}
 }
 

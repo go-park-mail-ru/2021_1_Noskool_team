@@ -4,12 +4,13 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth"
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/alicebob/miniredis/v2"
 	"github.com/gomodule/redigo/redis"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type Suite struct {
@@ -73,7 +74,7 @@ func (s *Suite) TestCheckSession() {
 		Expiration: 86400,
 	}
 
-	session, err := s.sessions.CreateSession(sessionExpected)
+	session, err := s.sessions.CreateSession(sessionExpected) //nolint
 	require.NoError(s.T(), err)
 
 	value, err := s.redisServer.Get(sessionExpected.Hash)

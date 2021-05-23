@@ -4,20 +4,20 @@ import (
 	"2021_1_Noskool_team/configs"
 	mock_playlists "2021_1_Noskool_team/internal/app/playlists/mocks"
 	"2021_1_Noskool_team/internal/app/playlists/models"
-	trackModels "2021_1_Noskool_team/internal/app/tracks/models"
 	models2 "2021_1_Noskool_team/internal/microservices/auth/models"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -45,24 +45,6 @@ var (
 			Picture:     "/api/v1/data/img/playlists/3.png",
 			ReleaseDate: "2020-03-04",
 			UserID:      1,
-		},
-	}
-	tracksForTest = []*trackModels.Track{
-		{
-			TrackID:     1,
-			Tittle:      "song",
-			Text:        "sing song song",
-			Audio:       "audio",
-			Picture:     "picture",
-			ReleaseDate: "date",
-		},
-		{
-			TrackID:     2,
-			Tittle:      "dsfds",
-			Text:        "sifdsfdsg song song",
-			Audio:       "afdsudio",
-			Picture:     "fdsafdsa",
-			ReleaseDate: "dafdste",
 		},
 	}
 )

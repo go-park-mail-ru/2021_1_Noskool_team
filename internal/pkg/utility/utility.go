@@ -9,14 +9,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/lib/pq" //goland:noinspection
-	"github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	_ "github.com/lib/pq" //goland:noinspection
+	"github.com/sirupsen/logrus"
 )
 
 func CreatePostgresConnection(dbSettings string) (*sql.DB, error) {
@@ -59,7 +60,7 @@ func SaveFile(r *http.Request, formKey string, directory string, fileName string
 		return nil, err
 	}
 	defer f.Close()
-	io.Copy(f, file)
+	_, _ = io.Copy(f, file)
 	return &newFileName, nil
 }
 
