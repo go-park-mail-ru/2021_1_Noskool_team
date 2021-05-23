@@ -106,12 +106,106 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/user/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
-
 	s.router.HandleFunc("/api/v1/user/profile/update/password",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdatePassword())).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}",
+		authMiddleware.CheckSessionMiddleware(s.GetOtherUserPage)).Methods(http.MethodGet, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}/subscribe",
+		authMiddleware.CheckSessionMiddleware(s.SubscribeMeToSomebody)).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}/unsubscribe",
+		authMiddleware.CheckSessionMiddleware(s.UnSubscribeMeToSomebody)).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/search",
+		authMiddleware.CheckSessionMiddleware(s.SearchContent)).Methods(http.MethodGet, http.MethodOptions)
 
 	s.router.Use(middleware.PanicMiddleware(metricks))
 	s.router.Use(middleware.ContentTypeJson)
+}
+
+func (s *ProfilesServer) SearchContent(w http.ResponseWriter, r *http.Request) {
+	searchQuery := r.URL.Query().Get("search")
+	searchQuery = s.sanitizer.Sanitize(searchQuery)
+
+	fmt.Println(searchQuery)
+	otherUsers, _ := s.profUsecase.SearchTracks(searchQuery)
+	response.SendCorrectResponse(w, otherUsers, http.StatusOK, models.MarshalOtherUsers)
+}
+
+func (s *ProfilesServer) GetOtherUserPage(w http.ResponseWriter, r *http.Request) {
+	userID, err := utility.CheckUserID(w, r, s.logger)
+	if err != nil {
+		return
+	}
+	otherUserID, err := strconv.Atoi(mux.Vars(r)["other_user_id"])
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	otherUser, err := s.profUsecase.GetOtherUserPage(userID, otherUserID)
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Нет такого юзера",
+		})
+		return
+	}
+	response.SendCorrectResponse(w, otherUser, http.StatusOK, models.MarshalOtherUserFullInformation)
+}
+
+func (s *ProfilesServer) SubscribeMeToSomebody(w http.ResponseWriter, r *http.Request) {
+	userID, err := utility.CheckUserID(w, r, s.logger)
+	if err != nil {
+		return
+	}
+	otherUserID, err := strconv.Atoi(mux.Vars(r)["other_user_id"])
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	err = s.profUsecase.SubscribeMeToSomebody(userID, otherUserID)
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *ProfilesServer) UnSubscribeMeToSomebody(w http.ResponseWriter, r *http.Request) {
+	userID, err := utility.CheckUserID(w, r, s.logger)
+	if err != nil {
+		return
+	}
+	otherUserID, err := strconv.Atoi(mux.Vars(r)["other_user_id"])
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	err = s.profUsecase.UnsubscribeMeToSomebody(userID, otherUserID)
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Request) {

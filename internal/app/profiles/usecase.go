@@ -9,4 +9,8 @@ type Usecase interface {
 	UpdateAvatar(userID string, newAvatar string)
 	FindByLogin(nickname string) (*models.UserProfile, error)
 	UpdatePassword(int, string) error
+	SubscribeMeToSomebody(myID, otherUserID int) error
+	UnsubscribeMeToSomebody(myID, otherUserID int) error
+	GetOtherUserPage(myID, otherUserID int) (*models.OtherUserFullInformation, error)
+	SearchTracks(searchQuery string) ([]*models.OtherUser, error)
 }
