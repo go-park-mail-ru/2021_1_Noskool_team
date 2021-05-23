@@ -147,3 +147,112 @@ func formattingDBerr(err *pq.Error) error {
 	}
 	return formatedErr
 }
+
+func (r *ProfileRepository) SubscribeMeToSomebody(myID, otherUserID int) error {
+	query := `insert into subscriptions (who, on_whom) VALUES ($1, $2)`
+
+	_, err := r.con.Exec(query, myID, otherUserID)
+	return err
+}
+
+func (r *ProfileRepository) UnsubscribeMeToSomebody(myID, otherUserID int) error {
+	query := `delete from subscriptions where who = $1 and on_whom = $2`
+
+	_, err := r.con.Exec(query, myID, otherUserID)
+	return err
+}
+
+func (r *ProfileRepository) CheckIsMySubscriber(myID, otherUserID int) bool {
+	query := `select count(*) from subscriptions
+			where who = $1 and on_whom = $2`
+
+	amount := 0
+	err := r.con.QueryRow(query, myID, otherUserID).Scan(&amount)
+	if err != nil || amount != 1 {
+		return false
+	}
+	fmt.Println(amount)
+	return true
+}
+
+func (r *ProfileRepository) GetOtherUserPage(otherUserID int) (*models.OtherUser, error) {
+	query := `select profiles_id, nickname, avatar from profiles
+			where profiles_id = $1`
+	otherUser := &models.OtherUser{}
+
+	err := r.con.QueryRow(query, otherUserID).Scan(&otherUser.UserID, &otherUser.Nickname,
+		&otherUser.Photo,
+	)
+	return otherUser, err
+}
+
+func (r *ProfileRepository) GetSubscriptions(userID int) ([]*models.OtherUser, error) {
+	query := `select profiles_id, nickname, avatar from profiles
+    		left join subscriptions s on profiles.profiles_id = s.on_whom
+			where s.who = $1`
+
+	rows, err := r.con.Query(query, userID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	subscriptions := make([]*models.OtherUser, 0)
+
+	for rows.Next() {
+		otherUser := &models.OtherUser{}
+		err = rows.Scan(&otherUser.UserID, &otherUser.Nickname, &otherUser.Photo)
+		if err != nil {
+			return nil, err
+		}
+		subscriptions = append(subscriptions, otherUser)
+	}
+	return subscriptions, err
+}
+
+func (r *ProfileRepository) GetSubscribers(userID int) ([]*models.OtherUser, error) {
+	query := `select profiles_id, nickname, avatar from profiles
+			left join subscriptions s on profiles.profiles_id = s.who
+			where s.on_whom = $1`
+
+	rows, err := r.con.Query(query, userID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	subscriptions := make([]*models.OtherUser, 0)
+
+	for rows.Next() {
+		otherUser := &models.OtherUser{}
+		err = rows.Scan(&otherUser.UserID, &otherUser.Nickname, &otherUser.Photo)
+		if err != nil {
+			return nil, err
+		}
+		subscriptions = append(subscriptions, otherUser)
+	}
+	return subscriptions, err
+}
+
+func (r *ProfileRepository) SearchTracks(searchQuery string) ([]*models.OtherUser, error) {
+	query := `SELECT profiles_id, nickname, avatar FROM profiles
+			WHERE nickname LIKE '%' || $1 || '%'`
+
+	rows, err := r.con.Query(query, searchQuery)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	subscriptions := make([]*models.OtherUser, 0)
+
+	for rows.Next() {
+		otherUser := &models.OtherUser{}
+		err = rows.Scan(&otherUser.UserID, &otherUser.Nickname, &otherUser.Photo)
+		if err != nil {
+			return nil, err
+		}
+		subscriptions = append(subscriptions, otherUser)
+	}
+	return subscriptions, err
+}

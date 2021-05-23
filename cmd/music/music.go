@@ -15,7 +15,6 @@ import (
 	"2021_1_Noskool_team/internal/pkg/server"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
-	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -25,12 +24,12 @@ const (
 )
 
 func main() {
-	time.Sleep(30 * time.Second)
+	time.Sleep(50 * time.Second)
 	config := configs.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
-	if err != nil {
-		logrus.Error(err)
-	}
+	//_, err := toml.DecodeFile(configPath, config)
+	//if err != nil {
+	//	logrus.Error(err)
+	//}
 
 	musicDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
 	if err != nil {
@@ -71,3 +70,4 @@ func main() {
 	}
 	fmt.Println("Закончили работу")
 }
+

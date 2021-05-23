@@ -72,6 +72,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.UpdatePlaylistDescriptionHandler)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}/title",
 		authMiddlware.CheckSessionMiddleware(handler.UpdatePlaylistTittleHandler)).Methods(http.MethodPost, http.MethodOptions)
+	handler.router.HandleFunc("/user/{user_id:[0-9]+}",
+		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistsByUserID)).Methods(http.MethodGet, http.MethodOptions)
 
 	return handler
 }
@@ -479,4 +481,26 @@ func (handler *PlaylistsHandler) UpdatePlaylistDescriptionHandler(w http.Respons
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *PlaylistsHandler) GetPlaylistsByUserID(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.Atoi(mux.Vars(r)["user_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	playlists, err := handler.playlistsUsecase.GetMediateka(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant get mediateka for user with id = %d", userID),
+		})
+		return
+	}
+	response.SendCorrectResponse(w, playlists, http.StatusOK, playlistModels.MarshalPlaylists)
 }

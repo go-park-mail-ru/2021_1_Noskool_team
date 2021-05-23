@@ -16,14 +16,14 @@ type Config struct {
 // NewConfig ...
 func NewConfig() *Config {
 	return &Config{
-		MusicServerAddr:         ":8080",
-		SessionMicroserviceAddr: "127.0.0.1:8081",
-		SessionRedisStore:       "redis://user:@localhost:6379/0",
-		MusicPostgresBD:         "",
-		ProfilesServerAddr:      "8082",
-		ProfileDB:               "",
+		MusicServerAddr:         ":8888",
+		SessionMicroserviceAddr: "sessions-service:8081",
+		SessionRedisStore:       "redis://redis/0",
+		MusicPostgresBD:         "host=music-bd port=5432 user=andrewkireev dbname=music_service_docker password=password sslmode=disable",
+		ProfilesServerAddr:      ":8082",
+		ProfileDB:               "host=music-bd port=5432 user=andrewkireev dbname=music_service_docker password=password sslmode=disable",
 		LogLevel:                "debug",
-		FrontendURL:             "some_url",
-		MediaFolder:             "",
+		FrontendURL:             "84.201.189.81:9000",
+		MediaFolder:             "./static",
 	}
 }

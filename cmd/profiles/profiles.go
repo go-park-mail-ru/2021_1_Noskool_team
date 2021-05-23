@@ -7,7 +7,6 @@ import (
 	"2021_1_Noskool_team/internal/app/profiles/usecase"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
-	"github.com/BurntSushi/toml"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -23,14 +22,14 @@ func init() {
 }
 
 func main() {
-	time.Sleep(30 * time.Second)
+	time.Sleep(50 * time.Second)
 	flag.Parse()
 
 	config := configs.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
-	if err != nil {
-		logrus.Error(err)
-	}
+	//_, err := toml.DecodeFile(configPath, config)
+	//if err != nil {
+	//	logrus.Error(err)
+	//}
 
 	profDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
 	if err != nil {

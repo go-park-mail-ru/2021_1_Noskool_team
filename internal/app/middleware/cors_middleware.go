@@ -18,7 +18,8 @@ func NewCORSMiddleware(config *configs.Config) *CORSMiddleware {
 func (corsMiddlware *CORSMiddleware) CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("URL: %s, METHOD: %s", r.RequestURI, r.Method)
-		w.Header().Set("Access-Control-Allow-Headers", "*, X-Csrf-Token")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length,"+
+			" Accept-Encoding, X-CSRF-Token, csrf-token, Authorization")
 		w.Header().Set("Access-Control-Allow-Origin", corsMiddlware.config.FrontendURL)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Vary", "Origin")
