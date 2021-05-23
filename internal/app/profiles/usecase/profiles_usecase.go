@@ -68,14 +68,14 @@ func (usecase *ProfilesUsecase) GetOtherUserPage(myID, otherUserID int) (*models
 	}
 	otherUserFullInf.Subscribers, _ = usecase.profilesRepo.GetSubscribers(otherUserFullInf.UserID)
 	if otherUserFullInf.Subscribers != nil {
-		for idx, _ := range otherUserFullInf.Subscribers {
+		for idx := 0; idx < len(otherUserFullInf.Subscribers); idx++ {
 			otherUserFullInf.Subscribers[idx].ISubscribed = usecase.profilesRepo.CheckIsMySubscriber(myID,
 				otherUserFullInf.Subscribers[idx].UserID)
 		}
 	}
 	otherUserFullInf.Subscriptions, _ = usecase.profilesRepo.GetSubscriptions(otherUserFullInf.UserID)
 	if otherUserFullInf.Subscriptions != nil {
-		for idx, _ := range otherUserFullInf.Subscriptions {
+		for idx := 0; idx < len(otherUserFullInf.Subscriptions); idx++ {
 			otherUserFullInf.Subscriptions[idx].ISubscribed = usecase.profilesRepo.CheckIsMySubscriber(myID,
 				otherUserFullInf.Subscriptions[idx].UserID)
 		}
