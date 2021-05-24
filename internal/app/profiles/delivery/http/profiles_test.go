@@ -40,7 +40,7 @@ func TestHandleAuthWithCookie(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	http.SetCookie(recorder, &http.Cookie{Name: "session_id", Value: "fdsjfkdsjelfdlksjfkjds"})
-	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}}
+	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}} //nolint
 
 	handler := ProfilesServer{sessionsClient: mockSeshClient, logger: logrus.New()}
 
@@ -75,7 +75,7 @@ func TestHandleAuthNoCookie(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	http.SetCookie(recorder, &http.Cookie{Name: "session_id", Value: "wrong cookie"})
-	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}}
+	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}} //nolint
 
 	handler := ProfilesServer{
 		sessionsClient: mockSeshClient,

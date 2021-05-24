@@ -183,16 +183,10 @@ func (usecase *TracksUsecase) GetTopTrack() ([]*models.Track, error) {
 
 func (usecase *TracksUsecase) CheckTrackInMediateka(userID, trackID int) bool {
 	err := usecase.trackRep.CheckTrackInMediateka(userID, trackID)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (usecase *TracksUsecase) CheckTrackInFavorite(userID, trackID int) bool {
 	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }

@@ -60,7 +60,7 @@ func TestDeletePlaylistFromMediatekaHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("DELETE", "/api/vi/playlist/", nil)
 	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 
 	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.DeletePlaylistFromMediatekaHandler(w, r)
@@ -81,7 +81,7 @@ func TestDeletePlaylistFromMediatekaHandler(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("DELETE", "/api/vi/playlist", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.DeletePlaylistFromMediatekaHandler(w, r)
@@ -93,7 +93,7 @@ func TestDeletePlaylistFromMediatekaHandler(t *testing.T) {
 	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("DELETE", "/api/vi/playlist/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.DeletePlaylistFromMediatekaHandler(w, r)
 	if w.Code != http.StatusBadRequest {
@@ -104,7 +104,7 @@ func TestDeletePlaylistFromMediatekaHandler(t *testing.T) {
 		errors.New("some error"))
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("DELETE", "/api/vi/playlist/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1)})
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.DeletePlaylistFromMediatekaHandler(w, r)
@@ -169,7 +169,7 @@ func TestAddPlaylistFromMediatekaHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/vi/playlist/", nil)
 	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 
 	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.AddPlaylistToMediatekaHandler(w, r)
@@ -190,7 +190,7 @@ func TestAddPlaylistFromMediatekaHandler(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/playlist", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.AddPlaylistToMediatekaHandler(w, r)
@@ -202,7 +202,7 @@ func TestAddPlaylistFromMediatekaHandler(t *testing.T) {
 	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.AddPlaylistToMediatekaHandler(w, r)
 	if w.Code != http.StatusBadRequest {
@@ -213,7 +213,7 @@ func TestAddPlaylistFromMediatekaHandler(t *testing.T) {
 		errors.New("some error"))
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/playlist/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r = mux.SetURLVars(r, map[string]string{"playlist_id": strconv.Itoa(1)})
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.AddPlaylistToMediatekaHandler(w, r)
@@ -274,7 +274,7 @@ func TestGetMediateka(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/playlist/", nil)
 	r = mux.SetURLVars(r, map[string]string{"genre_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.GetMediateka(w, r)
 
@@ -299,7 +299,7 @@ func TestGetMediateka(t *testing.T) {
 	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/playlist/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "some bad id"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "some bad id"})) //nolint
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.GetMediateka(w, r)
 	if w.Code != http.StatusInternalServerError {
@@ -310,7 +310,7 @@ func TestGetMediateka(t *testing.T) {
 		nil, errors.New("some error"))
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/playlist/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.GetMediateka(w, r)
 	if w.Code != http.StatusNoContent {
@@ -501,7 +501,7 @@ func TestCreatePlaylistHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/vi/playlist/", bytes.NewBuffer(body))
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 
 	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.CreatePlaylistHandler(w, r)
@@ -532,7 +532,7 @@ func TestCreatePlaylistHandler(t *testing.T) {
 	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/playlist/", bytes.NewBuffer(body))
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "not correct id"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "not correct id"})) //nolint
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.CreatePlaylistHandler(w, r)
 	if w.Code != http.StatusInternalServerError {
@@ -543,7 +543,7 @@ func TestCreatePlaylistHandler(t *testing.T) {
 	mockPlaylistUsecase.EXPECT().CreatePlaylist(playlistsForTest[0]).Return(nil, fmt.Errorf("some error"))
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/playlist/", bytes.NewBuffer(body))
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase)
 	handler.CreatePlaylistHandler(w, r)
 	if w.Code != http.StatusBadRequest {

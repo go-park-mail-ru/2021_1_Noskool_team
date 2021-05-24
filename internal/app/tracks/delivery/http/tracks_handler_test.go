@@ -334,7 +334,7 @@ func TestAddDeleteTrackToFavorite(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddDeleteTrackToFavorite(w, r)
@@ -345,7 +345,7 @@ func TestAddDeleteTrackToFavorite(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "1"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddDeleteTrackToFavorite(w, r)
@@ -364,7 +364,7 @@ func TestAddDeleteTrackToMediateka(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r.URL.RawQuery = "type=add"
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
@@ -385,7 +385,7 @@ func TestAddDeleteTrackToMediateka(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddDeleteTrackToMediateka(w, r)
@@ -396,7 +396,7 @@ func TestAddDeleteTrackToMediateka(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/1/favorite", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "1"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddDeleteTrackToMediateka(w, r)
@@ -410,7 +410,7 @@ func TestAddDeleteTrackToMediateka(t *testing.T) {
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/1/mediateka", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r.URL.RawQuery = "type=add"
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
@@ -435,7 +435,7 @@ func TestGetFavoriteTracks(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r.URL.RawQuery = "limit=10&offset=0"
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
@@ -461,7 +461,7 @@ func TestGetFavoriteTracks(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.GetFavoriteTracks(w, r)
@@ -477,7 +477,7 @@ func TestGetFavoriteTracks(t *testing.T) {
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r.URL.RawQuery = "limit=10&offset=0"
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
@@ -498,7 +498,7 @@ func TestGetMediatekaForUser(t *testing.T) {
 	mockTracksUsecase.EXPECT().CheckTrackInFavorite(gomock.Any(), gomock.Any()).AnyTimes()
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/mediateka", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
 	handler.GetMediatekaForUser(w, r)
@@ -523,7 +523,7 @@ func TestGetMediatekaForUser(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/favorites", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.GetMediatekaForUser(w, r)
@@ -535,7 +535,7 @@ func TestGetMediatekaForUser(t *testing.T) {
 	mockTracksUsecase.EXPECT().GetTracksByUserID(1).Return(nil, errors.New("some error"))
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/mediateka", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 
 	handler.GetMediatekaForUser(w, r)
@@ -553,7 +553,7 @@ func TestGetHistory(t *testing.T) {
 	mockTracksUsecase.EXPECT().GetHistory(1).Return(testTreks, nil)
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/track/history", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.GetHistory(w, r)
 	expected := http.StatusOK
@@ -577,7 +577,7 @@ func TestGetHistory(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.GetHistory(w, r)
@@ -589,7 +589,7 @@ func TestGetHistory(t *testing.T) {
 	mockTracksUsecase.EXPECT().GetHistory(1).Return(nil, errors.New("some error"))
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.GetHistory(w, r)
 	expected = http.StatusNoContent
@@ -607,7 +607,7 @@ func TestAddToHistory(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler := NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddToHistory(w, r)
 	expected := http.StatusOK
@@ -626,7 +626,7 @@ func TestAddToHistory(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "not correct id"}))
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddToHistory(w, r)
@@ -637,7 +637,7 @@ func TestAddToHistory(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("POST", "/api/vi/track/1/history", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddToHistory(w, r)
 	expected = http.StatusBadRequest
@@ -649,7 +649,7 @@ func TestAddToHistory(t *testing.T) {
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/vi/track/history", nil)
 	r = mux.SetURLVars(r, map[string]string{"track_id": strconv.Itoa(1)})
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewTracksHandler(mux.NewRouter(), configs.NewConfig(), mockTracksUsecase)
 	handler.AddToHistory(w, r)
 	expected = http.StatusNoContent
