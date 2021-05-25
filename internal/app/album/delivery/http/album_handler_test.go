@@ -256,7 +256,7 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r = mux.SetURLVars(r, map[string]string{"album_id": "1"})
 	r.URL.RawQuery = "type=add"
 
@@ -283,7 +283,7 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"})) //nolint
 	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
 		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToMediateka(w, r)
@@ -295,9 +295,9 @@ func TestAddDeleteAlbumToMediateka(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "cont correct id"}))
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
 		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToMediateka(w, r)
@@ -320,7 +320,7 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r = mux.SetURLVars(r, map[string]string{"album_id": "1"})
 	r.URL.RawQuery = "type=add"
 
@@ -347,7 +347,7 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"})) //nolint
 	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
 		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToFavorites(w, r)
@@ -359,9 +359,9 @@ func TestAddDeleteAlbumToFavorites(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id",
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", //nolint
 		models2.Result{ID: "cont correct id"}))
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
 		mockTracksUsecase, mockMusicianUsecase)
 	handler.AddDeleteAlbumToFavorites(w, r)
@@ -384,7 +384,7 @@ func TestGetFavoriteAlbums(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 	r.URL.RawQuery = "limit=1&offset=1"
 	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
 		mockTracksUsecase, mockMusicianUsecase)
@@ -414,7 +414,7 @@ func TestGetFavoriteAlbums(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	r = httptest.NewRequest("GET", "/api/v1/album/bymusician/", nil)
-	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"}))
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "cont correct id"})) //nolint
 	handler = NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
 		mockTracksUsecase, mockMusicianUsecase)
 	handler.GetFavoriteAlbums(w, r)

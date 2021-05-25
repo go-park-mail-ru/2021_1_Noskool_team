@@ -16,6 +16,11 @@ func NewPlaylistUsecase(newRep playlists.Repository) *PlaylistUsecase {
 	}
 }
 
+func (usecase *PlaylistUsecase) GetPlaylistByUID(UID string) (*models.Playlist, error) {
+	playlist, err := usecase.playlistRep.GetPlaylistByUID(UID)
+	return playlist, err
+}
+
 func (usecase *PlaylistUsecase) CreatePlaylist(playlist *models.Playlist) (*models.Playlist, error) {
 	playlist, err := usecase.playlistRep.CreatePlaylist(playlist)
 	return playlist, err

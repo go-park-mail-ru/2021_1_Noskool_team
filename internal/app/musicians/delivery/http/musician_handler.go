@@ -17,10 +17,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	oneDayTime = 86400
-)
-
 type MusiciansHandler struct {
 	router          *mux.Router
 	musicianUsecase musicians.Usecase
@@ -86,14 +82,14 @@ func (handler *MusiciansHandler) GetGenreForMusician(w http.ResponseWriter, r *h
 	req := &MusicianName{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 
 	geners, err := handler.musicianUsecase.GetGenreForMusician(req.Name)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	fmt.Println(geners)
@@ -106,13 +102,13 @@ func (handler *MusiciansHandler) GetMusiciansByGenre(w http.ResponseWriter, r *h
 	genre, ok := vars["genre"]
 	if !ok {
 		handler.logger.Errorf("Error get genre from query string")
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	musicians, err := handler.musicianUsecase.GetMusiciansByGenre(genre)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansByGenres: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
@@ -124,19 +120,19 @@ func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.
 	musicianID, ok := vars["musician_id"]
 	if !ok {
 		handler.logger.Errorf("Error get musician_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	musicianIDint, err := strconv.Atoi(musicianID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	musician, err := handler.musicianUsecase.GetMusicianByID(musicianIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusicianByID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, musician, 200, musiciansModels.MarshalMusician)
@@ -148,19 +144,19 @@ func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *
 	trackID, ok := vars["track_id"]
 	if !ok {
 		handler.logger.Errorf("Error get track_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	trackIDint, err := strconv.Atoi(trackID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	musicians, err := handler.musicianUsecase.GetMusicianByTrackID(trackIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusicianByTrackID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
@@ -172,19 +168,19 @@ func (handler *MusiciansHandler) GetMusicianByAlbumID(w http.ResponseWriter, r *
 	albumID, ok := vars["album_id"]
 	if !ok {
 		handler.logger.Errorf("Error get album_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	albumIDint, err := strconv.Atoi(albumID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	musicians, err := handler.musicianUsecase.GetMusicianByAlbumID(albumIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusicianByAlbumID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
@@ -196,19 +192,19 @@ func (handler *MusiciansHandler) GetMusicianByPlaylistID(w http.ResponseWriter, 
 	playlistID, ok := vars["playlist_id"]
 	if !ok {
 		handler.logger.Errorf("Error get playlist_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	playlistIDint, err := strconv.Atoi(playlistID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	musicians, err := handler.musicianUsecase.GetMusicianByPlaylistID(playlistIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusicianByPlaylistID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, musicians, 200, musiciansModels.MarshalMusicians)
@@ -219,7 +215,7 @@ func (handler *MusiciansHandler) GetMusiciansTop4(w http.ResponseWriter, r *http
 	musicians, err := handler.musicianUsecase.GetMusiciansTop4()
 	if err != nil {
 		handler.logger.Errorf("Error in GetMusiciansTop3: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)

@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS tracks
     picture           varchar(100),
     release_date      date,
     duration          text,
-    likes int default 0
+    likes             int default 0
 );
 
 -- ///
@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS playlists
     description  text,
     picture      varchar(100),
     release_date date default now(),
-    rating       int default 0
+    rating       int  default 0,
+    uid          text default ''
 );
 
 CREATE TABLE IF NOT EXISTS album_to_user
@@ -158,52 +159,63 @@ CREATE TABLE IF NOT EXISTS Profiles
     favorite_genre     text[]    not null default '{}'::text[]
 );
 
-create table if not exists subscriptions (
-  who int,
-  on_whom int,
-  FOREIGN KEY (who) REFERENCES profiles (profiles_id) on delete CASCADE,
-  FOREIGN KEY (on_whom) REFERENCES profiles (profiles_id) on delete CASCADE,
-  unique (who, on_whom)
+create table if not exists subscriptions
+(
+    who     int,
+    on_whom int,
+    FOREIGN KEY (who) REFERENCES profiles (profiles_id) on delete CASCADE,
+    FOREIGN KEY (on_whom) REFERENCES profiles (profiles_id) on delete CASCADE,
+    unique (who, on_whom)
 );
 
 insert into tracks (track_id, tittle, text, audio, picture, release_date, duration, rating)
-VALUES (1, 'Do I Wanna Know?', 'text', '/api/v1/music/data/audio/Do_I_Wanna_Know.ogg', '/api/v1/music/data/img/tracks/AM.webp',
+VALUES (1, 'Do I Wanna Know?', 'text', '/api/v1/music/data/audio/Do_I_Wanna_Know.ogg',
+        '/api/v1/music/data/img/tracks/AM.webp',
         '2013-03-03', '4:32', 0),
        (2, 'R U Mine', 'some text', '/api/v1/music/data/audio/R_U_Mine.ogg', '/api/v1/music/data/img/tracks/AM.webp',
         '2013-03-03', '3:22', 50),
        (3, 'One For The Road', 'some text', '/api/v1/music/data/audio/One_For_The_Road.ogg',
         '/api/v1/music/data/img/tracks/AM.webp', '2013-03-03', '3:43', 100),
-       (4, 'Arabella', 'some text', '/api/v1/music/data/audio/Arabella.ogg', '/api/v1/music/data/img/tracks/AM.webp', '2013-03-03',
+       (4, 'Arabella', 'some text', '/api/v1/music/data/audio/Arabella.ogg', '/api/v1/music/data/img/tracks/AM.webp',
+        '2013-03-03',
         '3:27', 12),
-       (5, 'I Want It All', 'some text', '/api/v1/music/data/audio/I_Want_It_All.ogg', '/api/v1/music/data/img/tracks/AM.webp',
+       (5, 'I Want It All', 'some text', '/api/v1/music/data/audio/I_Want_It_All.ogg',
+        '/api/v1/music/data/img/tracks/AM.webp',
         '2013-03-03', '3:04', 200),
        (6, 'Pretty Boy', 'some text', '/api/v1/music/data/audio/Joji_feat._Lil_Yachty_Pretty_Boy.ogg',
         '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01', '2:37', 5000),
-       (7, 'Tick Tock', 'some text', '/api/v1/music/data/audio/Joji_-_Tick_Tock.ogg', '/api/v1/music/data/img/tracks/Nectar.webp',
+       (7, 'Tick Tock', 'some text', '/api/v1/music/data/audio/Joji_-_Tick_Tock.ogg',
+        '/api/v1/music/data/img/tracks/Nectar.webp',
         '2018-10-01', '2:12', 70),
        (8, 'Daylight', 'some text', '/api/v1/music/data/audio/Joji__Diplo_-_Daylight.ogg',
         '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01', '2:44', 20),
-       (9, 'Upgrade', 'some text', '/api/v1/music/data/audio/Joji_-_Upgrade.ogg', '/api/v1/music/data/img/tracks/Nectar.webp',
+       (9, 'Upgrade', 'some text', '/api/v1/music/data/audio/Joji_-_Upgrade.ogg',
+        '/api/v1/music/data/img/tracks/Nectar.webp',
         '2018-10-01', '1:30', 200),
        (10, 'Mr. Hollywood', 'some text', '/api/v1/music/data/audio/Joji_-_Mr._Hollywood.ogg',
         '/api/v1/music/data/img/tracks/Nectar.webp', '2018-10-01', '3:22', 3),
        (11, 'Run', 'some text', '/api/v1/music/data/audio/Joji_-_Run.ogg', '/api/v1/music/data/img/tracks/Nectar.webp',
         '2018-10-01', '3:15', 3),
-       (12, 'Flowers', 'some text', '/api/v1/music/data/audio/Flowers.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
+       (12, 'Flowers', 'some text', '/api/v1/music/data/audio/Flowers.ogg',
+        '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:18', 300),
        (13, 'Scary Love', 'some text', '/api/v1/music/data/audio/Scary_Love.ogg',
         '/api/v1/music/data/img/tracks/The_Neighbourhood.webp', '2018-10-01', '3:43', 250),
-       (14, 'Nervous', 'some text', '/api/v1/music/data/audio/Nervous.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
+       (14, 'Nervous', 'some text', '/api/v1/music/data/audio/Nervous.ogg',
+        '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '4:05', 30),
-       (15, 'Void', 'some text', '/api/v1/music/data/audio/Void.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
+       (15, 'Void', 'some text', '/api/v1/music/data/audio/Void.ogg',
+        '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:24', 40),
        (16, 'Softcore', 'some text', '/api/v1/music/data/audio/Softcore.ogg',
         '/api/v1/music/data/img/tracks/The_Neighbourhood.webp', '2018-10-01', '3:26', 49),
-       (17, 'Blue', 'some text', '/api/v1/music/data/audio/Blue.ogg', '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
+       (17, 'Blue', 'some text', '/api/v1/music/data/audio/Blue.ogg',
+        '/api/v1/music/data/img/tracks/The_Neighbourhood.webp',
         '2018-10-01', '3:10', 42),
        (18, 'Smells Like Teen Spirit', 'some text', '/api/v1/music/data/audio/Smells_Like_Teen_Spirit.ogg',
         '/api/v1/music/data/img/tracks/smels_like.webp', '1991-10-01', '5:01', 500),
-       (19, 'Good News', 'some text', '/api/v1/music/data/audio/Mac_Miller.ogg', '/api/v1/music/data/img/tracks/good_news.webp',
+       (19, 'Good News', 'some text', '/api/v1/music/data/audio/Mac_Miller.ogg',
+        '/api/v1/music/data/img/tracks/good_news.webp',
         '2020-01-01', '5:42', 600),
        (20, 'Каждый раз', 'some text', '/api/v1/music/data/audio/mon_every_time.ogg',
         '/api/v1/music/data/img/tracks/monetohka.webp', '2020-01-01', '3:28', 700),
@@ -331,4 +343,6 @@ VALUES ('classical'),
 
 
 insert into Musicians_to_Genres (genre_id, musician_id)
-    values (1,4), (2,4), (3,4);
+values (1, 4),
+       (2, 4),
+       (3, 4);
