@@ -110,8 +110,7 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.SubscribeMeToSomebody)).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}/unsubscribe",
 		authMiddleware.CheckSessionMiddleware(s.UnSubscribeMeToSomebody)).Methods(http.MethodPost, http.MethodOptions)
-	s.router.HandleFunc("/api/v1/user/profile/search",
-		authMiddleware.CheckSessionMiddleware(s.SearchContent)).Methods(http.MethodGet, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/search", s.SearchContent)
 
 	s.router.Use(middleware.PanicMiddleware(metricks))
 	s.router.Use(middleware.ContentTypeJson)

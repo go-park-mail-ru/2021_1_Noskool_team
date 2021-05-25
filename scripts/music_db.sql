@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS playlists
     picture      varchar(100),
     release_date date default now(),
     rating       int  default 0,
-    uid          text default ''
+    uid          text default '',
+    creator      text default ''
 );
 
 CREATE TABLE IF NOT EXISTS album_to_user

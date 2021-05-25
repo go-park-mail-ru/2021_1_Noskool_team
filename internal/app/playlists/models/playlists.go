@@ -16,6 +16,7 @@ type Playlist struct {
 	UserID      int             `json:"user_id"`
 	Tracks      []*models.Track `json:"tracks"`
 	UID         string          `json:"uid"`
+	Creator     string          `json:"creator"`
 }
 
 //easyjson:json
