@@ -94,6 +94,10 @@ func CreateCSRFToken(secret string) string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(b)))
 }
 
+func CreatePlaylistUID(playlistID string) string {
+	return CreateCSRFToken(playlistID)[:10]
+}
+
 func CheckUserID(w http.ResponseWriter, r *http.Request, logger *logrus.Logger) (int, error) {
 	session, ok := r.Context().Value("user_id").(sessionModels.Result)
 	if !ok {

@@ -11,15 +11,6 @@ on:
       - dev
 
 jobs:
-  linter:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v1
-        with:
-          version: v1.26
   test:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +26,7 @@ jobs:
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker image
-        run: rm -rf static/ && git clone https://github.com/andrew-kireev/static.git && sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:latest -f ./build/package/sessions-service.Dockerfile . &&
+        run: rm -rf static/ && git clone https://github.com/andrew-kireev/static.git && ls && sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sessions-service:latest -f ./build/package/sessions-service.Dockerfile . &&
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/profiles-service:latest -f ./build/package/profiles-service.Dockerfile . &&
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/music-service:latest -f ./build/package/music-service.Dockerfile .
 

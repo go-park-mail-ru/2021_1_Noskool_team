@@ -136,6 +136,21 @@ func (mr *MockRepositoryMockRecorder) GetPlaylistByID(playlistID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylistByID", reflect.TypeOf((*MockRepository)(nil).GetPlaylistByID), playlistID)
 }
 
+// GetPlaylistByUID mocks base method.
+func (m *MockRepository) GetPlaylistByUID(UID string) (*models.Playlist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPlaylistByUID", UID)
+	ret0, _ := ret[0].(*models.Playlist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPlaylistByUID indicates an expected call of GetPlaylistByUID.
+func (mr *MockRepositoryMockRecorder) GetPlaylistByUID(UID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaylistByUID", reflect.TypeOf((*MockRepository)(nil).GetPlaylistByUID), UID)
+}
+
 // GetPlaylists mocks base method.
 func (m *MockRepository) GetPlaylists() ([]*models.Playlist, error) {
 	m.ctrl.T.Helper()
