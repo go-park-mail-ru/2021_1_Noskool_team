@@ -20,9 +20,9 @@ func NewAlbumsRepository(con *sql.DB) album.Repository {
 	}
 }
 
-func (albumsRep *AlbumsRepository) GetAlbumByID(albumID int) (*models.Album, error) {
+func (albumRep *AlbumsRepository) GetAlbumByID(albumID int) (*models.Album, error) {
 	album := &models.Album{}
-	err := albumsRep.con.QueryRow(
+	err := albumRep.con.QueryRow(
 		"select album_id, tittle, picture, release_date FROM albums where album_id = $1", albumID).Scan(
 		&album.AlbumID,
 		&album.Tittle,

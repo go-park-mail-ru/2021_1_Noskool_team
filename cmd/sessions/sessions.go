@@ -5,9 +5,10 @@ import (
 	grpcSerc "2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/server"
 	"2021_1_Noskool_team/internal/microservices/auth/repository"
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
+	"time"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 const (

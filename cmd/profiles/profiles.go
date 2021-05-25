@@ -7,10 +7,11 @@ import (
 	"2021_1_Noskool_team/internal/app/profiles/usecase"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"flag"
-	"github.com/microcosm-cc/bluemonday"
-	"github.com/sirupsen/logrus"
 	"log"
 	"time"
+
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/sirupsen/logrus"
 )
 
 var (

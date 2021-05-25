@@ -56,27 +56,27 @@ func easyjson345a258eEncode20211NoskoolTeamInternalAppAlbumDeliveryHttp(out *jwr
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v AlbumsHandler) MarshalJSON() ([]byte, error) {
+func (handler AlbumsHandler) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson345a258eEncode20211NoskoolTeamInternalAppAlbumDeliveryHttp(&w, v)
+	easyjson345a258eEncode20211NoskoolTeamInternalAppAlbumDeliveryHttp(&w, handler)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v AlbumsHandler) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson345a258eEncode20211NoskoolTeamInternalAppAlbumDeliveryHttp(w, v)
+func (handler AlbumsHandler) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson345a258eEncode20211NoskoolTeamInternalAppAlbumDeliveryHttp(w, handler)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *AlbumsHandler) UnmarshalJSON(data []byte) error {
+func (handler *AlbumsHandler) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson345a258eDecode20211NoskoolTeamInternalAppAlbumDeliveryHttp(&r, v)
+	easyjson345a258eDecode20211NoskoolTeamInternalAppAlbumDeliveryHttp(&r, handler)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *AlbumsHandler) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson345a258eDecode20211NoskoolTeamInternalAppAlbumDeliveryHttp(l, v)
+func (handler *AlbumsHandler) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson345a258eDecode20211NoskoolTeamInternalAppAlbumDeliveryHttp(l, handler)
 }
 func easyjson345a258eDecode20211NoskoolTeamInternalAppAlbumDeliveryHttp1(in *jlexer.Lexer, out *AlbumWithExtraInform) {
 	isTopLevel := in.IsStart()

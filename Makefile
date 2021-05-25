@@ -28,6 +28,9 @@ clear-dockers:
 	docker system prune -a
 	docker volume prune
 
+linter:
+	 golangci-lint run
+
 .PHONY: build_profile
 build_profile:
 	go build -v ./cmd/profiles

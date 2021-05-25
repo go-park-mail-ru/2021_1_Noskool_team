@@ -3,10 +3,7 @@
 package models
 
 import (
-	models3 "2021_1_Noskool_team/internal/app/album/models"
-	models2 "2021_1_Noskool_team/internal/app/musicians/models"
 	models "2021_1_Noskool_team/internal/app/tracks/models"
-	models1 "2021_1_Noskool_team/internal/models"
 	json "encoding/json"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
@@ -154,13 +151,15 @@ func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels1(in *jlexe
 						if v4 == nil {
 							v4 = new(models.Track)
 						}
-						easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in, v4)
+						(*v4).UnmarshalEasyJSON(in)
 					}
 					out.Tracks = append(out.Tracks, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
 			}
+		case "uid":
+			out.UID = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -219,11 +218,16 @@ func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppPlaylistsModels1(out *jwri
 				if v6 == nil {
 					out.RawString("null")
 				} else {
-					easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out, *v6)
+					(*v6).MarshalEasyJSON(out)
 				}
 			}
 			out.RawByte(']')
 		}
+	}
+	{
+		const prefix string = ",\"uid\":"
+		out.RawString(prefix)
+		out.String(string(in.UID))
 	}
 	out.RawByte('}')
 }
@@ -250,304 +254,4 @@ func (v *Playlist) UnmarshalJSON(data []byte) error {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Playlist) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB2c5512fDecode20211NoskoolTeamInternalAppPlaylistsModels1(l, v)
-}
-func easyjsonB2c5512fDecode20211NoskoolTeamInternalAppTracksModels(in *jlexer.Lexer, out *models.Track) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "track_id":
-			out.TrackID = int(in.Int())
-		case "tittle":
-			out.Tittle = string(in.String())
-		case "text":
-			out.Text = string(in.String())
-		case "audio":
-			out.Audio = string(in.String())
-		case "picture":
-			out.Picture = string(in.String())
-		case "release_date":
-			out.ReleaseDate = string(in.String())
-		case "duration":
-			out.Duration = string(in.String())
-		case "in_mediateka":
-			out.InMediateka = bool(in.Bool())
-		case "in_favorite":
-			out.InFavorite = bool(in.Bool())
-		case "genres":
-			if in.IsNull() {
-				in.Skip()
-				out.Genres = nil
-			} else {
-				in.Delim('[')
-				if out.Genres == nil {
-					if !in.IsDelim(']') {
-						out.Genres = make([]*models1.Genre, 0, 8)
-					} else {
-						out.Genres = []*models1.Genre{}
-					}
-				} else {
-					out.Genres = (out.Genres)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v7 *models1.Genre
-					if in.IsNull() {
-						in.Skip()
-						v7 = nil
-					} else {
-						if v7 == nil {
-							v7 = new(models1.Genre)
-						}
-						easyjsonB2c5512fDecode20211NoskoolTeamInternalModels(in, v7)
-					}
-					out.Genres = append(out.Genres, v7)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "musicians":
-			if in.IsNull() {
-				in.Skip()
-				out.Musicians = nil
-			} else {
-				in.Delim('[')
-				if out.Musicians == nil {
-					if !in.IsDelim(']') {
-						out.Musicians = make([]*models2.Musician, 0, 8)
-					} else {
-						out.Musicians = []*models2.Musician{}
-					}
-				} else {
-					out.Musicians = (out.Musicians)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v8 *models2.Musician
-					if in.IsNull() {
-						in.Skip()
-						v8 = nil
-					} else {
-						if v8 == nil {
-							v8 = new(models2.Musician)
-						}
-						(*v8).UnmarshalEasyJSON(in)
-					}
-					out.Musicians = append(out.Musicians, v8)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		case "album":
-			if in.IsNull() {
-				in.Skip()
-				out.Albums = nil
-			} else {
-				in.Delim('[')
-				if out.Albums == nil {
-					if !in.IsDelim(']') {
-						out.Albums = make([]*models3.Album, 0, 8)
-					} else {
-						out.Albums = []*models3.Album{}
-					}
-				} else {
-					out.Albums = (out.Albums)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v9 *models3.Album
-					if in.IsNull() {
-						in.Skip()
-						v9 = nil
-					} else {
-						if v9 == nil {
-							v9 = new(models3.Album)
-						}
-						(*v9).UnmarshalEasyJSON(in)
-					}
-					out.Albums = append(out.Albums, v9)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB2c5512fEncode20211NoskoolTeamInternalAppTracksModels(out *jwriter.Writer, in models.Track) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"track_id\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.TrackID))
-	}
-	{
-		const prefix string = ",\"tittle\":"
-		out.RawString(prefix)
-		out.String(string(in.Tittle))
-	}
-	{
-		const prefix string = ",\"text\":"
-		out.RawString(prefix)
-		out.String(string(in.Text))
-	}
-	{
-		const prefix string = ",\"audio\":"
-		out.RawString(prefix)
-		out.String(string(in.Audio))
-	}
-	{
-		const prefix string = ",\"picture\":"
-		out.RawString(prefix)
-		out.String(string(in.Picture))
-	}
-	{
-		const prefix string = ",\"release_date\":"
-		out.RawString(prefix)
-		out.String(string(in.ReleaseDate))
-	}
-	{
-		const prefix string = ",\"duration\":"
-		out.RawString(prefix)
-		out.String(string(in.Duration))
-	}
-	{
-		const prefix string = ",\"in_mediateka\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.InMediateka))
-	}
-	{
-		const prefix string = ",\"in_favorite\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.InFavorite))
-	}
-	{
-		const prefix string = ",\"genres\":"
-		out.RawString(prefix)
-		if in.Genres == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v10, v11 := range in.Genres {
-				if v10 > 0 {
-					out.RawByte(',')
-				}
-				if v11 == nil {
-					out.RawString("null")
-				} else {
-					easyjsonB2c5512fEncode20211NoskoolTeamInternalModels(out, *v11)
-				}
-			}
-			out.RawByte(']')
-		}
-	}
-	{
-		const prefix string = ",\"musicians\":"
-		out.RawString(prefix)
-		if in.Musicians == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v12, v13 := range in.Musicians {
-				if v12 > 0 {
-					out.RawByte(',')
-				}
-				if v13 == nil {
-					out.RawString("null")
-				} else {
-					(*v13).MarshalEasyJSON(out)
-				}
-			}
-			out.RawByte(']')
-		}
-	}
-	{
-		const prefix string = ",\"album\":"
-		out.RawString(prefix)
-		if in.Albums == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v14, v15 := range in.Albums {
-				if v14 > 0 {
-					out.RawByte(',')
-				}
-				if v15 == nil {
-					out.RawString("null")
-				} else {
-					(*v15).MarshalEasyJSON(out)
-				}
-			}
-			out.RawByte(']')
-		}
-	}
-	out.RawByte('}')
-}
-func easyjsonB2c5512fDecode20211NoskoolTeamInternalModels(in *jlexer.Lexer, out *models1.Genre) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "genre_id":
-			out.GenreID = int(in.Int())
-		case "title":
-			out.Title = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB2c5512fEncode20211NoskoolTeamInternalModels(out *jwriter.Writer, in models1.Genre) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"genre_id\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.GenreID))
-	}
-	{
-		const prefix string = ",\"title\":"
-		out.RawString(prefix)
-		out.String(string(in.Title))
-	}
-	out.RawByte('}')
 }

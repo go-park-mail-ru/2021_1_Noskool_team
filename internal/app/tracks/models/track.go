@@ -32,7 +32,7 @@ func MarshalTracks(data interface{}) ([]byte, error) {
 	if !ok {
 		return nil, errors.New("cant convernt interface{} to track")
 	}
-	var tracks Tracks
+	var tracks Tracks //nolint
 	tracks = track
 	body, err := tracks.MarshalJSON()
 	return body, err

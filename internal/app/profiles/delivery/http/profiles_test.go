@@ -6,13 +6,14 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	"context"
 	"encoding/json"
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 func TestHandleAuthWithCookie(t *testing.T) {
@@ -39,7 +40,7 @@ func TestHandleAuthWithCookie(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	http.SetCookie(recorder, &http.Cookie{Name: "session_id", Value: "fdsjfkdsjelfdlksjfkjds"})
-	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}}
+	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}} //nolint
 
 	handler := ProfilesServer{sessionsClient: mockSeshClient, logger: logrus.New()}
 
@@ -74,7 +75,7 @@ func TestHandleAuthNoCookie(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	http.SetCookie(recorder, &http.Cookie{Name: "session_id", Value: "wrong cookie"})
-	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}}
+	request := &http.Request{Header: http.Header{"Cookie": recorder.HeaderMap["Set-Cookie"]}} //nolint
 
 	handler := ProfilesServer{
 		sessionsClient: mockSeshClient,
@@ -82,7 +83,7 @@ func TestHandleAuthNoCookie(t *testing.T) {
 		logger:         logrus.New(),
 		config:         configs.NewConfig(),
 	}
-	handler.configureLogger()
+	_ = handler.configureLogger()
 	handler.configureRouter()
 
 	handler.HandleAuth(w, request)

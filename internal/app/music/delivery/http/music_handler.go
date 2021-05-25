@@ -67,7 +67,7 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
 
 	handler.router.HandleFunc("/api/v1/music/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main main page"))
+		_, _ = w.Write([]byte("main main page"))
 	})
 
 	CORSMiddleware := middleware.NewCORSMiddleware(config)

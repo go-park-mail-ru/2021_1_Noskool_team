@@ -5,6 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"errors"
+	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -271,6 +272,10 @@ func TestAddTrackToFavorites(t *testing.T) {
 	mockRepo := mocktracks.NewMockRepository(ctrl)
 	mockUsecase := NewTracksUsecase(mockRepo)
 
+	mockRepo.EXPECT().CheckTrackInFavorite(1, 2).
+		Return(fmt.Errorf("some error"))
+	mockRepo.EXPECT().IncrementLikes(2).
+		Return(nil)
 	mockRepo.EXPECT().CheckTrackInMediateka(1, 2).
 		Return(nil)
 	mockRepo.EXPECT().AddTrackToFavorites(1, 2).
@@ -286,6 +291,10 @@ func TestDeleteTrackFromFavorites(t *testing.T) {
 	mockRepo := mocktracks.NewMockRepository(ctrl)
 	mockUsecase := NewTracksUsecase(mockRepo)
 
+	mockRepo.EXPECT().CheckTrackInFavorite(1, 2).
+		Return(nil)
+	mockRepo.EXPECT().DecrementLikes(2).
+		Return(nil)
 	mockRepo.EXPECT().DeleteTrackFromFavorites(1, 2).
 		Return(nil)
 	err := mockUsecase.DeleteTrackFromFavorites(1, 2)

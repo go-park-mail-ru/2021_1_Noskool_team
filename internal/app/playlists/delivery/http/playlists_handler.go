@@ -11,12 +11,13 @@ import (
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 type PlaylistsHandler struct {
@@ -58,6 +59,8 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 		authMiddlware.CheckSessionMiddleware(handler.DeletePlaylistFromMediatekaHandler)).Methods(http.MethodDelete, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.GetPlaylistByIDHandler)).Methods(http.MethodGet, http.MethodOptions)
+	handler.router.HandleFunc("/getByUID/{playlist_uid}",
+		handler.GetPlaylistByUIDHandler).Methods(http.MethodGet, http.MethodOptions)
 	handler.router.HandleFunc("/{playlist_id:[0-9]+}",
 		authMiddlware.CheckSessionMiddleware(handler.AddPlaylistToMediatekaHandler)).Methods(http.MethodPost, http.MethodOptions)
 	handler.router.HandleFunc("/genre/{genre_id:[0-9]+}",
@@ -209,6 +212,21 @@ func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusNoContent,
 			Message: fmt.Sprintf("Cant find playlist with id = %d", playlistID),
+		})
+		return
+	}
+	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
+}
+
+func (handler *PlaylistsHandler) GetPlaylistByUIDHandler(w http.ResponseWriter, r *http.Request) {
+	playlistUID := mux.Vars(r)["playlist_uid"]
+
+	playlist, err := handler.playlistsUsecase.GetPlaylistByUID(playlistUID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusNoContent,
+			Message: fmt.Sprintf("Cant find playlist with id = %s", playlistUID),
 		})
 		return
 	}
@@ -434,7 +452,7 @@ func (handler *PlaylistsHandler) UpdatePlaylistTittleHandler(w http.ResponseWrit
 		handler.logger.Error(err)
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusNotFound,
-			Message: fmt.Sprintf("Some error happened"),
+			Message: "Some error happened",
 		})
 		return
 	}
@@ -476,7 +494,7 @@ func (handler *PlaylistsHandler) UpdatePlaylistDescriptionHandler(w http.Respons
 		handler.logger.Error(err)
 		response.SendErrorResponse(w, &commonModels.HTTPError{
 			Code:    http.StatusNotFound,
-			Message: fmt.Sprintf("Some error happened"),
+			Message: "Some error happened",
 		})
 		return
 	}
