@@ -10,8 +10,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/BurntSushi/toml"
-
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
 )
@@ -29,10 +27,10 @@ func main() {
 	flag.Parse()
 
 	config := configs.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
-	if err != nil {
-		logrus.Error(err)
-	}
+	//_, err := toml.DecodeFile(configPath, config)
+	//if err != nil {
+	//	logrus.Error(err)
+	//}
 
 	profDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
 	if err != nil {
