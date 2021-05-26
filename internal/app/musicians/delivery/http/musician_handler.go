@@ -55,7 +55,8 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 
 	handler.router.HandleFunc("/popular", authmiddlware.CheckSessionMiddleware(handler.GetMusiciansTop4)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bygenre/{genre}", handler.GetMusiciansByGenre).Methods("GET", http.MethodOptions)
-	handler.router.HandleFunc("/{musician_id:[0-9]+}", handler.GetMusicianByID).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/{musician_id:[0-9]+}",
+		authmiddlware.CheckSessionMiddleware(handler.GetMusicianByID)).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetMusicianByTrackID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/byalbum/{album_id:[0-9]+}", handler.GetMusicianByAlbumID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/byplaylist/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID).Methods("GET", http.MethodOptions)
@@ -124,7 +125,25 @@ func (handler *MusiciansHandler) GetMusiciansByGenre(w http.ResponseWriter, r *h
 }
 
 func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Content-Type", "application/json")
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+
 	vars := mux.Vars(r)
 	musicianID, ok := vars["musician_id"]
 	if !ok {
@@ -144,7 +163,24 @@ func (handler *MusiciansHandler) GetMusicianByID(w http.ResponseWriter, r *http.
 		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, musician, 200, musiciansModels.MarshalMusician)
+	fullMusician := &musiciansModels.MusicianFullInformation{
+		MusicianID:  musician.MusicianID,
+		Name:        musician.Name,
+		Description: musician.Description,
+		Picture:     musician.Picture,
+		InMediateka: false,
+		InFavorite:  false,
+	}
+	err = handler.musicianUsecase.CheckMusicianInMediateka(userID, musician.MusicianID)
+	if err == nil {
+		fullMusician.InMediateka = true
+	}
+	err = handler.musicianUsecase.CheckMusicianInFavorite(userID, musician.MusicianID)
+	if err == nil {
+		fullMusician.InFavorite = true
+	}
+
+	response.SendCorrectResponse(w, fullMusician, 200, musiciansModels.MarshalMusicianFullInform)
 }
 
 func (handler *MusiciansHandler) GetMusicianByTrackID(w http.ResponseWriter, r *http.Request) {
@@ -350,8 +386,29 @@ func (handler *MusiciansHandler) GetMediatekaForUser(w http.ResponseWriter, r *h
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+	fullMusicians := make([]*musiciansModels.MusicianFullInformation, 0)
+	for _, item := range musicians {
+		newMusician := &musiciansModels.MusicianFullInformation{
+			MusicianID:  item.MusicianID,
+			Name:        item.Name,
+			Description: item.Description,
+			Picture:     item.Picture,
+			InMediateka: false,
+			InFavorite:  false,
+		}
 
-	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
+		err = handler.musicianUsecase.CheckMusicianInMediateka(userID, item.MusicianID)
+		if err == nil {
+			newMusician.InMediateka = true
+		}
+		err = handler.musicianUsecase.CheckMusicianInFavorite(userID, item.MusicianID)
+		if err == nil {
+			newMusician.InFavorite = true
+		}
+		fullMusicians = append(fullMusicians, newMusician)
+	}
+
+	response.SendCorrectResponse(w, fullMusicians, http.StatusOK, musiciansModels.MarshalMusicians)
 }
 
 func (handler *MusiciansHandler) GetFavoritesForUser(w http.ResponseWriter, r *http.Request) {
@@ -381,5 +438,27 @@ func (handler *MusiciansHandler) GetFavoritesForUser(w http.ResponseWriter, r *h
 		return
 	}
 
-	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
+	fullMusicians := make([]*musiciansModels.MusicianFullInformation, 0)
+	for _, item := range musicians {
+		newMusician := &musiciansModels.MusicianFullInformation{
+			MusicianID:  item.MusicianID,
+			Name:        item.Name,
+			Description: item.Description,
+			Picture:     item.Picture,
+			InMediateka: false,
+			InFavorite:  false,
+		}
+
+		err = handler.musicianUsecase.CheckMusicianInMediateka(userID, item.MusicianID)
+		if err == nil {
+			newMusician.InMediateka = true
+		}
+		err = handler.musicianUsecase.CheckMusicianInFavorite(userID, item.MusicianID)
+		if err == nil {
+			newMusician.InFavorite = true
+		}
+		fullMusicians = append(fullMusicians, newMusician)
+	}
+
+	response.SendCorrectResponse(w, fullMusicians, http.StatusOK, musiciansModels.MarshalMusicians)
 }

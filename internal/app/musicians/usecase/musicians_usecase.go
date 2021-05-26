@@ -87,7 +87,11 @@ func (usecase *MusicUsecase) AddMusicianToMediateka(userID, musicianID int) erro
 }
 
 func (usecase *MusicUsecase) CheckMusicianInFavorite(userID, musicianID int) error {
-	return nil
+	return usecase.musicRepo.CheckMusicianInFavorite(userID, musicianID)
+}
+
+func (usecase *MusicUsecase) CheckMusicianInMediateka(userID, musicianID int) error {
+	return usecase.musicRepo.CheckMusicianInMediateka(userID, musicianID)
 }
 
 func (usecase *MusicUsecase) AddMusicianToFavorites(userID, musicianID int) error {

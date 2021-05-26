@@ -16,6 +16,7 @@ type Usecase interface {
 	AddMusicianToMediateka(userID, musicianID int) error
 	DeleteMusicianFromMediateka(userID, musicianID int) error
 	CheckMusicianInFavorite(userID, musicianID int) error
+	CheckMusicianInMediateka(userID, musicianID int) error
 	AddMusicianToFavorites(userID, musicianID int) error
 	DeleteMusicianFromFavorites(userID, musicianID int) error
 	GetMusiciansMediateka(userID int) ([]*models.Musician, error)

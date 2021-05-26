@@ -273,7 +273,19 @@ func (musicRep *MusicianRepository) DeleteMusicianFromMediateka(userID, musician
 
 func (musicRep *MusicianRepository) CheckMusicianInMediateka(userID, musicianID int) error {
 	query := `select count(*) from musicians_to_user
-	where musician_id = $1 and user_id`
+	where musician_id = $1 and user_id = $2`
+
+	res := 0
+	err := musicRep.con.QueryRow(query, musicianID, userID).Scan(&res)
+	if res < 1 {
+		return errors.New("no musician")
+	}
+	return err
+}
+
+func (musicRep *MusicianRepository) CheckMusicianInFavorite(userID, musicianID int) error {
+	query := `select count(*) from musicians_to_user
+	where musician_id = $1 and user_id = $2 and favorite = true`
 
 	res := 0
 	err := musicRep.con.QueryRow(query, musicianID, userID).Scan(&res)
