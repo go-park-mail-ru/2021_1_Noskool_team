@@ -60,8 +60,7 @@ CREATE TABLE IF NOT EXISTS playlists
     picture      varchar(100),
     release_date date default now(),
     rating       int  default 0,
-    uid          text default '',
-    creator      text default ''
+    uid          text default ''
 );
 
 CREATE TABLE IF NOT EXISTS album_to_user
@@ -96,6 +95,15 @@ CREATE TABLE IF NOT EXISTS Musicians_to_Playlist
     playlist_id INTEGER NOT NULL,
     FOREIGN KEY (musician_id) REFERENCES Musicians (musician_id) on delete CASCADE,
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS musicians_to_user
+(
+    user_id  INTEGER NOT NULL,
+    musician_id INTEGER NOT NULL,
+    favorite bool default false,
+    UNIQUE (user_id, musician_id),
+    FOREIGN KEY (musician_id) REFERENCES musicians (musician_id) on delete CASCADE
 );
 
 -- ///

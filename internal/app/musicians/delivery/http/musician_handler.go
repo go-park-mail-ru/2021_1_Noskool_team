@@ -6,6 +6,8 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians"
 	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/microservices/auth/delivery/grpc/client"
+	"2021_1_Noskool_team/internal/microservices/auth/models"
+	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"encoding/json"
 	"fmt"
@@ -57,6 +59,13 @@ func NewMusicHandler(r *mux.Router, config *configs.Config, usecase musicians.Us
 	handler.router.HandleFunc("/bytrack/{track_id:[0-9]+}", handler.GetMusicianByTrackID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/byalbum/{album_id:[0-9]+}", handler.GetMusicianByAlbumID).Methods("GET", http.MethodOptions)
 	handler.router.HandleFunc("/byplaylist/{playlist_id:[0-9]+}", handler.GetMusicianByPlaylistID).Methods("GET", http.MethodOptions)
+
+	handler.router.HandleFunc("/mediateka", authmiddlware.CheckSessionMiddleware(handler.GetMediatekaForUser)).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/favorites", authmiddlware.CheckSessionMiddleware(handler.GetFavoritesForUser)).Methods("GET", http.MethodOptions)
+	handler.router.HandleFunc("/{musician_id:[0-9]+}/mediateka",
+		authmiddlware.CheckSessionMiddleware(handler.AddDeleteMusicianToMediateka)).Methods(http.MethodPost, http.MethodOptions)
+	handler.router.HandleFunc("/{musician_id:[0-9]+}/favorites",
+		authmiddlware.CheckSessionMiddleware(handler.AddDeleteMusicianToFavorites)).Methods(http.MethodPost, http.MethodOptions)
 
 	return handler
 }
@@ -228,5 +237,149 @@ func (handler *MusiciansHandler) GetMusicians(w http.ResponseWriter, r *http.Req
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
+	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
+}
+
+func (handler *MusiciansHandler) AddDeleteMusicianToMediateka(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	addOrDelete := r.URL.Query().Get("type")
+	if addOrDelete == "add" {
+		err = handler.musicianUsecase.AddMusicianToMediateka(userID, musicianID)
+	} else {
+		err = handler.musicianUsecase.DeleteMusicianFromMediateka(userID, musicianID)
+	}
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *MusiciansHandler) AddDeleteMusicianToFavorites(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	musicianID, err := strconv.Atoi(mux.Vars(r)["musician_id"])
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct musician id",
+		})
+		return
+	}
+	addOrDelete := r.URL.Query().Get("type")
+	if addOrDelete == "add" {
+		err = handler.musicianUsecase.AddMusicianToFavorites(userID, musicianID)
+	} else {
+		err = handler.musicianUsecase.DeleteMusicianFromFavorites(userID, musicianID)
+	}
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	response.SendEmptyBody(w, http.StatusOK)
+}
+
+func (handler *MusiciansHandler) GetMediatekaForUser(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+
+	musicians, err := handler.musicianUsecase.GetMusiciansMediateka(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+
+	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
+}
+
+func (handler *MusiciansHandler) GetFavoritesForUser(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+
+	musicians, err := handler.musicianUsecase.GetMusiciansFavorites(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+
 	response.SendCorrectResponse(w, musicians, http.StatusOK, musiciansModels.MarshalMusicians)
 }
