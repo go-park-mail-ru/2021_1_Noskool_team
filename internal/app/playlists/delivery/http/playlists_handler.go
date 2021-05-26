@@ -2,6 +2,7 @@ package http
 
 import (
 	"2021_1_Noskool_team/configs"
+	"2021_1_Noskool_team/internal/app/album"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/playlists"
 	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
@@ -23,11 +24,13 @@ import (
 type PlaylistsHandler struct {
 	router           *mux.Router
 	playlistsUsecase playlists.Usecase
+	albumUsecae      album.Usecase
 	logger           *logrus.Logger
 	sessionsClient   client.AuthCheckerClient
 }
 
-func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase playlists.Usecase) *PlaylistsHandler {
+func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase playlists.Usecase,
+	albumUsecase album.Usecase) *PlaylistsHandler {
 	grpcCon, err := grpc.Dial(config.SessionMicroserviceAddr, grpc.WithInsecure())
 	if err != nil {
 		logrus.Error(err)
@@ -36,6 +39,7 @@ func NewPlaylistsHandler(r *mux.Router, config *configs.Config, playlistsUsecase
 	handler := &PlaylistsHandler{
 		router:           r,
 		playlistsUsecase: playlistsUsecase,
+		albumUsecae:      albumUsecase,
 		logger:           logrus.New(),
 		sessionsClient:   client.NewSessionsClient(grpcCon),
 	}
@@ -215,6 +219,16 @@ func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r
 		})
 		return
 	}
+
+	//for _, track := range playlist.Tracks {
+	//	track.Albums = make([]*albumModels.Album, 0)
+	//	albums, err := handler.albumUsecae.GetAlbumsByTrackID(track.TrackID)
+	//	if err != nil {
+	//		continue
+	//	}
+	//	track.Albums = append(track.Albums, (*albums)[0])
+	//}
+
 	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
 

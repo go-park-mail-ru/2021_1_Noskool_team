@@ -64,7 +64,8 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase,
 		tracksUsecase, musicUsecase)
 	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase, sanitizer)
-	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
+	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase,
+		albumsUsecase)
 
 	handler.router.HandleFunc("/api/v1/music/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("main main page"))
