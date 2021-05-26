@@ -17,8 +17,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/BurntSushi/toml"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,10 +27,10 @@ const (
 func main() {
 	time.Sleep(50 * time.Second)
 	config := configs.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
-	if err != nil {
-		logrus.Error(err)
-	}
+	//_, err := toml.DecodeFile(configPath, config)
+	//if err != nil {
+	//	logrus.Error(err)
+	//}
 
 	musicDBCon, err := utility.CreatePostgresConnection(config.MusicPostgresBD)
 	if err != nil {

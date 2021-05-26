@@ -7,8 +7,6 @@ import (
 	sesUsecase "2021_1_Noskool_team/internal/microservices/auth/usecase"
 	"time"
 
-	"github.com/BurntSushi/toml"
-
 	"github.com/gomodule/redigo/redis"
 	"github.com/sirupsen/logrus"
 )
@@ -20,10 +18,10 @@ const (
 func main() {
 	time.Sleep(20 * time.Second)
 	config := configs.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
-	if err != nil {
-		logrus.Error(err)
-	}
+	//_, err := toml.DecodeFile(configPath, config)
+	//if err != nil {
+	//	logrus.Error(err)
+	//}
 
 	redisPool := &redis.Pool{
 		Dial: func() (redis.Conn, error) {
