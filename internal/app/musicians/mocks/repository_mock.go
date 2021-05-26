@@ -34,6 +34,90 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddMusicianToFavorites mocks base method.
+func (m *MockRepository) AddMusicianToFavorites(userID, musicianID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddMusicianToFavorites", userID, musicianID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddMusicianToFavorites indicates an expected call of AddMusicianToFavorites.
+func (mr *MockRepositoryMockRecorder) AddMusicianToFavorites(userID, musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMusicianToFavorites", reflect.TypeOf((*MockRepository)(nil).AddMusicianToFavorites), userID, musicianID)
+}
+
+// AddMusicianToMediateka mocks base method.
+func (m *MockRepository) AddMusicianToMediateka(userID, musicianID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddMusicianToMediateka", userID, musicianID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddMusicianToMediateka indicates an expected call of AddMusicianToMediateka.
+func (mr *MockRepositoryMockRecorder) AddMusicianToMediateka(userID, musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddMusicianToMediateka", reflect.TypeOf((*MockRepository)(nil).AddMusicianToMediateka), userID, musicianID)
+}
+
+// CheckMusicianInFavorite mocks base method.
+func (m *MockRepository) CheckMusicianInFavorite(userID, musicianID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckMusicianInFavorite", userID, musicianID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckMusicianInFavorite indicates an expected call of CheckMusicianInFavorite.
+func (mr *MockRepositoryMockRecorder) CheckMusicianInFavorite(userID, musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckMusicianInFavorite", reflect.TypeOf((*MockRepository)(nil).CheckMusicianInFavorite), userID, musicianID)
+}
+
+// CheckMusicianInMediateka mocks base method.
+func (m *MockRepository) CheckMusicianInMediateka(userID, musicianID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckMusicianInMediateka", userID, musicianID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckMusicianInMediateka indicates an expected call of CheckMusicianInMediateka.
+func (mr *MockRepositoryMockRecorder) CheckMusicianInMediateka(userID, musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckMusicianInMediateka", reflect.TypeOf((*MockRepository)(nil).CheckMusicianInMediateka), userID, musicianID)
+}
+
+// DeleteMusicianFromFavorites mocks base method.
+func (m *MockRepository) DeleteMusicianFromFavorites(userID, musicianID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteMusicianFromFavorites", userID, musicianID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteMusicianFromFavorites indicates an expected call of DeleteMusicianFromFavorites.
+func (mr *MockRepositoryMockRecorder) DeleteMusicianFromFavorites(userID, musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMusicianFromFavorites", reflect.TypeOf((*MockRepository)(nil).DeleteMusicianFromFavorites), userID, musicianID)
+}
+
+// DeleteMusicianFromMediateka mocks base method.
+func (m *MockRepository) DeleteMusicianFromMediateka(userID, musicianID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteMusicianFromMediateka", userID, musicianID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteMusicianFromMediateka indicates an expected call of DeleteMusicianFromMediateka.
+func (mr *MockRepositoryMockRecorder) DeleteMusicianFromMediateka(userID, musicianID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMusicianFromMediateka", reflect.TypeOf((*MockRepository)(nil).DeleteMusicianFromMediateka), userID, musicianID)
+}
+
 // GetGenreForMusician mocks base method.
 func (m *MockRepository) GetGenreForMusician(nameMusician string) (*[]string, error) {
 	m.ctrl.T.Helper()
@@ -137,6 +221,36 @@ func (m *MockRepository) GetMusiciansByGenre(genre string) (*[]models.Musician, 
 func (mr *MockRepositoryMockRecorder) GetMusiciansByGenre(genre interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansByGenre", reflect.TypeOf((*MockRepository)(nil).GetMusiciansByGenre), genre)
+}
+
+// GetMusiciansFavorites mocks base method.
+func (m *MockRepository) GetMusiciansFavorites(userID int) ([]*models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusiciansFavorites", userID)
+	ret0, _ := ret[0].([]*models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusiciansFavorites indicates an expected call of GetMusiciansFavorites.
+func (mr *MockRepositoryMockRecorder) GetMusiciansFavorites(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansFavorites", reflect.TypeOf((*MockRepository)(nil).GetMusiciansFavorites), userID)
+}
+
+// GetMusiciansMediateka mocks base method.
+func (m *MockRepository) GetMusiciansMediateka(userID int) ([]*models.Musician, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMusiciansMediateka", userID)
+	ret0, _ := ret[0].([]*models.Musician)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMusiciansMediateka indicates an expected call of GetMusiciansMediateka.
+func (mr *MockRepositoryMockRecorder) GetMusiciansMediateka(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMusiciansMediateka", reflect.TypeOf((*MockRepository)(nil).GetMusiciansMediateka), userID)
 }
 
 // GetMusiciansTop4 mocks base method.

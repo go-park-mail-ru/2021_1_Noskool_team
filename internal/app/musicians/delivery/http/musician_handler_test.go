@@ -4,6 +4,8 @@ import (
 	"2021_1_Noskool_team/configs"
 	mock_musicians "2021_1_Noskool_team/internal/app/musicians/mocks"
 	"2021_1_Noskool_team/internal/app/musicians/models"
+	models2 "2021_1_Noskool_team/internal/microservices/auth/models"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -40,10 +42,13 @@ func TestGetMusicianByID(t *testing.T) {
 	mockMusiciansUsecase := mock_musicians.NewMockUsecase(ctrl)
 
 	mockMusiciansUsecase.EXPECT().GetMusicianByID(testMusicians[0].MusicianID).Times(1).Return(&testMusicians[0], nil)
+	mockMusiciansUsecase.EXPECT().CheckMusicianInFavorite(1, 1).Return(nil)
+	mockMusiciansUsecase.EXPECT().CheckMusicianInMediateka(1, 1).Return(nil)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/musician/", nil)
 	r = mux.SetURLVars(r, map[string]string{"musician_id": strconv.Itoa(testMusicians[0].MusicianID)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 
 	handler := NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
 
@@ -53,8 +58,16 @@ func TestGetMusicianByID(t *testing.T) {
 	if w.Code != expected {
 		t.Errorf("expected: %v\n got: %v", expected, w.Code)
 	}
+	newMusician := models.MusicianFullInformation{
+		MusicianID:  testMusicians[0].MusicianID,
+		Name:        testMusicians[0].Name,
+		Description: testMusicians[0].Description,
+		Picture:     testMusicians[0].Picture,
+		InMediateka: true,
+		InFavorite:  true,
+	}
 
-	expectedMsg, _ := json.Marshal(testMusicians[0])
+	expectedMsg, _ := json.Marshal(newMusician)
 	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
 		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
 	}
@@ -72,6 +85,7 @@ func TestGetMusicianByIDFail(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/vi/musician/", nil)
 	r = mux.SetURLVars(r, map[string]string{"musician_id": strconv.Itoa(testMusicians[0].MusicianID)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
 
 	handler := NewMusicHandler(mux.NewRouter(), configs.NewConfig(), mockMusiciansUsecase)
 
