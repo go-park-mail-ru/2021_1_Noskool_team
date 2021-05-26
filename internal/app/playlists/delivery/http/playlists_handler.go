@@ -3,6 +3,7 @@ package http
 import (
 	"2021_1_Noskool_team/configs"
 	"2021_1_Noskool_team/internal/app/album"
+	albumModels "2021_1_Noskool_team/internal/app/album/models"
 	"2021_1_Noskool_team/internal/app/middleware"
 	"2021_1_Noskool_team/internal/app/playlists"
 	playlistModels "2021_1_Noskool_team/internal/app/playlists/models"
@@ -220,14 +221,14 @@ func (handler *PlaylistsHandler) GetPlaylistByIDHandler(w http.ResponseWriter, r
 		return
 	}
 
-	//for _, track := range playlist.Tracks {
-	//	track.Albums = make([]*albumModels.Album, 0)
-	//	albums, err := handler.albumUsecae.GetAlbumsByTrackID(track.TrackID)
-	//	if err != nil {
-	//		continue
-	//	}
-	//	track.Albums = append(track.Albums, (*albums)[0])
-	//}
+	for _, track := range playlist.Tracks {
+		track.Albums = make([]*albumModels.Album, 0)
+		albums, err := handler.albumUsecae.GetAlbumsByTrackID(track.TrackID)
+		if err != nil {
+			continue
+		}
+		track.Albums = append(track.Albums, &(*albums)[0])
+	}
 
 	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
@@ -244,6 +245,16 @@ func (handler *PlaylistsHandler) GetPlaylistByUIDHandler(w http.ResponseWriter, 
 		})
 		return
 	}
+
+	for _, track := range playlist.Tracks {
+		track.Albums = make([]*albumModels.Album, 0)
+		albums, err := handler.albumUsecae.GetAlbumsByTrackID(track.TrackID)
+		if err != nil {
+			continue
+		}
+		track.Albums = append(track.Albums, &(*albums)[0])
+	}
+
 	response.SendCorrectResponse(w, playlist, http.StatusOK, playlistModels.MarshalPlaylist)
 }
 
