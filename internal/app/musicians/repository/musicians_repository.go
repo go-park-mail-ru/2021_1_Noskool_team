@@ -4,6 +4,7 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians"
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/lib/pq" //goland:noinspection GoLinterLocal
@@ -253,4 +254,105 @@ func (musicRep *MusicianRepository) GetGenreForMusician(nameMusician string) (*[
 	}
 	return &genres, nil
 
+}
+
+func (musicRep *MusicianRepository) AddMusicianToMediateka(userID, musicianID int) error {
+	query := `INSERT INTO musicians_to_user(user_id, musician_id) VALUES ($1, $2)`
+	res, err := musicRep.con.Exec(query, userID, musicianID)
+	fmt.Println(res)
+	return err
+}
+
+func (musicRep *MusicianRepository) DeleteMusicianFromMediateka(userID, musicianID int) error {
+	query := `DELETE FROM musicians_to_user
+			WHERE user_id = $1 and musician_id = $2`
+	res, err := musicRep.con.Exec(query, userID, musicianID)
+	fmt.Println(res)
+	return err
+}
+
+func (musicRep *MusicianRepository) CheckMusicianInMediateka(userID, musicianID int) error {
+	query := `select count(*) from musicians_to_user
+	where musician_id = $1 and user_id`
+
+	res := 0
+	err := musicRep.con.QueryRow(query, musicianID, userID).Scan(&res)
+	if res < 1 {
+		return errors.New("no musician")
+	}
+	return err
+}
+
+func (musicRep *MusicianRepository) AddMusicianToFavorites(userID, musicianID int) error {
+	query := `UPDATE musicians_to_user SET favorite = true
+			WHERE user_id = $1 and musician_id = $2`
+
+	res, err := musicRep.con.Exec(query, userID, musicianID)
+	logrus.Info(res)
+	return err
+}
+
+func (musicRep *MusicianRepository) DeleteMusicianFromFavorites(userID, musicianID int) error {
+	query := `UPDATE musicians_to_user SET favorite = false
+			WHERE user_id = $1 and musician_id = $2`
+
+	res, err := musicRep.con.Exec(query, userID, musicianID)
+	logrus.Info(res)
+	return err
+}
+
+func (musicRep *MusicianRepository) GetMusiciansMediateka(userID int) ([]*models.Musician, error) {
+	query := `select musicians.musician_id, name, description, picture from musicians
+			left join musicians_to_user mtu on musicians.musician_id = mtu.musician_id
+			where mtu.user_id = $1`
+	musiciansRows, err := musicRep.con.Query(query, userID)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	defer musiciansRows.Close()
+	musicians := make([]*models.Musician, 0)
+
+	for musiciansRows.Next() {
+		musician := &models.Musician{}
+		err = musiciansRows.Scan(
+			&musician.MusicianID,
+			&musician.Name,
+			&musician.Description,
+			&musician.Picture)
+		if err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		musicians = append(musicians, musician)
+	}
+	return musicians, nil
+}
+
+func (musicRep *MusicianRepository) GetMusiciansFavorites(userID int) ([]*models.Musician, error) {
+	query := `select musicians.musician_id, name, description, picture from musicians
+			left join musicians_to_user mtu on musicians.musician_id = mtu.musician_id
+			where mtu.user_id = $1 and mtu.favorite = true`
+	musiciansRows, err := musicRep.con.Query(query, userID)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	defer musiciansRows.Close()
+	musicians := make([]*models.Musician, 0)
+
+	for musiciansRows.Next() {
+		musician := &models.Musician{}
+		err = musiciansRows.Scan(
+			&musician.MusicianID,
+			&musician.Name,
+			&musician.Description,
+			&musician.Picture)
+		if err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		musicians = append(musicians, musician)
+	}
+	return musicians, nil
 }

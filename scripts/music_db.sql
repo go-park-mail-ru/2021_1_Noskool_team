@@ -97,6 +97,15 @@ CREATE TABLE IF NOT EXISTS Musicians_to_Playlist
     FOREIGN KEY (playlist_id) REFERENCES playlists (playlist_id) on delete CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS musicians_to_user
+(
+    user_id  INTEGER NOT NULL,
+    musician_id INTEGER NOT NULL,
+    favorite bool default false,
+    UNIQUE (user_id, musician_id),
+    FOREIGN KEY (musician_id) REFERENCES musicians (musician_id) on delete CASCADE
+);
+
 -- ///
 
 CREATE TABLE IF NOT EXISTS Musicians_to_Tracks
