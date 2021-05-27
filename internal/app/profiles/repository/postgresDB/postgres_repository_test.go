@@ -101,6 +101,56 @@ func TestGetSubscriptions(t *testing.T) {
 	}
 }
 
+func TestGetSubscribers(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewProfileRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"profiles_id", "nickname", "avatar",
+	})
+	for _, row := range otherUsers {
+		rows.AddRow(row.UserID, row.Nickname, row.Photo)
+	}
+
+	query := "select profiles_id, nickname, avatar from profiles"
+	mock.ExpectQuery(query).WillReturnRows(rows)
+	track, err := tracRep.GetSubscribers(1)
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(otherUsers, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
+func TestSearchTracks(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewProfileRepository(db)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{
+		"profiles_id", "nickname", "avatar",
+	})
+	for _, row := range otherUsers {
+		rows.AddRow(row.UserID, row.Nickname, row.Photo)
+	}
+
+	query := "SELECT profiles_id, nickname, avatar FROM profiles"
+	mock.ExpectQuery(query).WillReturnRows(rows)
+	track, err := tracRep.SearchTracks("search query")
+
+	assert.NoError(t, err)
+	if !reflect.DeepEqual(otherUsers, track) {
+		t.Fatalf("Not equal")
+	}
+}
+
 func TestGetOtherUserPage(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {

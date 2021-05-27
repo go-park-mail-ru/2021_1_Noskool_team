@@ -11,9 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	configPath = "configs/config.toml"
-)
+//const (
+//	configPath = "configs/config.toml"
+//)
 
 func main() {
 	time.Sleep(20 * time.Second)
