@@ -92,6 +92,35 @@ func TestGetAlbumByID(t *testing.T) {
 	}
 }
 
+func TestGetAlbums(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+	mockTracksUsecase := mock_tracks.NewMockUsecase(ctrl)
+	mockMusicianUsecase := mock_musicians.NewMockUsecase(ctrl)
+
+	mockAlbumUsecase.EXPECT().GetAlbums().Return(albumsForTests, nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/album/", nil)
+
+	handler := NewAlbumsHandler(mux.NewRouter(), configs.NewConfig(), mockAlbumUsecase,
+		mockTracksUsecase, mockMusicianUsecase)
+
+	handler.GetAlbums(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(albumsForTests)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+}
+
 func TestGetAlbumByIDFailed(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
