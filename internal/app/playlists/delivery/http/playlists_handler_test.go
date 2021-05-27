@@ -165,6 +165,91 @@ func TestGetPlaylistByIDHandler(t *testing.T) {
 	}
 }
 
+func TestGetPlaylistByUIDHandler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPlaylistUsecase := mock_playlists.NewMockUsecase(ctrl)
+	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+
+	mockPlaylistUsecase.EXPECT().GetPlaylistByUID("fdsfds").Return(playlistsForTest[0], nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/playlist/fdsfds/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_uid": "fdsfds"})
+
+	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase, mockAlbumUsecase)
+	handler.GetPlaylistByUIDHandler(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(playlistsForTest[0])
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockPlaylistUsecase.EXPECT().GetPlaylistByUID("fdsfds").Return(nil, errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/playlist/1/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_uid": "fdsfds"})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase, mockAlbumUsecase)
+	handler.GetPlaylistByUIDHandler(w, r)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestGetPlaylistsByUserID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPlaylistUsecase := mock_playlists.NewMockUsecase(ctrl)
+	mockAlbumUsecase := mock_album.NewMockUsecase(ctrl)
+
+	mockPlaylistUsecase.EXPECT().GetMediateka(1).Return(playlistsForTest, nil)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/api/vi/playlist/fdsfds/", nil)
+	r = mux.SetURLVars(r, map[string]string{"user_id": strconv.Itoa(1)})
+	r = r.WithContext(context.WithValue(r.Context(), "user_id", models2.Result{ID: "1"})) //nolint
+
+	handler := NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase, mockAlbumUsecase)
+	handler.GetPlaylistsByUserID(w, r)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("expected: %v\n got: %v", expected, w.Code)
+	}
+
+	expectedMsg, _ := json.Marshal(playlistsForTest)
+	if !reflect.DeepEqual(string(expectedMsg), w.Body.String()) {
+		t.Errorf("expected: %v\n got: %v", string(expectedMsg), w.Body.String())
+	}
+
+	mockPlaylistUsecase = mock_playlists.NewMockUsecase(ctrl)
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/playlist/1/", nil)
+	r = mux.SetURLVars(r, map[string]string{"playlist_uid": "fdsfds"})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase, mockAlbumUsecase)
+	handler.GetPlaylistsByUserID(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+
+	mockPlaylistUsecase.EXPECT().GetMediateka(1).Return(nil, errors.New("some error"))
+	w = httptest.NewRecorder()
+	r = httptest.NewRequest("GET", "/api/vi/playlist/1/", nil)
+	r = mux.SetURLVars(r, map[string]string{"user_id": strconv.Itoa(1)})
+	handler = NewPlaylistsHandler(mux.NewRouter(), configs.NewConfig(), mockPlaylistUsecase, mockAlbumUsecase)
+	handler.GetPlaylistsByUserID(w, r)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected: %v\n got: %v", http.StatusBadRequest, w.Code)
+	}
+}
+
 func TestAddPlaylistFromMediatekaHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

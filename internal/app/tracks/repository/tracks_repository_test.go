@@ -6,10 +6,11 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"fmt"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -622,4 +623,36 @@ func TestGetTopTrack(t *testing.T) {
 	if !reflect.DeepEqual(tracksForTests, track) {
 		t.Fatalf("Not equal")
 	}
+}
+
+func TestIncrementLikes(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes"
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.IncrementLikes(1)
+
+	assert.NoError(t, err)
+}
+
+func TestDecrementLikes(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes = likes - 1"
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.DecrementLikes(1)
+
+	assert.NoError(t, err)
 }
