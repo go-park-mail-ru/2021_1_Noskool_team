@@ -5,6 +5,7 @@ import (
 	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -655,4 +656,38 @@ func TestDecrementLikes(t *testing.T) {
 	err = tracRep.DecrementLikes(1)
 
 	assert.NoError(t, err)
+}
+
+func TestCheckTrackInMediateka(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes"
+
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.CheckTrackInMediateka(1, 1)
+
+	assert.Equal(t, err, errors.New("no track"))
+}
+
+func TestCheckTrackInFavorite(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes"
+
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.CheckTrackInFavorite(1, 1)
+
+	assert.Equal(t, err, errors.New("no track"))
 }
