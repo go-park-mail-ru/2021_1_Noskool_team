@@ -4,8 +4,9 @@ import (
 	"2021_1_Noskool_team/internal/app/musicians/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"encoding/json"
-	"github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 func FailedResponse(w http.ResponseWriter, code int) []byte {
@@ -27,7 +28,7 @@ func SendErrorResponse(w http.ResponseWriter, error *commonModels.HTTPError) {
 		})
 		return
 	}
-	w.Write(body)
+	_, _ = w.Write(body)
 }
 
 func SendCorrectResponse(w http.ResponseWriter, data interface{}, HTTPStatus int,
@@ -43,7 +44,7 @@ func SendCorrectResponse(w http.ResponseWriter, data interface{}, HTTPStatus int
 	}
 
 	w.WriteHeader(HTTPStatus)
-	w.Write(body)
+	_, _ = w.Write(body)
 }
 
 func SendEmptyBody(w http.ResponseWriter, HTTPStatusCode int) {

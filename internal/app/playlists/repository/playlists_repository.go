@@ -3,8 +3,10 @@ package repository
 import (
 	"2021_1_Noskool_team/internal/app/playlists/models"
 	trackModels "2021_1_Noskool_team/internal/app/tracks/models"
+	"2021_1_Noskool_team/internal/pkg/utility"
 	"database/sql"
 	"fmt"
+	"strconv"
 )
 
 type PlaylistRepository struct {
@@ -20,9 +22,15 @@ func NewPlaylistRepository(newCon *sql.DB) *PlaylistRepository {
 func (playlistRep *PlaylistRepository) CreatePlaylist(playlist *models.Playlist) (*models.Playlist, error) {
 	query := `INSERT INTO playlists (tittle, description, picture, user_id) VALUES 
 	($1, $2, $3, $4) returning playlist_id`
-	playlist.Picture = "/api/v1/data/img/playlists/happy.webp"
+	playlist.Picture = "/api/v1/music/data/img/playlists/happy.webp"
 	err := playlistRep.con.QueryRow(query, playlist.Tittle, playlist.Description,
 		playlist.Picture, playlist.UserID).Scan(&playlist.PlaylistID)
+	if err != nil {
+		return nil, err
+	}
+	queryUpdate := "update playlists set uid = $1 where playlist_id = $2"
+	playlist.UID = utility.CreatePlaylistUID(strconv.Itoa(playlist.PlaylistID))
+	_, err = playlistRep.con.Exec(queryUpdate, playlist.UID, playlist.PlaylistID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,12 +57,27 @@ func (playlistRep *PlaylistRepository) DeletePlaylistFromUser(userID, playlistID
 }
 
 func (playlistRep *PlaylistRepository) GetPlaylistByID(playlistID int) (*models.Playlist, error) {
-	queryGetPlaylist := `SELECT playlist_id, tittle, description, picture, release_date, user_id FROM playlists
+	queryGetPlaylist := `SELECT playlist_id, tittle, description, picture,
+       release_date, user_id, uid FROM playlists
 						WHERE playlist_id = $1`
 	playlist := &models.Playlist{}
 	err := playlistRep.con.QueryRow(queryGetPlaylist, playlistID).Scan(
 		&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
-		&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID)
+		&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID, &playlist.UID)
+	if err != nil {
+		return nil, err
+	}
+	return playlist, nil
+}
+
+func (playlistRep *PlaylistRepository) GetPlaylistByUID(UID string) (*models.Playlist, error) {
+	queryGetPlaylist := `SELECT playlist_id, tittle, description, picture,
+       release_date, user_id, uid FROM playlists
+						WHERE uid = $1`
+	playlist := &models.Playlist{}
+	err := playlistRep.con.QueryRow(queryGetPlaylist, UID).Scan(
+		&playlist.PlaylistID, &playlist.Tittle, &playlist.Description,
+		&playlist.Picture, &playlist.ReleaseDate, &playlist.UserID, &playlist.UID)
 	if err != nil {
 		return nil, err
 	}
@@ -221,5 +244,25 @@ func (playlistRep *PlaylistRepository) DeleteTrackFromPlaylist(playlistID, track
 			WHERE track_id = $1 AND playlist_id = $2`
 
 	_, err := playlistRep.con.Exec(query, trackID, playlistID)
+	return err
+}
+
+func (playlistRep *PlaylistRepository) UpdatePlaylistTittle(playlist *models.Playlist) error {
+	query := `update playlists set tittle = $1
+			where playlist_id = $2 and user_id = $3`
+
+	_, err := playlistRep.con.Exec(query, playlist.Tittle, playlist.PlaylistID,
+		playlist.UserID,
+	)
+	return err
+}
+
+func (playlistRep *PlaylistRepository) UpdatePlaylistDescription(playlist *models.Playlist) error {
+	query := `update playlists set description = $1
+			where playlist_id = $2 and user_id = $3`
+
+	_, err := playlistRep.con.Exec(query, playlist.Description, playlist.PlaylistID,
+		playlist.UserID,
+	)
 	return err
 }

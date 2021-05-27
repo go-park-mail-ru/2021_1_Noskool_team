@@ -15,6 +15,7 @@ import (
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -47,7 +48,6 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 		logger:         logrus.New(),
 		sessionsClient: client.NewSessionsClient(grpcCon),
 	}
-
 	err = ConfigLogger(handler, config)
 	if err != nil {
 		logrus.Error(err)
@@ -91,27 +91,26 @@ func ConfigLogger(handler *AlbumsHandler, config *configs.Config) error {
 }
 
 func (handler *AlbumsHandler) GetAlbumByID(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	albumID, ok := vars["album_id"]
 	if !ok {
 		handler.logger.Errorf("Error get album_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	albumIDint, err := strconv.Atoi(albumID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
-	album, err := handler.albumsUsecase.GetAlbumByID(albumIDint)
-	albumWithTracks := ConvertAlumToFullAlbum(album)
+	albumByID, err := handler.albumsUsecase.GetAlbumByID(albumIDint)
+	albumWithTracks := ConvertAlumToFullAlbum(albumByID)
 	albumWithTracks.Tracks, _ = handler.tracksUsecase.GetTracksByAlbumID(albumWithTracks.AlbumID)
 	albumWithTracks.Musician, _ = handler.musUsecase.GetMusicianByAlbumID(albumWithTracks.AlbumID)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumByID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
 	response.SendCorrectResponse(w, albumWithTracks, 200, MarshalAlbumWithExtraInform)
@@ -123,22 +122,22 @@ func (handler *AlbumsHandler) GetAlbumsByMusicianID(w http.ResponseWriter, r *ht
 	musicianID, ok := vars["musician_id"]
 	if !ok {
 		handler.logger.Errorf("Error get album_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	musicianIDint, err := strconv.Atoi(musicianID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
-	album, err := handler.albumsUsecase.GetAlbumsByMusicianID(musicianIDint)
+	albums, err := handler.albumsUsecase.GetAlbumsByMusicianID(musicianIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumsByMusicianID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200, albumModels.MarshalAlbums)
+	response.SendCorrectResponse(w, albums, 200, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.Request) {
@@ -147,22 +146,22 @@ func (handler *AlbumsHandler) GetAlbumsByTrackID(w http.ResponseWriter, r *http.
 	trackID, ok := vars["track_id"]
 	if !ok {
 		handler.logger.Errorf("Error get album_id from query string")
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
 	trackIDint, err := strconv.Atoi(trackID)
 	if err != nil {
 		handler.logger.Error(err)
-		w.Write(response.FailedResponse(w, 400))
+		_, _ = w.Write(response.FailedResponse(w, 400))
 		return
 	}
-	album, err := handler.albumsUsecase.GetAlbumsByTrackID(trackIDint)
+	albums, err := handler.albumsUsecase.GetAlbumsByTrackID(trackIDint)
 	if err != nil {
 		handler.logger.Errorf("Error in GetAlbumByTrackID: %v", err)
-		w.Write(response.FailedResponse(w, 500))
+		_, _ = w.Write(response.FailedResponse(w, 500))
 		return
 	}
-	response.SendCorrectResponse(w, album, 200, albumModels.MarshalAlbums)
+	response.SendCorrectResponse(w, albums, 200, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) AddDeleteAlbumToMediateka(w http.ResponseWriter, r *http.Request) {
@@ -269,16 +268,17 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 		return
 	}
 	pagination := utility.ParsePagination(r)
-	tracks, err := handler.albumsUsecase.GetFavoriteAlbums(userID, pagination)
+	favoriteTracks, err := handler.albumsUsecase.GetFavoriteAlbums(userID, pagination)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, tracks, http.StatusOK, albumModels.MarshalAlbums)
+	response.SendCorrectResponse(w, favoriteTracks, http.StatusOK, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) GetAlbums(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL)
 	albums, err := handler.albumsUsecase.GetAlbums()
 	if err != nil {
 		handler.logger.Error(err)
@@ -310,10 +310,10 @@ func ConvertAlumToFullAlbum(album *albumModels.Album) *AlbumWithExtraInform {
 }
 
 func MarshalAlbumWithExtraInform(data interface{}) ([]byte, error) {
-	album, ok := data.(*AlbumWithExtraInform)
+	albumExtra, ok := data.(*AlbumWithExtraInform)
 	if !ok {
 		return nil, errors.New("cant convernt interface{} to album")
 	}
-	body, err := album.MarshalJSON()
+	body, err := albumExtra.MarshalJSON()
 	return body, err
 }

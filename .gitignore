@@ -4,10 +4,3 @@ cover*
 envs/
 configs/config.toml
 test.go
-
-static/*
-static/img/tracks/*.png
-static/img/playlists/*.png
-
-static/audio/*.mp3
-static/audio/*.ogg

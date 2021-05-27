@@ -3,10 +3,11 @@ package repository
 import (
 	"2021_1_Noskool_team/internal/app/playlists/models"
 	trackModels "2021_1_Noskool_team/internal/app/tracks/models"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -66,12 +67,13 @@ func TestGetTrackByID(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"playlist_id", "tittle", "description", "picture", "release_date", "user_id",
+		"playlist_id", "tittle", "description", "picture", "release_date", "user_id", "uid",
 	}).AddRow(playlistsForTest[2].PlaylistID, playlistsForTest[2].Tittle, playlistsForTest[2].Description,
-		playlistsForTest[2].Picture, playlistsForTest[2].ReleaseDate, playlistsForTest[2].UserID)
+		playlistsForTest[2].Picture, playlistsForTest[2].ReleaseDate, playlistsForTest[2].UserID,
+		playlistsForTest[2].UID)
 
 	query := "SELECT playlist_id, tittle, description, picture, release_date, " +
-		"user_id FROM playlists\n\t\t\t\t\t\tWHERE playlist_id ="
+		"user_id, uid FROM playlists\n\t\t\t\t\t\tWHERE playlist_id ="
 
 	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
 
@@ -99,33 +101,35 @@ func TestCreatePlaylist(t *testing.T) {
 	queryFirst := "INSERT INTO playlists"
 
 	mock.ExpectQuery(queryFirst).WithArgs(playlistsForTest[2].Tittle, playlistsForTest[2].Description,
-		"/api/v1/data/img/playlists/happy.webp", playlistsForTest[2].UserID,
+		"/api/v1/music/data/img/playlists/happy.webp", playlistsForTest[2].UserID,
 	).WillReturnRows(rows)
+
+	updateSecond := "update playlists set uid ="
+	mock.ExpectExec(updateSecond).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	querySecond := "INSERT INTO Tracks_to_Playlist"
 	mock.ExpectExec(querySecond).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	thirdSecond := "INSERT INTO playlists_to_user"
-	mock.ExpectExec(thirdSecond).WithArgs(playlistsForTest[2].UserID, playlistsForTest[2].PlaylistID,
-	).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec(thirdSecond).WithArgs(playlistsForTest[2].UserID, playlistsForTest[2].PlaylistID).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	playlist := &models.Playlist{
-			PlaylistID:  3,
-			Tittle:      "Tittle without tracks",
-			Description: "some description",
-			Picture:     "/api/v1/data/img/playlists/happy.webp",
-			ReleaseDate: "2020-03-04",
-			UserID:      1,
-			Tracks: []*trackModels.Track{
-				{
-					TrackID:     1,
-					Tittle:      "song",
-					Text:        "sing song song",
-					Audio:       "audio",
-					Picture:     "picture",
-					ReleaseDate: "date",
-				},
+		PlaylistID:  3,
+		Tittle:      "Tittle without tracks",
+		Description: "some description",
+		Picture:     "/api/v1/data/img/playlists/happy.webp",
+		ReleaseDate: "2020-03-04",
+		UserID:      1,
+		Tracks: []*trackModels.Track{
+			{
+				TrackID:     1,
+				Tittle:      "song",
+				Text:        "sing song song",
+				Audio:       "audio",
+				Picture:     "picture",
+				ReleaseDate: "date",
 			},
+		},
 	}
 	playlistAfterCreation, err := playlistRep.CreatePlaylist(playlist)
 

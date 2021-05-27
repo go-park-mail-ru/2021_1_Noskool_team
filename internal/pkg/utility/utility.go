@@ -9,14 +9,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/lib/pq" //goland:noinspection
-	"github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	_ "github.com/lib/pq" //goland:noinspection
+	"github.com/sirupsen/logrus"
 )
 
 func CreatePostgresConnection(dbSettings string) (*sql.DB, error) {
@@ -59,7 +60,7 @@ func SaveFile(r *http.Request, formKey string, directory string, fileName string
 		return nil, err
 	}
 	defer f.Close()
-	io.Copy(f, file)
+	_, _ = io.Copy(f, file)
 	return &newFileName, nil
 }
 
@@ -91,6 +92,10 @@ func RandomString(n int) string {
 func CreateCSRFToken(secret string) string {
 	b := secret + RandomString(5)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(b)))
+}
+
+func CreatePlaylistUID(playlistID string) string {
+	return CreateCSRFToken(playlistID)[:10]
 }
 
 func CheckUserID(w http.ResponseWriter, r *http.Request, logger *logrus.Logger) (int, error) {

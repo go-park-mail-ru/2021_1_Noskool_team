@@ -16,6 +16,19 @@ func NewPlaylistUsecase(newRep playlists.Repository) *PlaylistUsecase {
 	}
 }
 
+func (usecase *PlaylistUsecase) GetPlaylistByUID(UID string) (*models.Playlist, error) {
+	playlist, err := usecase.playlistRep.GetPlaylistByUID(UID)
+	if err != nil {
+		return nil, err
+	}
+	tracks, err := usecase.playlistRep.GetTracksByPlaylistID(playlist.PlaylistID)
+	if err != nil {
+		return nil, err
+	}
+	playlist.Tracks = tracks
+	return playlist, err
+}
+
 func (usecase *PlaylistUsecase) CreatePlaylist(playlist *models.Playlist) (*models.Playlist, error) {
 	playlist, err := usecase.playlistRep.CreatePlaylist(playlist)
 	return playlist, err
@@ -86,5 +99,15 @@ func (usecase *PlaylistUsecase) AddTrackToPlaylist(playlistID, trackID int) erro
 
 func (usecase *PlaylistUsecase) DeleteTrackFromPlaylist(playlistID, trackID int) error {
 	err := usecase.playlistRep.DeleteTrackFromPlaylist(playlistID, trackID)
+	return err
+}
+
+func (usecase *PlaylistUsecase) UpdatePlaylistTittle(playlist *models.Playlist) error {
+	err := usecase.playlistRep.UpdatePlaylistTittle(playlist)
+	return err
+}
+
+func (usecase *PlaylistUsecase) UpdatePlaylistDescription(playlist *models.Playlist) error {
+	err := usecase.playlistRep.UpdatePlaylistDescription(playlist)
 	return err
 }

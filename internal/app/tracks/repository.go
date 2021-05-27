@@ -32,6 +32,10 @@ type Repository interface {
 	GetAlbumsByTrackID(trackID int) []*albumsModels.Album
 	GetGenreByTrackID(trackID int) []*commonModels.Genre
 	GetTopTrack() ([]*models.Track, error)
+
 	CheckTrackInMediateka(userID, trackID int) error
 	CheckTrackInFavorite(userID, trackID int) error
+
+	IncrementLikes(trackID int) error
+	DecrementLikes(trackID int) error
 }

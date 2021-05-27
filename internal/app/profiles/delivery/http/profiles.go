@@ -29,10 +29,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	oneDayTime = 86400
-)
-
 // ProfilesServer ...
 type ProfilesServer struct {
 	config         *configs.Config
@@ -79,7 +75,7 @@ func (s *ProfilesServer) configureLogger() error {
 }
 
 func (s *ProfilesServer) configureRouter() {
-	mediaFolder := fmt.Sprintf("%s", "./static")
+	mediaFolder := "./static"
 	s.router.PathPrefix("/api/v1/user/data/").
 		Handler(
 			http.StripPrefix(
@@ -106,12 +102,106 @@ func (s *ProfilesServer) configureRouter() {
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateProfile())).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/api/v1/user/profile/avatar/upload",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdateAvatar())).Methods(http.MethodPost, http.MethodOptions)
-
 	s.router.HandleFunc("/api/v1/user/profile/update/password",
 		authMiddleware.CheckSessionMiddleware(s.handleUpdatePassword())).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}",
+		authMiddleware.CheckSessionMiddleware(s.GetOtherUserPage)).Methods(http.MethodGet, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}/subscribe",
+		authMiddleware.CheckSessionMiddleware(s.SubscribeMeToSomebody)).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/{other_user_id:[0-9]+}/unsubscribe",
+		authMiddleware.CheckSessionMiddleware(s.UnSubscribeMeToSomebody)).Methods(http.MethodPost, http.MethodOptions)
+	s.router.HandleFunc("/api/v1/user/profile/search",
+		authMiddleware.CheckSessionMiddleware(s.SearchContent)).Methods(http.MethodGet, http.MethodOptions)
 
 	s.router.Use(middleware.PanicMiddleware(metricks))
 	s.router.Use(middleware.ContentTypeJson)
+}
+
+func (s *ProfilesServer) SearchContent(w http.ResponseWriter, r *http.Request) {
+	searchQuery := r.URL.Query().Get("search")
+	searchQuery = s.sanitizer.Sanitize(searchQuery)
+
+	fmt.Println(searchQuery)
+	otherUsers, _ := s.profUsecase.SearchTracks(searchQuery)
+	response.SendCorrectResponse(w, otherUsers, http.StatusOK, models.MarshalOtherUsers)
+}
+
+func (s *ProfilesServer) GetOtherUserPage(w http.ResponseWriter, r *http.Request) {
+	userID, err := utility.CheckUserID(w, r, s.logger)
+	if err != nil {
+		return
+	}
+	otherUserID, err := strconv.Atoi(mux.Vars(r)["other_user_id"])
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	otherUser, err := s.profUsecase.GetOtherUserPage(userID, otherUserID)
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Нет такого юзера",
+		})
+		return
+	}
+	response.SendCorrectResponse(w, otherUser, http.StatusOK, models.MarshalOtherUserFullInformation)
+}
+
+func (s *ProfilesServer) SubscribeMeToSomebody(w http.ResponseWriter, r *http.Request) {
+	userID, err := utility.CheckUserID(w, r, s.logger)
+	if err != nil {
+		return
+	}
+	otherUserID, err := strconv.Atoi(mux.Vars(r)["other_user_id"])
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	err = s.profUsecase.SubscribeMeToSomebody(userID, otherUserID)
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *ProfilesServer) UnSubscribeMeToSomebody(w http.ResponseWriter, r *http.Request) {
+	userID, err := utility.CheckUserID(w, r, s.logger)
+	if err != nil {
+		return
+	}
+	otherUserID, err := strconv.Atoi(mux.Vars(r)["other_user_id"])
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	err = s.profUsecase.UnsubscribeMeToSomebody(userID, otherUserID)
+	if err != nil {
+		s.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct other user id",
+		})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *ProfilesServer) CreateCSRFHandler(w http.ResponseWriter, r *http.Request) {
@@ -171,7 +261,7 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 		userIDfromCookie := session.ID
 		userIDfromCookieStr := fmt.Sprint(userIDfromCookie)
 
-		r.ParseMultipartForm(5 * 1024 * 1025)
+		_ = r.ParseMultipartForm(5 * 1024 * 1025)
 		file, handler, err := r.FormFile("my_file")
 		if err != nil {
 			s.logger.Error(err)
@@ -197,8 +287,8 @@ func (s *ProfilesServer) handleUpdateAvatar() http.HandlerFunc {
 			return
 		}
 		defer f.Close()
-		io.Copy(f, file)
-		s.profUsecase.UpdateAvatar(userIDfromCookieStr, "/api/v1/data/img/"+session.ID+ext)
+		_, _ = io.Copy(f, file)
+		s.profUsecase.UpdateAvatar(userIDfromCookieStr, "/api/v1/user/data/img/"+session.ID+ext)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
@@ -232,6 +322,7 @@ func (s *ProfilesServer) handleLogin() http.HandlerFunc {
 		cookie := http.Cookie{
 			Name:     "session_id",
 			Value:    session.Hash,
+			Path:     "/",
 			Expires:  time.Now().Add(10000 * time.Hour),
 			Secure:   false,
 			HttpOnly: true,
@@ -267,7 +358,7 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 			Login:    req.Nickname,
-			Avatar:   "/api/v1/data/img/default.png",
+			Avatar:   "/api/v1/user/data/img/default.png",
 		}
 		if err := s.profUsecase.Create(u); err != nil {
 			s.logger.Error(err)
@@ -284,14 +375,6 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Ошибка авторизации"))
 			return
 		}
-		cookie := http.Cookie{
-			Name:     "session_id",
-			Value:    session.Hash,
-			Expires:  time.Now().Add(10000 * time.Hour),
-			Secure:   false,
-			HttpOnly: true,
-		}
-		http.SetCookie(w, &cookie)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
@@ -475,7 +558,7 @@ func (s *ProfilesServer) respond(w http.ResponseWriter, r *http.Request, code in
 			s.error(w, r, http.StatusUnprocessableEntity, fmt.Errorf("Ошибка на сервере :("))
 			return
 		}
-		w.Write(resp)
+		_, _ = w.Write(resp)
 	}
 }
 

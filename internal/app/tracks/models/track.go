@@ -18,6 +18,7 @@ type Track struct {
 	Duration    string                      `json:"duration"`
 	InMediateka bool                        `json:"in_mediateka"`
 	InFavorite  bool                        `json:"in_favorite"`
+	Likes       int                         `json:"likes"`
 	Genres      []*models.Genre             `json:"genres"`
 	Musicians   []*musiciansModels.Musician `json:"musicians"`
 	Albums      []*albumsModels.Album       `json:"album"`
@@ -31,7 +32,7 @@ func MarshalTracks(data interface{}) ([]byte, error) {
 	if !ok {
 		return nil, errors.New("cant convernt interface{} to track")
 	}
-	var tracks Tracks
+	var tracks Tracks //nolint
 	tracks = track
 	body, err := tracks.MarshalJSON()
 	return body, err

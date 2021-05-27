@@ -122,6 +122,20 @@ func (mr *MockRepositoryMockRecorder) CreateTrack(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTrack", reflect.TypeOf((*MockRepository)(nil).CreateTrack), arg0)
 }
 
+// DecrementLikes mocks base method.
+func (m *MockRepository) DecrementLikes(trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DecrementLikes", trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DecrementLikes indicates an expected call of DecrementLikes.
+func (mr *MockRepositoryMockRecorder) DecrementLikes(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecrementLikes", reflect.TypeOf((*MockRepository)(nil).DecrementLikes), trackID)
+}
+
 // DeleteTrackFromFavorites mocks base method.
 func (m *MockRepository) DeleteTrackFromFavorites(userID, trackID int) error {
 	m.ctrl.T.Helper()
@@ -369,6 +383,20 @@ func (m *MockRepository) GetTracksByUserID(userID int) ([]*models1.Track, error)
 func (mr *MockRepositoryMockRecorder) GetTracksByUserID(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTracksByUserID", reflect.TypeOf((*MockRepository)(nil).GetTracksByUserID), userID)
+}
+
+// IncrementLikes mocks base method.
+func (m *MockRepository) IncrementLikes(trackID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrementLikes", trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncrementLikes indicates an expected call of IncrementLikes.
+func (mr *MockRepositoryMockRecorder) IncrementLikes(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementLikes", reflect.TypeOf((*MockRepository)(nil).IncrementLikes), trackID)
 }
 
 // SearchTracks mocks base method.

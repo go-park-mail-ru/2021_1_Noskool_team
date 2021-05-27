@@ -80,3 +80,49 @@ func (usecase *MusicUsecase) GetGenreForMusician(nameMusician string) (*[]string
 	}
 	return mus, nil
 }
+
+func (usecase *MusicUsecase) AddMusicianToMediateka(userID, musicianID int) error {
+	err := usecase.musicRepo.AddMusicianToMediateka(userID, musicianID)
+	return err
+}
+
+func (usecase *MusicUsecase) CheckMusicianInFavorite(userID, musicianID int) error {
+	return usecase.musicRepo.CheckMusicianInFavorite(userID, musicianID)
+}
+
+func (usecase *MusicUsecase) CheckMusicianInMediateka(userID, musicianID int) error {
+	return usecase.musicRepo.CheckMusicianInMediateka(userID, musicianID)
+}
+
+func (usecase *MusicUsecase) AddMusicianToFavorites(userID, musicianID int) error {
+	err := usecase.musicRepo.CheckMusicianInMediateka(userID, musicianID)
+	if err != nil {
+		err = usecase.musicRepo.AddMusicianToMediateka(userID, musicianID)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = usecase.musicRepo.AddMusicianToFavorites(userID, musicianID)
+	return err
+}
+
+func (usecase *MusicUsecase) DeleteMusicianFromFavorites(userID, musicianID int) error {
+	err := usecase.musicRepo.DeleteMusicianFromFavorites(userID, musicianID)
+	return err
+}
+
+func (usecase *MusicUsecase) GetMusiciansMediateka(userID int) ([]*models.Musician, error) {
+	musicians, err := usecase.musicRepo.GetMusiciansMediateka(userID)
+	return musicians, err
+}
+
+func (usecase *MusicUsecase) GetMusiciansFavorites(userID int) ([]*models.Musician, error) {
+	musicians, err := usecase.musicRepo.GetMusiciansFavorites(userID)
+	return musicians, err
+}
+
+func (usecase *MusicUsecase) DeleteMusicianFromMediateka(userID, musicianID int) error {
+	err := usecase.musicRepo.DeleteMusicianFromMediateka(userID, musicianID)
+	return err
+}

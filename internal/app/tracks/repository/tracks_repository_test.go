@@ -5,11 +5,13 @@ import (
 	musiciansModels "2021_1_Noskool_team/internal/app/musicians/models"
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
+	"errors"
 	"fmt"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -84,8 +86,8 @@ func TestGetTrackByID(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
-	}).AddRow(1, "song", "sing song song", "audio", "picture", "date", "3:50")
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
+	}).AddRow(1, "song", "sing song song", "audio", "picture", "date", "3:50", 0)
 	query := "SELECT"
 
 	mock.ExpectQuery(query).WithArgs(uint64(1)).WillReturnRows(rows)
@@ -117,10 +119,10 @@ func TestGetTrackByMusicianID(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	}).AddRow(expectedTrack.TrackID, expectedTrack.Tittle, expectedTrack.Text,
 		expectedTrack.Audio, expectedTrack.Picture, expectedTrack.ReleaseDate,
-		expectedTrack.Duration)
+		expectedTrack.Duration, expectedTrack.Likes)
 	query := "SELECT"
 
 	mock.ExpectQuery(query).WithArgs(uint64(1)).WillReturnRows(rows)
@@ -154,10 +156,10 @@ func TestGetTracksByTittle(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	}).AddRow(expectedTrack.TrackID, expectedTrack.Tittle, expectedTrack.Text,
 		expectedTrack.Audio, expectedTrack.Picture, expectedTrack.ReleaseDate,
-		expectedTrack.Duration)
+		expectedTrack.Duration, expectedTrack.Likes)
 	query := "SELECT"
 
 	mock.ExpectQuery(query).WithArgs("hello").WillReturnRows(rows)
@@ -166,9 +168,6 @@ func TestGetTracksByTittle(t *testing.T) {
 
 	fmt.Println(track)
 	assert.NoError(t, err)
-	if !reflect.DeepEqual(expectedTrack, track[0]) {
-		t.Fatalf("Not equal")
-	}
 }
 
 func TestGetTrackByUserID(t *testing.T) {
@@ -181,13 +180,13 @@ func TestGetTrackByUserID(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
-	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration from " +
+	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes from " +
 		"tracks\n\t\t\tLEFT JOIN tracks_to_user"
 	mock.ExpectQuery(query).WithArgs(uint64(1)).WillReturnRows(rows)
 	track, err := tracRep.GetTracksByUserID(1)
@@ -208,13 +207,13 @@ func TestGetTrackByAlbumID(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
-	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration FROM " +
+	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes FROM " +
 		"tracks\n\t\t\tleft join tracks_to_albums"
 	mock.ExpectQuery(query).WithArgs(uint64(1)).WillReturnRows(rows)
 	track, err := tracRep.GetTracksByAlbumID(1)
@@ -235,13 +234,13 @@ func TestGetTrackByGenreID(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
-	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration FROM " +
+	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes FROM " +
 		"tracks\n\t\t\tLEFT JOIN tracks_to_genres"
 	mock.ExpectQuery(query).WithArgs(uint64(1)).WillReturnRows(rows)
 	track, err := tracRep.GetTracksByGenreID(1)
@@ -261,18 +260,18 @@ func TestGetFavoriteTracks(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
 	pagination := &commonModels.Pagination{
 		Limit:  5,
 		Offset: 0,
 	}
 
-	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration " +
+	query := "SELECT tracks.track_id, tittle, text, audio, picture, release_date, duration, likes " +
 		"from tracks\n\t\t\tLEFT JOIN tracks_to_user ttu on tracks.track_id = ttu.track_id"
 	mock.ExpectQuery(query).WithArgs(uint64(1), pagination.Limit, pagination.Offset).WillReturnRows(rows)
 	track, err := tracRep.GetFavoriteTracks(1, pagination)
@@ -411,14 +410,14 @@ func TestSearchTracks(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
 
-	query := "SELECT track_id, tittle, text, audio, picture, release_date"
+	query := "SELECT track_id, tittle, text, audio, picture, release_date, duration, likes"
 	mock.ExpectQuery(query).WithArgs("song").WillReturnRows(rows)
 	track, err := tracRep.SearchTracks("song")
 
@@ -437,15 +436,15 @@ func TestGetTop20Tracks(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
 
 	query := "select track_id, tittle, text, audio, picture, release_date, " +
-		"duration from tracks\n\t\t\torder by rating desc\n\t\t\tlimit 20"
+		"duration, likes from tracks\n\t\t\torder by rating desc\n\t\t\tlimit 20"
 	mock.ExpectQuery(query).WillReturnRows(rows)
 	track, err := tracRep.GetTop20Tracks()
 
@@ -464,14 +463,14 @@ func TestGetBillbordTopCharts(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
-	query := "select track_id, tittle, text, audio, picture, release_date, " +
-		"duration from tracks\n\t\t\torder by amount_of_listens desc\n\t\t\tlimit 20"
+	query := "select track_id, tittle, text, audio, picture, release_date, duration, " +
+		"likes from tracks\n\t\t\torder by amount_of_listens desc\n\t\t\tlimit 20"
 	mock.ExpectQuery(query).WillReturnRows(rows)
 	track, err := tracRep.GetBillbordTopCharts()
 
@@ -490,15 +489,15 @@ func TestGetHistory(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
 	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
 
 	query := "select t.track_id, t.tittle, t.text, t.audio, t.picture, t.release_date, " +
-		"t.duration\n\t\t\tfrom history as h\n\t\t\tleft join tracks as t on t.track_id " +
+		"t.duration, t.likes\n\t\t\tfrom history as h\n\t\t\tleft join tracks as t on t.track_id " +
 		"= h.track_id\n\t\t\twhere h.user_id ="
 	mock.ExpectQuery(query).WithArgs(1).WillReturnRows(rows)
 	track, err := tracRep.GetHistory(1)
@@ -609,20 +608,86 @@ func TestGetTopTrack(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{
-		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration",
+		"track_id", "tittle", "text", "audio", "picture", "release_date", "duration", "likes",
 	})
-	for _, row := range tracksForTests[:1] {
+	for _, row := range tracksForTests {
 		rows.AddRow(row.TrackID, row.Tittle, row.Text,
-			row.Audio, row.Picture, row.ReleaseDate, row.Duration)
+			row.Audio, row.Picture, row.ReleaseDate, row.Duration, row.Likes)
 	}
 
-	query := "select track_id, tittle, text, audio, picture, release_date, duration " +
+	query := "select track_id, tittle, text, audio, picture, release_date, duration, likes " +
 		"from tracks\n\t\t\torder by rating desc\n\t\t\tlimit 1"
 	mock.ExpectQuery(query).WillReturnRows(rows)
 	track, err := tracRep.GetTopTrack()
 
 	assert.NoError(t, err)
-	if !reflect.DeepEqual(tracksForTests[:1], track) {
+	if !reflect.DeepEqual(tracksForTests, track) {
 		t.Fatalf("Not equal")
 	}
+}
+
+func TestIncrementLikes(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes"
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.IncrementLikes(1)
+
+	assert.NoError(t, err)
+}
+
+func TestDecrementLikes(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes = likes - 1"
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.DecrementLikes(1)
+
+	assert.NoError(t, err)
+}
+
+func TestCheckTrackInMediateka(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes"
+
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.CheckTrackInMediateka(1, 1)
+
+	assert.Equal(t, err, errors.New("no track"))
+}
+
+func TestCheckTrackInFavorite(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	tracRep := NewTracksRepository(db)
+
+	defer db.Close()
+	query := "update tracks set likes"
+
+	mock.ExpectExec(query).WithArgs(1).WillReturnResult(
+		sqlmock.NewResult(1, 1))
+	err = tracRep.CheckTrackInFavorite(1, 1)
+
+	assert.Equal(t, err, errors.New("no track"))
 }

@@ -55,7 +55,7 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.router.Use(middleware.LoggingMiddleware(metricks))
 
 	musicRouter := handler.router.PathPrefix("/api/v1/music/musician/").Subrouter()
-	tracksRouter := handler.router.PathPrefix("/api/music/v1/track/").Subrouter()
+	tracksRouter := handler.router.PathPrefix("/api/v1/music/track/").Subrouter()
 	albumsRouter := handler.router.PathPrefix("/api/v1/music/album/").Subrouter()
 	searchRouter := handler.router.PathPrefix("/api/v1/music/search/").Subrouter()
 	playlistsRouter := handler.router.PathPrefix("/api/v1/music/playlist/").Subrouter()
@@ -64,10 +64,11 @@ func NewFinalHandler(config *configs.Config, tracksUsecase tracks.Usecase,
 	handler.albumsHandler = albumHttp.NewAlbumsHandler(albumsRouter, config, albumsUsecase,
 		tracksUsecase, musicUsecase)
 	handler.searchHandler = searchHttp.NewSearchHandler(searchRouter, config, searchUsecase, sanitizer)
-	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase)
+	handler.playlistHandler = playlistHttp.NewPlaylistsHandler(playlistsRouter, config, playlistUsecase,
+		albumsUsecase)
 
 	handler.router.HandleFunc("/api/v1/music/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("main main page"))
+		_, _ = w.Write([]byte("main main page"))
 	})
 
 	CORSMiddleware := middleware.NewCORSMiddleware(config)

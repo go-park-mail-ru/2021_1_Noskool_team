@@ -5,6 +5,7 @@ import (
 	"2021_1_Noskool_team/internal/app/tracks/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"errors"
+
 	_ "github.com/lib/pq" //goland:noinspection
 )
 
@@ -73,7 +74,11 @@ func (usecase *TracksUsecase) GetFavoriteTracks(userID int,
 }
 
 func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
-	err := usecase.trackRep.CheckTrackInMediateka(userID, trackID)
+	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
+	if err != nil {
+		_ = usecase.trackRep.IncrementLikes(trackID)
+	}
+	err = usecase.trackRep.CheckTrackInMediateka(userID, trackID)
 	if err != nil {
 		err = usecase.trackRep.AddTrackToMediateka(userID, trackID)
 		if err != nil {
@@ -81,11 +86,16 @@ func (usecase *TracksUsecase) AddTrackToFavorites(userID, trackID int) error {
 		}
 	}
 	err = usecase.trackRep.AddTrackToFavorites(userID, trackID)
+
 	return err
 }
 
 func (usecase *TracksUsecase) DeleteTrackFromFavorites(userID, trackID int) error {
-	err := usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
+	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
+	if err == nil {
+		_ = usecase.trackRep.DecrementLikes(trackID)
+	}
+	err = usecase.trackRep.DeleteTrackFromFavorites(userID, trackID)
 	return err
 }
 
@@ -173,16 +183,10 @@ func (usecase *TracksUsecase) GetTopTrack() ([]*models.Track, error) {
 
 func (usecase *TracksUsecase) CheckTrackInMediateka(userID, trackID int) bool {
 	err := usecase.trackRep.CheckTrackInMediateka(userID, trackID)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (usecase *TracksUsecase) CheckTrackInFavorite(userID, trackID int) bool {
 	err := usecase.trackRep.CheckTrackInFavorite(userID, trackID)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }

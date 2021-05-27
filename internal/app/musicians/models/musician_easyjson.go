@@ -95,7 +95,108 @@ func (v *Musicians) UnmarshalJSON(data []byte) error {
 func (v *Musicians) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels(l, v)
 }
-func easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(in *jlexer.Lexer, out *Musician) {
+func easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(in *jlexer.Lexer, out *MusicianFullInformation) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "musician_id":
+			out.MusicianID = int(in.Int())
+		case "name":
+			out.Name = string(in.String())
+		case "description":
+			out.Description = string(in.String())
+		case "picture":
+			out.Picture = string(in.String())
+		case "in_mediateka":
+			out.InMediateka = bool(in.Bool())
+		case "in_favorite":
+			out.InFavorite = bool(in.Bool())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(out *jwriter.Writer, in MusicianFullInformation) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"musician_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.MusicianID))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	{
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"picture\":"
+		out.RawString(prefix)
+		out.String(string(in.Picture))
+	}
+	{
+		const prefix string = ",\"in_mediateka\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.InMediateka))
+	}
+	{
+		const prefix string = ",\"in_favorite\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.InFavorite))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v MusicianFullInformation) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v MusicianFullInformation) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *MusicianFullInformation) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *MusicianFullInformation) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(l, v)
+}
+func easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels2(in *jlexer.Lexer, out *Musician) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -132,7 +233,7 @@ func easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(in *jlexe
 		in.Consumed()
 	}
 }
-func easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(out *jwriter.Writer, in Musician) {
+func easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels2(out *jwriter.Writer, in Musician) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -162,23 +263,23 @@ func easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(out *jwri
 // MarshalJSON supports json.Marshaler interface
 func (v Musician) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(&w, v)
+	easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Musician) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels1(w, v)
+	easyjson62dc445bEncode20211NoskoolTeamInternalAppMusiciansModels2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Musician) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(&r, v)
+	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Musician) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels1(l, v)
+	easyjson62dc445bDecode20211NoskoolTeamInternalAppMusiciansModels2(l, v)
 }
