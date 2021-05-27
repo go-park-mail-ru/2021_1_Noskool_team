@@ -375,14 +375,6 @@ func (s *ProfilesServer) handleRegistrate() http.HandlerFunc {
 			s.error(w, r, http.StatusUnauthorized, fmt.Errorf("Ошибка авторизации"))
 			return
 		}
-		cookie := http.Cookie{
-			Name:     "session_id",
-			Value:    session.Hash,
-			Expires:  time.Now().Add(10000 * time.Hour),
-			Secure:   false,
-			HttpOnly: true,
-		}
-		http.SetCookie(w, &cookie)
 		s.respond(w, r, http.StatusOK, nil)
 	}
 }
