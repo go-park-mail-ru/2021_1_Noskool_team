@@ -289,6 +289,28 @@ func TestGetGenreForMusician(t *testing.T) {
 	}
 }
 
+func TestGetGenreForMusicianFail(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock '%s'", err)
+	}
+	musiciansRep := NewMusicRepository(db)
+
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"title"})
+	rows.AddRow("rok")
+
+	query := "select"
+
+	mock.ExpectQuery(query).WithArgs().WillReturnError(fmt.Errorf("Ошибка получения жанров музыканта: %s", "Nirvana"))
+
+	musicians, err := musiciansRep.GetGenreForMusician("Nirvana")
+
+	fmt.Println(musicians)
+	assert.Equal(t, err, fmt.Errorf("Ошибка получения жанров музыканта: %s", "Nirvana"))
+}
+
 func TestAddMusicianToMediateka(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {

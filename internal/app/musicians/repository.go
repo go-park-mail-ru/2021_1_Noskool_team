@@ -24,6 +24,5 @@ type Repository interface {
 	DeleteMusicianFromFavorites(userID, musicianID int) error
 	GetMusiciansMediateka(userID int) ([]*models.Musician, error)
 	GetMusiciansFavorites(userID int) ([]*models.Musician, error)
-
 	CheckMusicianInFavorite(userID, musicianID int) error
 }
