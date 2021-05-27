@@ -258,8 +258,7 @@ func (musicRep *MusicianRepository) GetGenreForMusician(nameMusician string) (*[
 
 func (musicRep *MusicianRepository) AddMusicianToMediateka(userID, musicianID int) error {
 	query := `INSERT INTO musicians_to_user(user_id, musician_id) VALUES ($1, $2)`
-	res, err := musicRep.con.Exec(query, userID, musicianID)
-	fmt.Println(res)
+	_, err := musicRep.con.Exec(query, userID, musicianID)
 	return err
 }
 

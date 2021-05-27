@@ -15,6 +15,7 @@ type Repository interface {
 	GetMusicianByPlaylistID(playlistID int) (*[]models.Musician, error)
 	GetMusiciansTop4() (*[]models.Musician, error)
 	GetMusicians() (*[]models.Musician, error)
+
 	GetGenreForMusician(nameMusician string) (*[]string, error)
 	AddMusicianToMediateka(userID, musicianID int) error
 	DeleteMusicianFromMediateka(userID, musicianID int) error
@@ -23,5 +24,6 @@ type Repository interface {
 	DeleteMusicianFromFavorites(userID, musicianID int) error
 	GetMusiciansMediateka(userID int) ([]*models.Musician, error)
 	GetMusiciansFavorites(userID int) ([]*models.Musician, error)
+
 	CheckMusicianInFavorite(userID, musicianID int) error
 }
