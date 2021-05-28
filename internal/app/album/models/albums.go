@@ -14,6 +14,16 @@ type Album struct {
 }
 
 //easyjson:json
+type AlbumFullInformation struct {
+	AlbumID     int    `json:"album_id"`
+	Tittle      string `json:"tittle"`
+	Picture     string `json:"picture"`
+	ReleaseDate string `json:"release_date"`
+	InMediateka bool   `json:"in_mediateka"`
+	InFavorite  bool   `json:"in_favorite"`
+}
+
+//easyjson:json
 type Albums []*Album
 
 func MarshalAlbum(data interface{}) ([]byte, error) {
@@ -29,4 +39,3 @@ func MarshalAlbums(data interface{}) ([]byte, error) {
 	body, err := json.Marshal(data)
 	return body, err
 }
-

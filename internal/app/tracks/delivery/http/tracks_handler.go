@@ -10,11 +10,12 @@ import (
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
 	"2021_1_Noskool_team/internal/pkg/utility"
+	"net/http"
+	"strconv"
+
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"net/http"
-	"strconv"
 )
 
 type TracksHandler struct {

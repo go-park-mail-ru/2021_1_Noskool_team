@@ -13,7 +13,6 @@ import (
 	"2021_1_Noskool_team/internal/microservices/auth/models"
 	commonModels "2021_1_Noskool_team/internal/models"
 	"2021_1_Noskool_team/internal/pkg/response"
-	"2021_1_Noskool_team/internal/pkg/utility"
 	"errors"
 	"fmt"
 	"net/http"
@@ -57,8 +56,10 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 	middleware.ContentTypeJson(handler.router)
 
 	handler.router.HandleFunc("/favorites",
-		authmiddlware.CheckSessionMiddleware(
-			middleware.CheckCSRFMiddleware(handler.GetFavoriteAlbums))).Methods(http.MethodGet, http.MethodOptions)
+		authmiddlware.CheckSessionMiddleware(handler.GetFavoriteAlbums)).Methods(http.MethodGet, http.MethodOptions)
+
+	handler.router.HandleFunc("/mediateka",
+		authmiddlware.CheckSessionMiddleware(handler.GetAlbumsMediateka)).Methods(http.MethodGet, http.MethodOptions)
 
 	handler.router.HandleFunc("/top",
 		authmiddlware.CheckSessionMiddleware(handler.GetAlbums)).Methods("GET", http.MethodOptions)
@@ -71,8 +72,7 @@ func NewAlbumsHandler(r *mux.Router, config *configs.Config, usecase album.Useca
 	handler.router.HandleFunc("/{album_id:[0-9]+}/favorites",
 		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToFavorites)).Methods("POST", http.MethodOptions)
 	handler.router.HandleFunc("/{album_id:[0-9]+}/mediateka",
-		authmiddlware.CheckSessionMiddleware(
-			middleware.CheckCSRFMiddleware(handler.AddDeleteAlbumToFavorites))).Methods("POST", http.MethodOptions)
+		authmiddlware.CheckSessionMiddleware(handler.AddDeleteAlbumToMediateka)).Methods("POST", http.MethodOptions)
 
 	return handler
 }
@@ -248,6 +248,53 @@ func (handler *AlbumsHandler) AddDeleteAlbumToFavorites(w http.ResponseWriter, r
 	response.SendEmptyBody(w, http.StatusOK)
 }
 
+func (handler *AlbumsHandler) GetAlbumsMediateka(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value("user_id").(models.Result)
+	if !ok {
+		handler.logger.Error("Не получилось достать из конекста")
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: "Not correct user id",
+		})
+		return
+	}
+	userID, err := strconv.Atoi(session.ID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendErrorResponse(w, &commonModels.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: "Error converting userID to int",
+		})
+		return
+	}
+	favoriteAlbums, err := handler.albumsUsecase.GetAlbumsMediateka(userID)
+	if err != nil {
+		handler.logger.Error(err)
+		response.SendEmptyBody(w, http.StatusNoContent)
+		return
+	}
+	albumsFullInf := make([]*albumModels.AlbumFullInformation, 0)
+	for _, album := range favoriteAlbums {
+		newAlbum := &albumModels.AlbumFullInformation{
+			AlbumID:     album.AlbumID,
+			Tittle:      album.Tittle,
+			Picture:     album.Picture,
+			ReleaseDate: album.ReleaseDate,
+		}
+		err = handler.albumsUsecase.CheckAlbumInMediateka(userID, album.AlbumID)
+		if err == nil {
+			newAlbum.InMediateka = true
+		}
+		err = handler.albumsUsecase.CheckAlbumInFavorite(userID, album.AlbumID)
+		if err == nil {
+			newAlbum.InFavorite = true
+		}
+		albumsFullInf = append(albumsFullInf, newAlbum)
+	}
+
+	response.SendCorrectResponse(w, albumsFullInf, http.StatusOK, albumModels.MarshalAlbums)
+}
+
 func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.Request) {
 	session, ok := r.Context().Value("user_id").(models.Result)
 	if !ok {
@@ -267,14 +314,32 @@ func (handler *AlbumsHandler) GetFavoriteAlbums(w http.ResponseWriter, r *http.R
 		})
 		return
 	}
-	pagination := utility.ParsePagination(r)
-	favoriteTracks, err := handler.albumsUsecase.GetFavoriteAlbums(userID, pagination)
+	favoriteAlbums, err := handler.albumsUsecase.GetFavoriteAlbums(userID)
 	if err != nil {
 		handler.logger.Error(err)
 		response.SendEmptyBody(w, http.StatusNoContent)
 		return
 	}
-	response.SendCorrectResponse(w, favoriteTracks, http.StatusOK, albumModels.MarshalAlbums)
+	albumsFullInf := make([]*albumModels.AlbumFullInformation, 0)
+	for _, album := range favoriteAlbums {
+		newAlbum := &albumModels.AlbumFullInformation{
+			AlbumID:     album.AlbumID,
+			Tittle:      album.Tittle,
+			Picture:     album.Picture,
+			ReleaseDate: album.ReleaseDate,
+		}
+		err = handler.albumsUsecase.CheckAlbumInMediateka(userID, album.AlbumID)
+		if err == nil {
+			newAlbum.InMediateka = true
+		}
+		err = handler.albumsUsecase.CheckAlbumInFavorite(userID, album.AlbumID)
+		if err == nil {
+			newAlbum.InFavorite = true
+		}
+		albumsFullInf = append(albumsFullInf, newAlbum)
+	}
+
+	response.SendCorrectResponse(w, albumsFullInf, http.StatusOK, albumModels.MarshalAlbums)
 }
 
 func (handler *AlbumsHandler) GetAlbums(w http.ResponseWriter, r *http.Request) {
